@@ -1,7 +1,7 @@
 import os
 
-from src.application.data.CSV_Reader import  CSV_Reader
 from src.util import util
+from src.util.CSV_Reader import  CSV_Reader
 
 class MatchesResultReader(object):
     def __init__(self, league):
