@@ -39,6 +39,35 @@ class League(object):
     def get_matches(self,season=None):
         return Match.read_matches_by_league(self.id, season)
 
+    def get_teams(self, season=None):
+        '''
+        Retrun teams of a league, can be filtered by season
+        :param season:
+        :return:
+        '''
+        import src.application.Domain.Team as Team
+        if not season:
+            season = ""
+
+        try:
+            return Cache.get_element(str(self.id)+"_"+season, "TEAMS_BY_LEAGUE")
+        except KeyError:
+            pass
+
+        teams_api_id = []
+        query = "SELECT distinct(home_team_api_id) FROM Match WHERE league_id='" + str(self.id) + "'"
+        if season != "":
+            query += " AND season='"+season+"'"
+        for sqllite_row in SQLLite.get_connection().execute_query(query):
+            teams_api_id.append(sqllite_row[0])
+
+        teams = []
+        for team_api_id in teams_api_id:
+            teams.append(Team.read_by_team_api_id(team_api_id=team_api_id))
+
+        Cache.add_element(str(self.id)+"_"+season, teams, "TEAMS_BY_LEAGUE")
+        return teams
+
 def read_all():
     '''
     Return all the leagues

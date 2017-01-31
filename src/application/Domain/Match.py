@@ -1,4 +1,3 @@
-import src.application.Domain.Team as Team
 import src.util.SQLLite as SQLLite
 import src.util.util as util
 import src.util.Cache as Cache
@@ -20,6 +19,7 @@ class Match(object):
         return to_string
 
     def get_home_team(self):
+        import src.application.Domain.Team as Team
         '''
         Return the home-team of this match
         :return:
@@ -27,6 +27,7 @@ class Match(object):
         return Team.read_by_team_api_id(self.home_team_api_id)
 
     def get_away_team(self):
+        import src.application.Domain.Team as Team
         '''
         Return the away-team of this match
         :return:

@@ -1,5 +1,5 @@
 import src.util.SQLLite as SQLLite
-from src.application.Domain import League
+import src.application.Domain.League as League
 
 class Country(object):
     def __init__(self, id):

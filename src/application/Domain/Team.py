@@ -1,5 +1,5 @@
-from src.application.Domain import Match
-from src.application.Domain import Team_Attributes
+import src.application.Domain.Match as Match
+import src.application.Domain.Team_Attributes as Team_Attributes
 
 import src.util.SQLLite as SQLLite
 import src.util.util as util
@@ -16,13 +16,17 @@ class Team(object):
             to_string+=attribute+": "+str(self.__getattribute__(attribute))+", "
         return to_string
 
-    def get_matches(self, season=None):
+    def get_matches(self, season=None, ordered=False):
         '''
         Return matches of this team
         :param season:
         :return:
         '''
-        return Match.read_matches_by_team(self.team_api_id, season)
+        matches = Match.read_matches_by_team(self.team_api_id, season)
+        if ordered:
+            return sorted(matches, key=lambda match: match.date)
+        else:
+            return matches
 
     def get_team_attributes(self,):
         return Team_Attributes.read_by_team_api_id(self.team_api_id)
@@ -58,4 +62,30 @@ def read_by_team_api_id(team_api_id):
         team.__setattr__(attribute, value)
 
     Cache.add_element(team_api_id, team, "TEAM_BY_API_ID")
+    Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
     return team
+
+def read_by_name(team_long_name):
+    '''
+       Read from the DB the team by its name
+       :param team_api_id:
+       :return:
+       '''
+
+    try:
+        return Cache.get_element(team_long_name, "TEAM_BY_LONG_NAME")
+    except KeyError:
+        pass
+
+    sqllite_row = SQLLite.get_connection().select("Team", **{"team_long_name": team_long_name})[0]
+    team = Team(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        team.__setattr__(attribute, value)
+
+    Cache.add_element(team_long_name, team, "TEAM_BY_API_ID")
+    Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
+    return team
+
+def read_by_league_id(league_id, season=None):
+
+    pass
