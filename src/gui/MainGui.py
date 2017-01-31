@@ -3,12 +3,8 @@ import src.util.GuiUtil as GuiUtil
 
 def run():
     GuiUtil.print_head("Welcome to ScorePrediction application")
-    print("Browse the application to discover different data")
-    print("\t1 Players")
-    print("\t2 Matches")
-    print("\t3 Leagues")
-    print("\t4 Countries")
-    print("\t5 Teams")
+    menu = {1:"Players", 2:"Matches", 3:"Leagues", 4:"Countries", 5:"Teams"}
+    GuiUtil.print_menu("Browse the application to discover different data", menu)
 
     while True:
         try:
@@ -30,12 +26,7 @@ def run():
                 print("Opening Teams...")
 
             GuiUtil.print_line_separator()
-            print("Browse the application to discover different data")
-            print("\t1 Players")
-            print("\t2 Matches")
-            print("\t3 Leagues")
-            print("\t4 Countries")
-            print("\t5 Teams")
+            GuiUtil.print_menu("Browse the application to discover different data", menu)
         except ValueError:
             print("Insert a valid input!!!")
 

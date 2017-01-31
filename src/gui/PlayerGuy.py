@@ -2,12 +2,8 @@ import src.util.GuiUtil as GuiUtil
 
 def run():
     GuiUtil.print_head("Players")
-
-    print("Find player by:")
-    print("\t1 Name")
-    print("\t2 Team")
-    print("\t3 Country")
-    print("\tgb to go back")
+    menu = {1:"Name",2:"Team", 3:"Country"}
+    GuiUtil.print_menu("Find player by:", menu, add_go_back = True)
 
     while True:
         try:

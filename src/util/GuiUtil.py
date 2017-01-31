@@ -9,5 +9,9 @@ def print_head(head):
 def print_line_separator():
     print("".ljust(pad_len, '*'))
 
-def print_menu():
-    pass
+def print_menu(text, choices, add_go_back=False):
+    print(text)
+    for k,v in choices.items():
+        print("\t-",k,":",v)
+    if add_go_back:
+        print("\t- gb : Go back")
