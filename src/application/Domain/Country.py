@@ -9,10 +9,18 @@ class Country(object):
         return "Country <id: "+str(self.id)+", name: "+self.name+">"
 
     def get_league(self):
+        '''
+        Return the league of this country
+        :return:
+        '''
         return League.read_by_country(self.id)
 
 
 def read_all():
+    '''
+    Reads all tuple in the database
+    :return:
+    '''
     countries = []
     for c in SQLLite.read_all("Country"):
         country = Country(c["id"])
