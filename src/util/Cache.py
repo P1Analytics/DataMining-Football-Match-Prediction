@@ -1,5 +1,6 @@
 import logging
 import sys
+import copy
 
 cache_elements = {}
 
@@ -13,7 +14,7 @@ def add_element(element_id, element, type = "DEFAULT"):
     :return:
     '''
     logging.debug("CACHE > adding element with ID ["+str(element_id)+"_"+type+"]")
-    cache_elements[str(element_id)+"_"+type] = element
+    cache_elements[str(element_id)+"_"+type] = copy.deepcopy(element)
 
 def get_element(element_id, type="DEFAULT"):
     '''
@@ -25,7 +26,7 @@ def get_element(element_id, type="DEFAULT"):
     :return:
     '''
     logging.debug("CACHE > reading element with ID [" + str(element_id) + "_" + type + "]")
-    return cache_elements[str(element_id)+"_"+type]
+    return copy.deepcopy(cache_elements[str(element_id)+"_"+type])
 
 def reset(type="DEFAULT"):
     '''
@@ -41,4 +42,5 @@ def reset(type="DEFAULT"):
 def print_status():
     print(sys.getsizeof(cache_elements), "Bytes")
     for k,v in cache_elements.items():
-        print(k)
+        if type(v)==list:
+            print(k, len(v))

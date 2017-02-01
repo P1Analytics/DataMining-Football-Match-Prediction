@@ -22,6 +22,7 @@ class Team(object):
         :param season:
         :return:
         '''
+        matches = list()
         matches = Match.read_matches_by_team(self.team_api_id, season)
         if ordered:
             return sorted(matches, key=lambda match: match.date)
@@ -30,6 +31,53 @@ class Team(object):
 
     def get_team_attributes(self,):
         return Team_Attributes.read_by_team_api_id(self.team_api_id)
+
+    def get_points_by_season_and_stage(self, season, stage):
+        '''
+        Return the sum of the point got until the stage
+        :param season:
+        :param stage:
+        :return:
+        '''
+        matches = self.get_matches(season=season, ordered=True)
+        points = 0
+        for match in matches:
+            if match.stage > stage:
+                return points
+            if match.get_home_team().team_api_id == self.team_api_id:
+                if match.home_team_goal > match.away_team_goal:
+                    points += 3
+                elif match.home_team_goal == match.away_team_goal:
+                    points += 1
+            else:
+                if match.home_team_goal < match.away_team_goal:
+                    points += 3
+                elif match.home_team_goal == match.away_team_goal:
+                    points += 1
+        return points
+
+    def get_goals_by_season_and_stage(self, season, stage):
+        '''
+        Return the sum of the goals done/received got until the stage
+        :param season:
+        :param stage:
+        :return:
+        '''
+        matches = self.get_matches(season=season, ordered=True)
+        goal_done = 0
+        goal_received = 0
+        for match in matches:
+            if match.stage > stage:
+                return goal_done, goal_received
+            if match.get_home_team().team_api_id == self.team_api_id:
+                goal_done += match.home_team_goal
+                goal_received += match.away_team_goal
+            else:
+                goal_done += match.away_team_goal
+                goal_received += match.home_team_goal
+
+        return goal_done, goal_received
+
 
 def read_all():
     '''

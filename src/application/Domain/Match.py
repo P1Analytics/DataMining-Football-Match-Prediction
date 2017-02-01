@@ -83,6 +83,7 @@ def read_matches_by_team(team_api_id, season=None):
     :param season:
     :return:
     '''
+    matches_list = list()
     match_list = read_matches_by_home_team(team_api_id, season)
     match_list.extend(read_matches_by_away_team(team_api_id, season))
     return match_list
@@ -95,18 +96,17 @@ def read_matches_by_home_team(team_api_id, season=None):
     :param season:
     :return:
     '''
-    match_list = []
     filter = {"home_team_api_id":team_api_id}
     if season:
         filter["season"]=season
     else:
         season = ""
-
     try:
         return Cache.get_element(str(team_api_id)+"_"+season, "MATCH_HOME")
     except KeyError:
         pass
 
+    match_list = []
     for sqllite_row in SQLLite.get_connection().select("Match", **filter):
         match = Match(sqllite_row["id"])
         for attribute, value in sqllite_row.items():

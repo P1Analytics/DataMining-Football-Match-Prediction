@@ -6,7 +6,10 @@ import logging
 
 
 project_directory = os.path.dirname(os.path.abspath(__file__))[0:-8]
-Logger.setLevel(logging.getLogger(),10)
+
+def init_logger():
+    Logger.setLevel(logging.getLogger(),10)
+    logging.basicConfig(filename=project_directory+"/data/log/logging.txt",level=logging.DEBUG,format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 def get_project_directory():
     return project_directory
