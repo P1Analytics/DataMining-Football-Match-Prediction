@@ -2,80 +2,57 @@ import random
 import numpy as np
 import src.application.Domain.League as League
 import src.application.Domain.Team as Team
-from sklearn.svm import SVC
-from sklearn.model_selection import GridSearchCV
 
-class SklearnAlgorithm(object):
-    def __init__(self, data, label, train_percentage = 0.75, data_description=None):
-
-        if data_description:
-            train_data, test_data = split_data(train_percentage, True, [data, label, data_description])
-        else:
-            train_data, test_data = split_data(train_percentage, True, [data, label])
-
-        self.train_data = train_data
-        self.test_data = test_data
-
-
-    def train(self,):
-        Cs = [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
-        gammas = [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
-
-        parameters = {'kernel': ('rbf',), 'C': Cs, 'gamma': gammas}
-        svr = SVC(probability=True)
-        clf = GridSearchCV(svr, parameters)
-        clf.fit(self.train_data[0], self.train_data[1])
-        print(clf.cv_results_['params'][clf.best_index_])
-        self.estimator = clf.best_estimator_
-
-    def score(self):
-        classifier_score = self.estimator.score(self.test_data[0], self.test_data[1])
-        print("Score is ", classifier_score)
-
-    def predict(self, data=None):
-        if not data:
-            data = self.test_data[0]
-        label = self.test_data[1]
-        predicted = self.estimator.predict(data)
-        probs = self.estimator.predict_proba(data)
-
-        predicted_labels = []
-        probability_events = []
-        event_description = []
-
-        for k, v in enumerate(predicted):
-            if len(self.test_data)>2:
-                event_description.append(self.test_data[2][k])
-            predicted_labels.append(v)
-            probability_events.append(probs[k][np.where(self.estimator.classes_ == v)][0])
-
-        for k, v in enumerate(predicted_labels):
-            print(event_description[k],"\t" ,label[k],"\t" , v,"\t" , probability_events[k])
-
-        return predicted_labels, probability_events, event_description
-
+from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
 
 class MachineLearningAlgorithm(object):
-    def __init__(self, framework, algorithm, data, labels, data_description=None):
+    def __init__(self, framework, algorithm, data, data_label, train_percentage=0.75, data_description=None):
         self.framework = framework
         self.algorithm = algorithm
         self.learning_algorithm = None
+
+        if data_description:
+            train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
+        else:
+            train_datas, test_datas = split_data(train_percentage, True, [data, data_label])
+
+        self.train_data = train_datas[0]
+        self.train_label = train_datas[1]
+        self.test_data = test_datas[0]
+        self.test_label = test_datas[1]
+        if data_description:
+            self.train_description = train_datas[2]
+            self.test_description = test_datas[2]
+        else:
+            self.train_description = ["" for x in range(len(self.train_data))]
+            self.train_description = ["" for x in range(len(self.test_data))]
+
         if framework=="Sklearn":
             if algorithm=="SVC":
-                self.learning_algorithm = SklearnAlgorithm(data, labels, data_description=data_description)
+                self.learning_algorithm = SklearnAlgorithm(self.train_data, self.train_label, self.test_data, self.test_label)
 
         if not self.learning_algorithm:
             # Use default learning algorithm
-            self.learning_algorithm = SklearnAlgorithm(data, labels, data_description=data_description)
+            self.learning_algorithm = SklearnAlgorithm(self.train_data, self.train_label, self.test_data, self.test_label)
 
 
     def train(self, ):
         self.learning_algorithm.train()
 
     def score(self):
-        self.learning_algorithm.score()
+        predicted_labels, probability_events = self.learning_algorithm.score()
 
-    def predict(self, data=None):
+        accuracy = 0
+        for k, v in enumerate(predicted_labels):
+            if v == self.test_label[k]:
+                accuracy += 1
+        print("AAA accuracy", accuracy/len(predicted_labels))
+
+        for k, v in enumerate(predicted_labels):
+            print(self.train_description[k],"\t",self.test_label[k], "\t", v, "\t", probability_events[k])
+
+
+    def predict(self, data):
         return self.learning_algorithm.predict(data)
 
 
@@ -150,10 +127,10 @@ def test():
 
     matches = np.asarray(matches)
     labels = np.asarray(labels)
-    mag = MachineLearningAlgorithm("Sklearn","SVC", matches, labels, matches_names)
+    mag = MachineLearningAlgorithm("Sklearn","SVC", matches, labels, train_percentage=0.75, data_description=matches_names)
     mag.train()
     mag.score()
-    labels, probs, event_description = mag.predict()
+    #labels, probs, event_description = mag.predict()
 
     #for k,v in enumerate(labels):
      #   print(event_description[k], v, probs[k])
