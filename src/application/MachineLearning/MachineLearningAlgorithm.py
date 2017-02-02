@@ -1,6 +1,8 @@
 import random
+import numpy as np
 
 from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
+from src.application.MachineLearning.my_tensor_flow.TensorFlow import TensorFlow
 import src.application.MachineLearning.MachineLearningInput as MLInput
 
 class MachineLearningAlgorithm(object):
@@ -14,10 +16,10 @@ class MachineLearningAlgorithm(object):
         else:
             train_datas, test_datas = split_data(train_percentage, True, [data, data_label])
 
-        self.train_data = train_datas[0]
-        self.train_label = train_datas[1]
-        self.test_data = test_datas[0]
-        self.test_label = test_datas[1]
+        self.train_data = np.asarray(train_datas[0])
+        self.train_label = np.asarray(train_datas[1])
+        self.test_data = np.asarray(test_datas[0])
+        self.test_label = np.asarray(test_datas[1])
         if data_description:
             self.train_description = train_datas[2]
             self.test_description = test_datas[2]
@@ -28,6 +30,9 @@ class MachineLearningAlgorithm(object):
         if framework=="Sklearn":
             if algorithm=="SVC":
                 self.learning_algorithm = SklearnAlgorithm(self.train_data, self.train_label, self.test_data, self.test_label)
+        elif framework=="TensorFlow":
+            self.learning_algorithm = TensorFlow(self.train_data, self.train_label, self.test_data,
+                                                       self.test_label)
 
         if not self.learning_algorithm:
             # Use default learning algorithm
@@ -81,9 +86,13 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
 
     return train_datas, test_datas
 
+
+
 def test():
     matches, labels, matches_names = MLInput.get_datas()
-    mag = MachineLearningAlgorithm("Sklearn","SVC", matches, labels, train_percentage=0.75, data_description=matches_names)
+    #mag = MachineLearningAlgorithm("Sklearn","SVC", matches, labels, train_percentage=0.75, data_description=matches_names)
+    mag = MachineLearningAlgorithm("TensorFlow", "SVC", matches, labels, train_percentage=0.75,
+                                  data_description=matches_names)
     mag.train()
     mag.score()
     #labels, probs, event_description = mag.predict()
