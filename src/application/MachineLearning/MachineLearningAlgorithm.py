@@ -1,63 +1,38 @@
 import random
 import numpy as np
 
-from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
-from src.application.MachineLearning.my_tensor_flow.TensorFlow import TensorFlow
-import src.application.MachineLearning.MachineLearningInput as MLInput
-
 class MachineLearningAlgorithm(object):
-    def __init__(self, framework, algorithm, data, data_label, train_percentage=0.75, data_description=None):
-        self.framework = framework
-        self.algorithm = algorithm
-        self.learning_algorithm = None
 
-        if data_description:
-            train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
-        else:
-            train_datas, test_datas = split_data(train_percentage, True, [data, data_label])
+    def __init__(self, train_data, train_label, test_data, test_label, train_descirption, test_description):
 
-        self.train_data = np.asarray(train_datas[0])
-        self.train_label = np.asarray(train_datas[1])
-        self.test_data = np.asarray(test_datas[0])
-        self.test_label = np.asarray(test_datas[1])
-        if data_description:
-            self.train_description = train_datas[2]
-            self.test_description = test_datas[2]
-        else:
-            self.train_description = ["" for x in range(len(self.train_data))]
-            self.train_description = ["" for x in range(len(self.test_data))]
-
-        if framework=="Sklearn":
-            if algorithm=="SVC":
-                self.learning_algorithm = SklearnAlgorithm(self.train_data, self.train_label, self.test_data, self.test_label)
-        elif framework=="TensorFlow":
-            self.learning_algorithm = TensorFlow(self.train_data, self.train_label, self.test_data,
-                                                       self.test_label)
-
-        if not self.learning_algorithm:
-            # Use default learning algorithm
-            self.learning_algorithm = SklearnAlgorithm(self.train_data, self.train_label, self.test_data, self.test_label)
-
+        self.train_data = train_data
+        self.train_label = train_label
+        self.test_data = test_data
+        self.test_label = test_label
+        self.train_description = train_descirption
+        self.test_description = test_description
 
     def train(self, ):
-        self.learning_algorithm.train()
+        raise NotImplementedError
 
-    def score(self):
-        predicted_labels, probability_events = self.learning_algorithm.score()
+    def post_score(self, predicted_labels, probability_events):
 
         accuracy = 0
         for k, v in enumerate(predicted_labels):
             if v == self.test_label[k]:
                 accuracy += 1
-        print("AAA accuracy", accuracy/len(predicted_labels))
+        print("Accuracy", accuracy/len(predicted_labels))
 
         for k, v in enumerate(predicted_labels):
             print(self.test_description[k],"\t",self.test_label[k], "\t", v, "\t", probability_events[k])
 
+        return predicted_labels, probability_events
 
     def predict(self, data):
-        return self.learning_algorithm.predict(data)
+        raise NotImplementedError
 
+from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
+from src.application.MachineLearning.my_tensor_flow.TensorFlow import TensorFlow
 
 def split_data(split_percentage=0.75, shuffle=True, *datas):
     '''
@@ -86,22 +61,33 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
 
     return train_datas, test_datas
 
+def get_machine_learning_algorithm(framework, method, data, data_label, data_description=None, train_percentage=0.75 ):
+    if data_description:
+        train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
+    else:
+        train_datas, test_datas = split_data(train_percentage, True, [data, data_label])
 
+    train_data = np.asarray(train_datas[0])
+    train_label = np.asarray(train_datas[1])
+    test_data = np.asarray(test_datas[0])
+    test_label = np.asarray(test_datas[1])
+    if data_description:
+        train_description = train_datas[2]
+        test_description = test_datas[2]
+    else:
+        train_description = ["" for x in range(len(train_data))]
+        test_description = ["" for x in range(len(test_data))]
 
-def test():
-    matches, labels, matches_names = MLInput.get_datas()
-    #mag = MachineLearningAlgorithm("Sklearn","SVC", matches, labels, train_percentage=0.75, data_description=matches_names)
-    mag = MachineLearningAlgorithm("TensorFlow", "SVC", matches, labels, train_percentage=0.75,
-                                  data_description=matches_names)
-    #mag.train()
-    #mag.score()
-    #labels, probs, event_description = mag.predict()
+    learning_algorithm = None
+    if framework == "Sklearn":
+        if method == "SVC":
+            learning_algorithm = SklearnAlgorithm(train_data, train_label, test_data, test_label, train_description, test_description)
+    elif framework == "TensorFlow":
+        learning_algorithm = TensorFlow(train_data, train_label, test_data, test_label, train_description, test_description)
+    else:
+        learning_algorithm = SklearnAlgorithm(train_data, train_label, test_data, test_label, train_description, test_description)
 
-    #for k,v in enumerate(labels):
-     #   print(event_description[k], v, probs[k])
-
-
-test()
+    return learning_algorithm
 
 
 

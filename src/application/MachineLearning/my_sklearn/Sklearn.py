@@ -2,13 +2,11 @@ from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
 import numpy as np
 
-class SklearnAlgorithm(object):
-    def __init__(self, train_data, train_label, test_data, test_label):
+from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
 
-        self.train_data = train_data
-        self.train_label = train_label
-        self.test_data = test_data
-        self.test_label = test_label
+class SklearnAlgorithm(MachineLearningAlgorithm):
+    def __init__(self, train_data, train_label, test_data, test_label, train_description, test_description):
+        MachineLearningAlgorithm.__init__(self, train_data, train_label, test_data, test_label, train_description, test_description)
 
     def train(self,):
         Cs = [0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
@@ -33,7 +31,7 @@ class SklearnAlgorithm(object):
             predicted_labels.append(v)
             probability_events.append(probs[k][np.where(self.estimator.classes_ == v)][0])
 
-        return predicted_labels, probability_events
+        return self.post_score(predicted_labels, probability_events)
 
 
     def predict(self, data):
