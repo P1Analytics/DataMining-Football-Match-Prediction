@@ -5,7 +5,7 @@ import numpy as np
 from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
 
 class SklearnAlgorithm(MachineLearningAlgorithm):
-    def __init__(self, train_data, train_label, test_data, test_label, train_description, test_description):
+    def __init__(self, train_data, train_label, test_data, test_label, train_description, test_description, **params):
         MachineLearningAlgorithm.__init__(self, train_data, train_label, test_data, test_label, train_description, test_description)
 
     def train(self,):

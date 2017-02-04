@@ -26,4 +26,10 @@ def read_config_file(relative_file_path, group_key = "[DEFAULT]"):
 
     return vector_component_diz
 
+def get_default(dict, key, default):
+    try:
+        return dict[key]
+    except KeyError:
+        return default
+
 
