@@ -78,17 +78,14 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
         train_description = ["" for x in range(len(train_data))]
         test_description = ["" for x in range(len(test_data))]
 
-    learning_algorithm = None
-
     if framework == "Sklearn":
-        if method == "SVM":
-            learning_algorithm = SklearnAlgorithm(train_data, train_label, test_data, test_label, train_description, test_description, **params)
+        learning_algorithm = SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
 
     elif framework == "TensorFlow":
         learning_algorithm = TensorFlow(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
 
     else:
-        learning_algorithm = SklearnAlgorithm(train_data, train_label, test_data, test_label, train_description, test_description, **params)
+        learning_algorithm = SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
 
     return learning_algorithm
 

@@ -71,7 +71,6 @@ class TensorFlow(MachineLearningAlgorithm):
 
         print("Accuracy on train",
               self.sess.run(self.accuracy, feed_dict={self.x: self.train_data, self.y: [[l] for l in self.train_label]}))
-        pass
 
     def score(self):
         print("Accuracy on test", self.sess.run(self.accuracy, feed_dict={self.x: self.test_data, self.y: [[l] for l in self.test_label]}))
