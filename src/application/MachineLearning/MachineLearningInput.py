@@ -9,17 +9,6 @@ def get_datas():
     goal_done = {team.team_long_name: 0 for team in teams}
     goal_received = {team.team_long_name: 0 for team in teams}
 
-    for team in teams:
-        t = Team.read_by_name(team.team_long_name)
-        matches = t.get_matches(ordered=True, season="2015/2016")
-        for m in matches:
-            if team.team_long_name == m.get_home_team().team_long_name:
-                goal_done[team.team_long_name] = goal_done[team.team_long_name] + m.home_team_goal
-                goal_received[team.team_long_name] = goal_received[team.team_long_name] + m.away_team_goal
-            else:
-                goal_done[team.team_long_name] = goal_done[team.team_long_name] + m.away_team_goal
-                goal_received[team.team_long_name] = goal_received[team.team_long_name] + m.home_team_goal
-
     matches = []
     labels = []
     matches_names = []

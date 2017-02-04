@@ -93,8 +93,8 @@ def test():
     #mag = MachineLearningAlgorithm("Sklearn","SVC", matches, labels, train_percentage=0.75, data_description=matches_names)
     mag = MachineLearningAlgorithm("TensorFlow", "SVC", matches, labels, train_percentage=0.75,
                                   data_description=matches_names)
-    mag.train()
-    mag.score()
+    #mag.train()
+    #mag.score()
     #labels, probs, event_description = mag.predict()
 
     #for k,v in enumerate(labels):
