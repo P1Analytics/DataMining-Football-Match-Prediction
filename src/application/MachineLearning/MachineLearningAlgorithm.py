@@ -31,8 +31,7 @@ class MachineLearningAlgorithm(object):
     def predict(self, data):
         raise NotImplementedError
 
-from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
-from src.application.MachineLearning.my_tensor_flow.TensorFlow import TensorFlow
+
 
 def split_data(split_percentage=0.75, shuffle=True, *datas):
     '''
@@ -61,7 +60,13 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
 
     return train_datas, test_datas
 
+
+from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
+from src.application.MachineLearning.my_tensor_flow.TensorFlow import TensorFlow
+from src.application.MachineLearning.my_tensor_flow.NNAlgorithm import NNAlgorithm
 def get_machine_learning_algorithm(framework, method, data, data_label, data_description=None, train_percentage=0.75, **params):
+
+
     if data_description:
         train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
     else:
@@ -82,8 +87,10 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
         learning_algorithm = SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
 
     elif framework == "TensorFlow":
-        learning_algorithm = TensorFlow(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
-
+        if method == "SVM":
+            learning_algorithm = TensorFlow(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
+        elif method == "KNN":
+            learning_algorithm = NNAlgorithm( train_data, train_label, test_data, test_label)
     else:
         learning_algorithm = SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
 

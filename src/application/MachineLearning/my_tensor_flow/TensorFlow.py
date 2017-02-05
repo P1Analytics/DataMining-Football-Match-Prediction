@@ -1,6 +1,5 @@
 import numpy as np
 import tensorflow as tf
-
 import src.util.util as util
 from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
 
