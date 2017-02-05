@@ -32,9 +32,10 @@ class Team(object):
     def get_team_attributes(self,):
         return Team_Attributes.read_by_team_api_id(self.team_api_id)
 
-    def get_points_by_season_and_stage(self, season, stage):
+    def get_points_by_season_and_stage(self, season, stage, n=None):
         '''
         Return the sum of the point got until the stage
+        If n is set, consider only the last n matches
         :param season:
         :param stage:
         :return:
@@ -44,6 +45,8 @@ class Team(object):
         for match in matches:
             if match.stage > stage:
                 return points
+            if n and match.stage < stage - n:
+                continue
             if match.get_home_team().team_api_id == self.team_api_id:
                 if match.home_team_goal > match.away_team_goal:
                     points += 3
@@ -56,11 +59,13 @@ class Team(object):
                     points += 1
         return points
 
-    def get_goals_by_season_and_stage(self, season, stage):
+    def get_goals_by_season_and_stage(self, season, stage, n=None):
         '''
         Return the sum of the goals done/received got until the stage
+        If set, consider only the last n matches
         :param season:
         :param stage:
+        :param n:
         :return:
         '''
         matches = self.get_matches(season=season, ordered=True)
@@ -69,6 +74,8 @@ class Team(object):
         for match in matches:
             if match.stage > stage:
                 return goal_done, goal_received
+            if n and match.stage < stage-n:
+                continue
             if match.get_home_team().team_api_id == self.team_api_id:
                 goal_done += match.home_team_goal
                 goal_received += match.away_team_goal

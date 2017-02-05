@@ -64,8 +64,8 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
 from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
 from src.application.MachineLearning.my_tensor_flow.TensorFlow import TensorFlow
 from src.application.MachineLearning.my_tensor_flow.NNAlgorithm import NNAlgorithm
-def get_machine_learning_algorithm(framework, method, data, data_label, data_description=None, train_percentage=0.75, **params):
 
+def get_machine_learning_algorithm(framework, method, data, data_label, data_description=None, train_percentage=0.75, **params):
 
     if data_description:
         train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
@@ -97,6 +97,34 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
     return learning_algorithm
 
 
+def run_all_algorithms(data, data_label, data_description=None, train_percentage=0.75, **params):
 
+    if data_description:
+        train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
+    else:
+        train_datas, test_datas = split_data(train_percentage, True, [data, data_label])
 
+    train_data = np.asarray(train_datas[0])
+    train_label = np.asarray(train_datas[1])
+    test_data = np.asarray(test_datas[0])
+    test_label = np.asarray(test_datas[1])
+
+    if data_description:
+        train_description = train_datas[2]
+        test_description = test_datas[2]
+    else:
+        train_description = ["" for x in range(len(train_data))]
+        test_description = ["" for x in range(len(test_data))]
+
+    mag = NNAlgorithm( train_data, train_label, test_data, test_label)
+    mag.train()
+    mag.score()
+
+    mag = TensorFlow("SVM", train_data, train_label, test_data, test_label, train_description, test_description, **params)
+    mag.train()
+    mag.score()
+
+    mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description, **params)
+    mag.train()
+    mag.score()
 

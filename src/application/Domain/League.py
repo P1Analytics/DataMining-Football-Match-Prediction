@@ -98,3 +98,21 @@ def read_by_country(country_id):
         league.__setattr__(attribute, value)
     Cache.add_element(country_id, league, "LEAGUE_BY_COUNTRY")
     return league
+
+def read_by_name(name):
+    '''
+    Return the league with this name
+    :param country_id:
+    :return:
+    '''
+    try:
+        return Cache.get_element(name,"LEAGUE_BY_NAME")
+    except KeyError:
+        pass
+
+    sqllite_row = SQLLite.get_connection().select("League", **{"name": name})[0]
+    league = League(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        league.__setattr__(attribute, value)
+    Cache.add_element(name, league, "LEAGUE_BY_NAME")
+    return league
