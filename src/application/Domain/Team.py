@@ -1,3 +1,5 @@
+import logging
+
 import src.application.Domain.Match as Match
 import src.application.Domain.Team_Attributes as Team_Attributes
 
@@ -66,11 +68,13 @@ class Team(object):
         '''
         matches = self.get_matches(season=season, ordered=True)
         points = 0
+        match_used = 0
         for match in matches:
             if match.stage >= stage:
-                return points
+                return points, match_used
             if n and match.stage < stage - n:
                 continue
+            match_used += 1
             if match.get_home_team().team_api_id == self.team_api_id:
                 if match.home_team_goal > match.away_team_goal:
                     points += 3
@@ -81,7 +85,7 @@ class Team(object):
                     points += 3
                 elif match.home_team_goal == match.away_team_goal:
                     points += 1
-        return points
+        return points, match_used
 
     def get_home_points_by_season_and_stage(self, season, stage, n=None):
         '''
@@ -168,6 +172,31 @@ class Team(object):
 
         return goal_done, goal_received
 
+    def get_shots(self, season, stage, n=None, on=True):
+        '''
+        Return the shoton done of this team
+        If n, it considers only the last n matches.
+        :param season:
+        :param stage:
+        :param n:
+        :return:
+        '''
+        matches = self.get_matches(season=season, ordered=True)
+        shoton = 0
+        for match in matches:
+            if match.stage >= stage:
+                return shoton
+            if n and match.stage < stage-n:
+                continue
+
+            for shot in match.get_shots(on):
+                try:
+                    if shot.team == self.team_api_id:
+                        shoton += 1
+                except AttributeError:
+                    logging.debug("Shot of the Match with api_id [ "+str(match.match_api_id)+" ] has no attribute team")
+
+        return shoton
 
 def read_all():
     '''

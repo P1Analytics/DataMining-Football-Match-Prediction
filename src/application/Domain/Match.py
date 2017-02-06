@@ -19,20 +19,28 @@ class Match(object):
         return to_string
 
     def get_home_team(self):
-        import src.application.Domain.Team as Team
         '''
         Return the home-team of this match
         :return:
         '''
+        import src.application.Domain.Team as Team
         return Team.read_by_team_api_id(self.home_team_api_id)
 
     def get_away_team(self):
-        import src.application.Domain.Team as Team
         '''
         Return the away-team of this match
         :return:
         '''
+        import src.application.Domain.Team as Team
         return Team.read_by_team_api_id(self.away_team_api_id)
+
+    def get_shots(self, on=True):
+        '''
+        Return the list of shotons of this match
+        :return:
+        '''
+        import src.application.Domain.Shot as Shot
+        return Shot.read_match_shot(self, on)
 
 def read_all():
     '''

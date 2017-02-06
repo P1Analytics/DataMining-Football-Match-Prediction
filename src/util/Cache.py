@@ -14,7 +14,7 @@ def add_element(element_id, element, type = "DEFAULT"):
     :return:
     '''
     logging.debug("CACHE > adding element with ID ["+str(element_id)+"_"+type+"]")
-    cache_elements[str(element_id)+"_"+type] = copy.deepcopy(element)
+    cache_elements[str(element_id)+"_"+type] = copy.copy(element)
 
 def get_element(element_id, type="DEFAULT"):
     '''
@@ -26,7 +26,7 @@ def get_element(element_id, type="DEFAULT"):
     :return:
     '''
     logging.debug("CACHE > reading element with ID [" + str(element_id) + "_" + type + "]")
-    return copy.deepcopy(cache_elements[str(element_id)+"_"+type])
+    return copy.copy(cache_elements[str(element_id)+"_"+type])
 
 def reset(type="DEFAULT"):
     '''
