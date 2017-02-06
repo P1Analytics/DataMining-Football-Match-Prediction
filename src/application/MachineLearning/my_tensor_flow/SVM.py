@@ -44,7 +44,7 @@ class SVM(MachineLearningAlgorithm):
         print("Number_step:", self.number_step)
 
         if self.kernel == "linear":
-            self.train_step, self.x, self.y, y_raw = get_SVM_Lienar_train_step(num_features, self.batch_size)
+            self.train_step, self.x, self.y, y_raw = get_SVM_Linear_train_step(num_features, self.batch_size)
         elif self.kernel == "rbf":
             self.train_step, self.x, self.y, y_raw = get_SVM_RBF_train_step(num_features, self.batch_size)
 

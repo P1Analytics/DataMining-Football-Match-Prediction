@@ -93,7 +93,15 @@ def team_home_away_form(league_name, representation, n=9, season=None):
         matches_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
 
         home_form = home_team.get_points_by_season_and_stage(season, match.stage, n=n)
+        home_team_home_form = home_team.get_home_points_by_season_and_stage(season, match.stage, n=n)
+        home_team_away_form = home_team.get_away_points_by_season_and_stage(season, match.stage, n=n)
+
         away_form = away_team.get_points_by_season_and_stage(season, match.stage, n=n)
+        away_team_home_form = away_team.get_home_points_by_season_and_stage(season, match.stage, n=n)
+        away_team_away_form = away_team.get_away_points_by_season_and_stage(season, match.stage, n=n)
+
+        print(match.stage, home_team.team_short_name, home_form, home_team_home_form, home_team_away_form)
+        print(match.stage, away_team.team_short_name, away_form, away_team_home_form, away_team_away_form)
 
         if representation == 1:
             # Numeric values of the team forms, normalized to interval [0,3]

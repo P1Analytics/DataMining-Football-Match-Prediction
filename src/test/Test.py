@@ -4,8 +4,8 @@ import src.application.MachineLearning.MachineLearningAlgorithm as MachineLearni
 
 def doTest():
     #matches, labels, matches_names = MLInput.get_datas_by_league("Italy Serie A", "2015/2016")
-    matches, labels, matches_names = MLInput.team_form("Italy Serie A", 2, n=9, season= "2015/2016")
-    params = {"batch_size": 500, "number_step":1000, "kernel":"rbf"}
+    matches, labels, matches_names = MLInput.team_home_away_form("Italy Serie A", 1, n=9, season= "2015/2016")
+    params = {"batch_size": 500, "number_step":1000, "kernel":"linear"}
     MachineLearningAlgorithm.run_all_algorithms(matches, labels, matches_names, **params)
 
 doTest()

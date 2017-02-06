@@ -22,8 +22,31 @@ class Team(object):
         :param season:
         :return:
         '''
-        matches = list()
         matches = Match.read_matches_by_team(self.team_api_id, season)
+        if ordered:
+            return sorted(matches, key=lambda match: match.date)
+        else:
+            return matches
+
+    def get_home_matches(self, season=None, ordered=False):
+        '''
+        Return home matches of this team
+        :param season:
+        :return:
+        '''
+        matches = Match.read_matches_by_home_team(self.team_api_id, season)
+        if ordered:
+            return sorted(matches, key=lambda match: match.date)
+        else:
+            return matches
+
+    def get_away_matches(self, season=None, ordered=False):
+        '''
+        Return home matches of this team
+        :param season:
+        :return:
+        '''
+        matches = Match.read_matches_by_away_team(self.team_api_id, season)
         if ordered:
             return sorted(matches, key=lambda match: match.date)
         else:
@@ -58,6 +81,54 @@ class Team(object):
                     points += 3
                 elif match.home_team_goal == match.away_team_goal:
                     points += 1
+        return points
+
+    def get_home_points_by_season_and_stage(self, season, stage, n=None):
+        '''
+        Return the sum of the home point got until the stage
+        Do not considere the stage in input
+        If n is set, consider only the last n matches
+        :param season:
+        :param stage:
+        :return:
+        '''
+        matches = self.get_home_matches(season=season, ordered=True)
+        points = 0
+        for match in matches:
+            if match.stage >= stage:
+                return points
+            if n and match.stage < stage - n:
+                continue
+
+            if match.home_team_goal > match.away_team_goal:
+                points += 3
+            elif match.home_team_goal == match.away_team_goal:
+                points += 1
+
+        return points
+
+    def get_away_points_by_season_and_stage(self, season, stage, n=None):
+        '''
+        Return the sum of the away points got until the stage
+        Do not considere the stage in input
+        If n is set, consider only the last n matches
+        :param season:
+        :param stage:
+        :return:
+        '''
+        matches = self.get_away_matches(season=season, ordered=True)
+        points = 0
+        for match in matches:
+            if match.stage >= stage:
+                return points
+            if n and match.stage < stage - n:
+                continue
+
+            if match.home_team_goal < match.away_team_goal:
+                points += 3
+            elif match.home_team_goal == match.away_team_goal:
+                points += 1
+
         return points
 
     def get_goals_by_season_and_stage(self, season, stage, n=None):
