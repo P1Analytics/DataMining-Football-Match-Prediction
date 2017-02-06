@@ -5,7 +5,7 @@ import numpy as np
 import tensorflow as tf
 
 class NNAlgorithm(object):
-    def __init__(self, train_data, train_label, test_data, test_label,k=3, batch_percentage=0.75, number_step=1000):
+    def __init__(self, train_data, train_label, test_data, test_label,k=5, batch_percentage=0.75, number_step=1000):
         self.train_data = train_data
         self.train_label = train_label
         self.test_data = test_data

@@ -90,22 +90,27 @@ class Team(object):
         If n is set, consider only the last n matches
         :param season:
         :param stage:
-        :return:
+        :return: points, number of matches considered
         '''
         matches = self.get_home_matches(season=season, ordered=True)
-        points = 0
+        previous_matches = []
         for match in matches:
             if match.stage >= stage:
-                return points
-            if n and match.stage < stage - n:
-                continue
+                break
+            previous_matches.append(match)
+        if n:
+            matches = previous_matches[-n:]
 
+        points = 0
+        match_used = 0
+        for match in matches:
+            match_used += 1
             if match.home_team_goal > match.away_team_goal:
                 points += 3
             elif match.home_team_goal == match.away_team_goal:
                 points += 1
 
-        return points
+        return points, match_used
 
     def get_away_points_by_season_and_stage(self, season, stage, n=None):
         '''
@@ -114,22 +119,27 @@ class Team(object):
         If n is set, consider only the last n matches
         :param season:
         :param stage:
-        :return:
+        :return: points, number of matches considered
         '''
         matches = self.get_away_matches(season=season, ordered=True)
-        points = 0
+        previous_matches = []
         for match in matches:
             if match.stage >= stage:
-                return points
-            if n and match.stage < stage - n:
-                continue
+                break
+            previous_matches.append(match)
+        if n:
+            matches = previous_matches[-n:]
 
+        points = 0
+        match_used = 0
+        for match in matches:
+            match_used += 1
             if match.home_team_goal < match.away_team_goal:
                 points += 3
             elif match.home_team_goal == match.away_team_goal:
                 points += 1
 
-        return points
+        return points, match_used
 
     def get_goals_by_season_and_stage(self, season, stage, n=None):
         '''
