@@ -35,6 +35,7 @@ class Team(object):
     def get_points_by_season_and_stage(self, season, stage, n=None):
         '''
         Return the sum of the point got until the stage
+        Do not considere the stage in input
         If n is set, consider only the last n matches
         :param season:
         :param stage:
@@ -43,7 +44,7 @@ class Team(object):
         matches = self.get_matches(season=season, ordered=True)
         points = 0
         for match in matches:
-            if match.stage > stage:
+            if match.stage >= stage:
                 return points
             if n and match.stage < stage - n:
                 continue
@@ -62,6 +63,7 @@ class Team(object):
     def get_goals_by_season_and_stage(self, season, stage, n=None):
         '''
         Return the sum of the goals done/received got until the stage
+        Do not considere the stage in input
         If set, consider only the last n matches
         :param season:
         :param stage:
@@ -72,7 +74,7 @@ class Team(object):
         goal_done = 0
         goal_received = 0
         for match in matches:
-            if match.stage > stage:
+            if match.stage >= stage:
                 return goal_done, goal_received
             if n and match.stage < stage-n:
                 continue

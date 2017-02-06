@@ -62,7 +62,7 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
 
 
 from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
-from src.application.MachineLearning.my_tensor_flow.TensorFlow import TensorFlow
+from src.application.MachineLearning.my_tensor_flow.SVM import SVM
 from src.application.MachineLearning.my_tensor_flow.NNAlgorithm import NNAlgorithm
 
 def get_machine_learning_algorithm(framework, method, data, data_label, data_description=None, train_percentage=0.75, **params):
@@ -88,7 +88,7 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
 
     elif framework == "TensorFlow":
         if method == "SVM":
-            learning_algorithm = TensorFlow(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
+            learning_algorithm = SVM(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
         elif method == "KNN":
             learning_algorithm = NNAlgorithm( train_data, train_label, test_data, test_label)
     else:
@@ -97,7 +97,7 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
     return learning_algorithm
 
 
-def run_all_algorithms(data, data_label, data_description=None, train_percentage=0.75, **params):
+def run_all_algorithms(data, data_label, data_description=None, train_percentage=0.8, **params):
 
     if data_description:
         train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
@@ -120,7 +120,7 @@ def run_all_algorithms(data, data_label, data_description=None, train_percentage
     mag.train()
     mag.score()
 
-    mag = TensorFlow("SVM", train_data, train_label, test_data, test_label, train_description, test_description, **params)
+    mag = SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
     mag.score()
 

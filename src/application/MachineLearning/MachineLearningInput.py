@@ -72,3 +72,45 @@ def team_form(league_name, representation, n=9, season=None):
     matches = np.asarray(matches)
     labels = np.asarray(labels)
     return matches, labels, matches_names
+
+def team_home_away_form(league_name, representation, n=9, season=None):
+
+    league = League.read_by_name(league_name)
+    matches = []
+    labels = []
+    matches_names = []
+
+    for match in league.get_matches(season=season):
+        if match.stage <= n:
+            continue
+        home_team = match.get_home_team()
+        away_team = match.get_away_team()
+
+        if match.home_team_goal > match.away_team_goal:
+            labels.append(1)
+        else:
+            labels.append(0)
+        matches_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
+
+        home_form = home_team.get_points_by_season_and_stage(season, match.stage, n=n)
+        away_form = away_team.get_points_by_season_and_stage(season, match.stage, n=n)
+
+        if representation == 1:
+            # Numeric values of the team forms, normalized to interval [0,3]
+            matches.append(np.asarray([home_form / n, away_form / n]))
+
+        elif representation == 2:
+            # Numeric values of the team forms, normalized to interval [0,3]
+            matches.append(np.asarray([home_form // n, away_form // n]))
+
+        elif representation == 3:
+            # subtracted value between the home team form and away team form. This subtracted value is normalized to the interval [-3,3]
+            matches.append(np.asarray([home_form / n - away_form / n]))
+
+        elif representation == 4:
+            # discretized values of r3
+            matches.append(np.asarray([home_form // n - away_form // n]))
+
+    matches = np.asarray(matches)
+    labels = np.asarray(labels)
+    return matches, labels, matches_names

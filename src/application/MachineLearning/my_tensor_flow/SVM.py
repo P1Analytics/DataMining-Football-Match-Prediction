@@ -3,9 +3,8 @@ import tensorflow as tf
 import src.util.util as util
 from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
 
-class TensorFlow(MachineLearningAlgorithm):
-    def __init__(self, method
-                     , train_data
+class SVM(MachineLearningAlgorithm):
+    def __init__(self, train_data
                      , train_label
                      , test_data
                      , test_label
@@ -32,25 +31,22 @@ class TensorFlow(MachineLearningAlgorithm):
                 self.test_label[i] = -1
 
         print("Tensor Flow initialization:")
-        print("method:", method)
+        print("method: SVM")
 
         num_features = len(self.train_data[0])
 
         self.sess = tf.Session()
 
-        y_raw = None
+        self.batch_size = util.get_default(params, "batch_size", 1000)
+        self.number_step = util.get_default(params, "number_step", 5000)
+        self.kernel = util.get_default(params, "kernel", "linear")
+        print("Batch_size:", self.batch_size)
+        print("Number_step:", self.number_step)
 
-        if method=="SVM":
-
-            self.batch_size = util.get_default(params, "batch_size", 1000)
-            self.number_step = util.get_default(params, "number_step", 5000)
-            print("Batch_size:", self.batch_size)
-            print("Number_step:", self.number_step)
-
-            self.train_step, self.x, self.y, y_raw = get_SVM_train_step(num_features, self.batch_size)
-        elif method == "KNN":
-            # TODO LEO implents its module
-            pass
+        if self.kernel == "linear":
+            self.train_step, self.x, self.y, y_raw = get_SVM_Lienar_train_step(num_features, self.batch_size)
+        elif self.kernel == "rbf":
+            self.train_step, self.x, self.y, y_raw = get_SVM_RBF_train_step(num_features, self.batch_size)
 
         # Evaluation
         self.predicted_class = tf.sign(y_raw)
@@ -84,7 +80,7 @@ class TensorFlow(MachineLearningAlgorithm):
     def predict(self, data):
         pass
 
-def get_SVM_train_step(num_features, batch_size, C=1):
+def get_SVM_Linear_train_step(num_features, batch_size, C=1):
     x = tf.placeholder("float", shape=[None, num_features])
     y = tf.placeholder("float", shape=[None, 1])
     b = tf.Variable(tf.zeros([1]))
@@ -96,6 +92,11 @@ def get_SVM_train_step(num_features, batch_size, C=1):
     regularization_loss = 0.5 * tf.reduce_sum(tf.square(w))
     svm_loss = regularization_loss + C * hinge_loss
     train_step = tf.train.GradientDescentOptimizer(0.01).minimize(svm_loss)
+
+    return train_step, x, y, y_raw
+
+def get_SVM_RBF_train_step(num_features, batch_size, C=1):
+    # TODO for Leo
 
     return train_step, x, y, y_raw
 
