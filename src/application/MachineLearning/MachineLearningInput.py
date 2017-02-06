@@ -9,6 +9,8 @@ def get_datas_by_league(league_name, season=None):
     labels = []
     matches_names = []
     for match in league.get_matches(season=season):
+        if match.stage == 1:
+            continue
         home_team = match.get_home_team()
         away_team = match.get_away_team()
         label = 0
@@ -20,7 +22,7 @@ def get_datas_by_league(league_name, season=None):
         home_goal_done, home_goal_received = home_team.get_goals_by_season_and_stage(season, match.stage)
         away_goal_done, away_goal_received = away_team.get_goals_by_season_and_stage(season, match.stage)
         home_team_points, home_n = home_team.get_points_by_season_and_stage(season, match.stage)
-        away_team_points, away_n = away_team.get_points_by_season_and_stage(season, match.stage) / match.stage
+        away_team_points, away_n = away_team.get_points_by_season_and_stage(season, match.stage)
 
         matches.append(np.asarray([home_goal_done / match.stage, home_goal_received / match.stage,
                                    home_team_points / home_n,
