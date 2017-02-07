@@ -32,7 +32,6 @@ class MachineLearningAlgorithm(object):
         raise NotImplementedError
 
 
-
 def split_data(split_percentage=0.75, shuffle=True, *datas):
     '''
 
@@ -63,9 +62,21 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
 
 from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
 from src.application.MachineLearning.my_tensor_flow.SVM import SVM
-from src.application.MachineLearning.my_tensor_flow.NNAlgorithm import NNAlgorithm
+from src.application.MachineLearning.my_tensor_flow.KNNAlgorithm import KNNAlgorithm
+
 
 def get_machine_learning_algorithm(framework, method, data, data_label, data_description=None, train_percentage=0.75, **params):
+    '''
+
+    :param framework:
+    :param method:
+    :param data:
+    :param data_label:
+    :param data_description:
+    :param train_percentage:
+    :param params:
+    :return:
+    '''
 
     if data_description:
         train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
@@ -84,17 +95,17 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
         test_description = ["" for x in range(len(test_data))]
 
     if framework == "Sklearn":
-        learning_algorithm = SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
+        return SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
 
     elif framework == "TensorFlow":
         if method == "SVM":
-            learning_algorithm = SVM(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
+            return SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
         elif method == "KNN":
-            learning_algorithm = NNAlgorithm( train_data, train_label, test_data, test_label)
+            return KNNAlgorithm(train_data, train_label, test_data, test_label, train_description, test_description, **params)
     else:
-        learning_algorithm = SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
+        # use default
+        return SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
 
-    return learning_algorithm
 
 
 def run_all_algorithms(data, data_label, data_description=None, train_percentage=0.8, **params):
@@ -116,7 +127,7 @@ def run_all_algorithms(data, data_label, data_description=None, train_percentage
         train_description = ["" for x in range(len(train_data))]
         test_description = ["" for x in range(len(test_data))]
 
-    mag = NNAlgorithm( train_data, train_label, test_data, test_label)
+    mag = KNNAlgorithm( train_data, train_label, test_data, test_label, train_description, test_description)
     mag.train()
     mag.score()
 

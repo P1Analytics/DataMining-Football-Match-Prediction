@@ -1,18 +1,36 @@
-
-from __future__ import print_function
-
+import logging
 import numpy as np
 import tensorflow as tf
+import src.util.util as util
 
-class NNAlgorithm(object):
-    def __init__(self, train_data, train_label, test_data, test_label,k=5, batch_percentage=0.75, number_step=1000):
-        self.train_data = train_data
-        self.train_label = train_label
-        self.test_data = test_data
-        self.test_label = test_label
-        self.k = k
+from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
+
+class KNNAlgorithm(MachineLearningAlgorithm):
+    def __init__(self, train_data
+                     , train_label
+                     , test_data
+                     , test_label
+                     , train_description
+                     , test_description
+                     , **params):
+        '''
+
+        :param train_data:
+        :param train_label:
+        :param test_data:
+        :param test_label:
+        :param train_description:
+        :param test_description:
+        :param params:
+        '''
+
+        MachineLearningAlgorithm.__init__(self, train_data, train_label, test_data, test_label, train_description,
+                                          test_description)
+
+        print("TensorFlow :: KNN > initialization")
+        self.k = util.get_default(params, "k", 11)
+        print("\t-k:", self.k)
         self.session = tf.Session()
-        self.accuracy = 0.
 
         for i,label in enumerate(self.train_label):
             if label != 1:
@@ -27,7 +45,8 @@ class NNAlgorithm(object):
         self.x_test = tf.placeholder("float", shape=[num_features])
 
     def train(self):
-        print("with KNN nothing to train")
+        # with KNN nothing to train"
+        pass
 
 
     def get_distance(self):
@@ -55,6 +74,7 @@ class NNAlgorithm(object):
 
         self.session.run(init)
 
+        predicted_labels = []
         # loop over test data
         for i in range(len(self.test_data)):
             # Get nearest neighbor
@@ -63,10 +83,15 @@ class NNAlgorithm(object):
                                         feed_dict={self.x_train: self.train_data, self.x_test: self.test_data[i, :]})
 
             # Get nearest neighbor class label and compare it to its true label
-            print("Test", i, "Prediction:", self.train_label[nn_index], \
-                  "True Class:", self.test_label[i])
+            predicted_labels.append(self.train_label[nn_index])
+
             # Calculate accuracy
+            accuracy = 0
             if (self.train_label[nn_index]) == (self.test_label[i]):
-                self.accuracy += 1. / len(self.test_data)
-        print("Done!")
-        print("Accuracy:", self.accuracy)
+                accuracy += 1. / len(self.test_data)
+
+        logging.debug("Accuracy on test" + str(accuracy))
+        probability_events = [-1 for l in predicted_labels]
+
+        return self.post_score(predicted_labels, probability_events)
+

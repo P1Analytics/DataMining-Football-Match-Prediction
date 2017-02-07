@@ -1,5 +1,7 @@
+import logging
 import numpy as np
 import tensorflow as tf
+
 import src.util.util as util
 from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
 
@@ -30,8 +32,7 @@ class SVM(MachineLearningAlgorithm):
             if label != 1:
                 self.test_label[i] = -1
 
-        print("Tensor Flow initialization:")
-        print("method: SVM")
+        print("Tensor Flow :: SVM >initialization")
 
         num_features = len(self.train_data[0])
 
@@ -40,8 +41,8 @@ class SVM(MachineLearningAlgorithm):
         self.batch_size = util.get_default(params, "batch_size", 1000)
         self.number_step = util.get_default(params, "number_step", 5000)
         self.kernel = util.get_default(params, "kernel", "linear")
-        print("Batch_size:", self.batch_size)
-        print("Number_step:", self.number_step)
+        print("\t-Batch_size:", self.batch_size)
+        print("\t-Number_step:", self.number_step)
 
         if self.kernel == "linear":
             self.train_step, self.x, self.y, y_raw = get_SVM_Linear_train_step(num_features, self.batch_size)
@@ -64,11 +65,10 @@ class SVM(MachineLearningAlgorithm):
 
             self.sess.run(self.train_step, feed_dict={self.x: batch_data, self.y: batch_label})
 
-        print("Accuracy on train",
-              self.sess.run(self.accuracy, feed_dict={self.x: self.train_data, self.y: [[l] for l in self.train_label]}))
+        logging.debug("TensorFlow :: SVM > Accuracy on train: "+str(self.sess.run(self.accuracy, feed_dict={self.x: self.train_data, self.y: [[l] for l in self.train_label]})))
 
     def score(self):
-        print("Accuracy on test", self.sess.run(self.accuracy, feed_dict={self.x: self.test_data, self.y: [[l] for l in self.test_label]}))
+        logging.debug("Accuracy on test"+str(self.sess.run(self.accuracy, feed_dict={self.x: self.test_data, self.y: [[l] for l in self.test_label]})))
 
         classification = self.sess.run(self.predicted_class, feed_dict={self.x: self.test_data})
 
