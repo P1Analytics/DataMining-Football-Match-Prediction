@@ -68,6 +68,15 @@ class League(object):
         Cache.add_element(str(self.id)+"_"+season, teams, "TEAMS_BY_LEAGUE")
         return teams
 
+    def get_teams_current_season(self):
+        return self.get_teams(util.get_current_season())
+
+    def add_name(self, new_league_name):
+        names = self.name+"|"+new_league_name
+        update = "UPDATE League set name = '"+names+"' where id='"+str(self.id)+"'"
+        SQLLite.get_connection().execute_query(update)
+
+
 def read_all():
     '''
     Return all the leagues
@@ -96,7 +105,28 @@ def read_by_country(country_id):
     league = League(sqllite_row["id"])
     for attribute, value in sqllite_row.items():
         league.__setattr__(attribute, value)
+    Cache.add_element(league.id, league, "LEAGUE_BY_ID")
     Cache.add_element(country_id, league, "LEAGUE_BY_COUNTRY")
+    return league
+
+
+def read_by_id(id):
+    '''
+    Return the league in the country identified by country_id
+    :param country_id:
+    :return:
+    '''
+    try:
+        return Cache.get_element(id,"LEAGUE_BY_ID")
+    except KeyError:
+        pass
+
+    sqllite_row = SQLLite.get_connection().select("League", **{"id": id})[0]
+    league = League(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        league.__setattr__(attribute, value)
+    Cache.add_element(league.id, league, "LEAGUE_BY_ID")
+    Cache.add_element(league.country_id, league, "LEAGUE_BY_COUNTRY")
     return league
 
 def read_by_name(name):
@@ -110,9 +140,36 @@ def read_by_name(name):
     except KeyError:
         pass
 
-    sqllite_row = SQLLite.get_connection().select("League", **{"name": name})[0]
+    try:
+        sqllite_row = SQLLite.get_connection().select_like("League", **{"name": name})[0]
+    except IndexError:
+        return None
     league = League(sqllite_row["id"])
     for attribute, value in sqllite_row.items():
         league.__setattr__(attribute, value)
     Cache.add_element(name, league, "LEAGUE_BY_NAME")
     return league
+
+def add_names(league_names):
+    for league_id, name in league_names.items():
+        league = read_by_id(league_id)
+        if name not in league.name:
+            league.add_name(name)
+
+
+'''
+# Example for league to be updated
+leauge_to_update = {1:"Belgian Jupiler Pro League",
+1729:"English Premier League",
+4769:"French Ligue 1",
+7809:"German 1. Bundesliga",
+13274:"Holland Eredivisie",
+15722:"Polish T-Mobile Ekstraklasa",
+17642:"Portuguese Primeira Liga",
+19694:"Scottish Premiership",
+21518:"Spanish Primera Division",
+24558:"Swiss Super League",
+10257:"Italian Serie A"}
+
+add_names(leauge_to_update)
+'''

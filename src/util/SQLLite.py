@@ -45,6 +45,30 @@ class SQLiteConnection(object):
             row_results.append(row)
         return row_results
 
+    def select_like(self, table_name, column_filter='*', **id):
+        id_condition = ""
+        if len(id) > 0:
+            id_condition = "WHERE "
+
+            for attrbiute, value in id.items():
+                id_condition += attrbiute+" like '%"+str(value).replace("'","''")+"%' AND "
+            id_condition = id_condition[0:-4]
+
+        if column_filter=='*':
+            column_names = self.getColumnFromTable(table_name)
+        else:
+            column_names = column_filter.split(",")
+
+        row_results = []
+        for sqllite_row in self.cursor.execute("SELECT "+column_filter+" FROM "+table_name+" "+id_condition+";"):
+            if sqllite_row is None:
+                continue
+            row = {}
+            for i, name in enumerate(column_names):
+                row[name] = sqllite_row[i]
+            row_results.append(row)
+        return row_results
+
     def execute_query(self, query):
         rows = []
         for row in self.cursor.execute(query):
