@@ -1,12 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 
-import src.application.Domain.League as League
+import src.application.Domain.Team as Team
+from src.application.Crawl.CrawlerTeam import CrawlerTeam
 
 class CrawlerLeague(object):
-    def __init__(self, league, host_url="http://sofifa.com"):
+    def __init__(self, league, league_link, host_url="http://sofifa.com"):
         self.host_url = host_url
         self.league = league
+        self.league_link = league_link
 
     def look_for_teams(self, link, force_parsing=True):
         current_teams = self.league.get_teams_current_season()
@@ -25,12 +27,13 @@ class CrawlerLeague(object):
 
         return teams_found
 
-    def find_new_team_to_manage(self, teams_found):
-        all_teams = self.league.get_teams()
-        for name_team_found in teams_found:
-            att = True
-            for team in all_teams:
-                if name_team_found == team.team_long_name:
-                    att = False
-            if att:
-                print("ATT: team name not found in the league [ "+self.league.name+" ], must be inserted in the DB [ "+name_team_found+" ]")
+
+    def start_crawling(self):
+        # looking for teams
+        link_teams_found = self.look_for_teams(self.league_link)
+
+        for team_link, team_name in link_teams_found.items():
+            team = Team.read_by_name(team_name)
+            ct = CrawlerTeam(team, team_link)
+            ct.start_crawling()
+

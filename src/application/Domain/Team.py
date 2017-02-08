@@ -229,6 +229,10 @@ class Team(object):
     def get_current_players(self):
         return self.get_players(season = util.get_current_season())
 
+
+    def save_team_attributes(self, team_attributes, force=False):
+        Team_Attributes.write_team_attributes(self, team_attributes, force)
+
 def read_all():
     '''
     Read all the teams
@@ -254,14 +258,44 @@ def read_by_team_api_id(team_api_id):
     except KeyError:
         pass
 
-    sqllite_row = SQLLite.get_connection().select("Team", **{"team_api_id": team_api_id})[0]
+    try:
+        sqllite_row = SQLLite.get_connection().select("Team", **{"team_api_id": team_api_id})[0]
+    except IndexError:
+        return None
     team = Team(sqllite_row["id"])
     for attribute, value in sqllite_row.items():
         team.__setattr__(attribute, value)
 
     Cache.add_element(team_api_id, team, "TEAM_BY_API_ID")
     Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
+    Cache.add_element(team.team_fifa_api_id, team, "TEAM_BY_FIFA_API_ID")
     return team
+
+def read_by_team_fifa_api_id(team_fifa_api_id):
+    '''
+    Read from the DB the team by its team_api_id
+    :param team_api_id:
+    :return:
+    '''
+
+    try:
+        return Cache.get_element(team_fifa_api_id, "TEAM_BY_FIFA_API_ID")
+    except KeyError:
+        pass
+
+    try:
+        sqllite_row = SQLLite.get_connection().select("Team", **{"team_fifa_api_id": team_fifa_api_id})[0]
+    except IndexError:
+        return None
+    team = Team(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        team.__setattr__(attribute, value)
+
+    Cache.add_element(team.id, team, "TEAM_BY_API_ID")
+    Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
+    Cache.add_element(team.team_fifa_api_id, team, "TEAM_BY_FIFA_API_ID")
+    return team
+
 
 def read_by_name(team_long_name):
     '''
@@ -282,6 +316,12 @@ def read_by_name(team_long_name):
     for attribute, value in sqllite_row.items():
         team.__setattr__(attribute, value)
 
-    Cache.add_element(team_long_name, team, "TEAM_BY_API_ID")
+    Cache.add_element(team.id, team, "TEAM_BY_API_ID")
     Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
+    Cache.add_element(team.team_fifa_api_id, team, "TEAM_BY_FIFA_API_ID")
     return team
+
+
+def write_new_team(team_long_name, team_fifa_api_id):
+    SQLLite.get_connection().insert("Team", {"team_long_name":team_long_name, "team_fifa_api_id":team_fifa_api_id})
+    return read_by_name(team_long_name)

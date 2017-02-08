@@ -51,3 +51,14 @@ def read_by_team_api_id(team_api_id):
 
     Cache.add_element(team_api_id, team_attributes_list, "TEAM_ATTRIBUTES")
     return team_attributes_list
+
+def write_team_attributes(team, team_attributes, force=False, date=util.get_today_date()+" 00:00:00"):
+
+    team_attributes["team_fifa_api_id"]=team.team_fifa_api_id
+    team_attributes["team_api_id"]=team.team_api_id
+    team_attributes["date"]=date
+
+    SQLLite.get_connection().insert("Team_Attributes", team_attributes)
+
+
+

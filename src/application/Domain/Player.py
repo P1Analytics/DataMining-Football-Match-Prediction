@@ -23,7 +23,7 @@ def read_all():
 
 def read_by_api_id(player_api_id):
     '''
-    Read a player by its team_api_id
+    Read a player by its api_id
     :param player_api_id:
     :return:
     '''
@@ -38,7 +38,64 @@ def read_by_api_id(player_api_id):
     for attribute, value in sqllite_row.items():
         player.__setattr__(attribute, value)
 
-    Cache.add_element(player_api_id, player, "PLAYER_BY_API_ID")
+    Cache.add_element(player.player_fifa_api_id, player, "PLAYER_BY_FIFA_API_ID")
+    Cache.add_element(player.player_api_id, player, "PLAYER_BY_API_ID")
+    Cache.add_element(player.player_name, player, "PLAYER_BY_NAME")
+    return player
+
+
+def read_by_fifa_api_id(player_fifa_api_id):
+    '''
+       Read a player by its team_fifa_api_id
+       :param player_api_id:
+       :return:
+       '''
+    try:
+        return Cache.get_element(player_fifa_api_id, "PLAYER_BY_FIFA_API_ID")
+    except KeyError:
+        pass
+
+    filter = {"player_fifa_api_id": player_fifa_api_id}
+    try:
+        sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
+    except IndexError:
+        return None
+
+    player = Player(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        player.__setattr__(attribute, value)
+
+    Cache.add_element(player.player_fifa_api_id, player, "PLAYER_BY_FIFA_API_ID")
+    Cache.add_element(player.player_api_id, player, "PLAYER_BY_API_ID")
+    Cache.add_element(player.player_name, player, "PLAYER_BY_NAME")
+    return player
+
+
+def read_by_name(player_name):
+    '''
+    Read a player by its name
+    :param player_api_id:
+    :return:
+    '''
+    try:
+        return Cache.get_element(player_name, "PLAYER_BY_NAME")
+    except KeyError:
+        pass
+
+    filter = {"player_name": player_name}
+
+    try:
+        sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
+    except IndexError:
+        return None
+
+    player = Player(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        player.__setattr__(attribute, value)
+
+    Cache.add_element(player.player_fifa_api_id, player, "PLAYER_BY_FIFA_API_ID")
+    Cache.add_element(player.player_api_id, player, "PLAYER_BY_API_ID")
+    Cache.add_element(player.player_name, player, "PLAYER_BY_NAME")
     return player
 
 

@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+from src.application.Crawl.CrawlerLeague import CrawlerLeague
 import src.application.Domain.League as League
-
 
 class Crawler(object):
     def __init__(self, host_url = "http://sofifa.com"):
@@ -46,3 +46,17 @@ class Crawler(object):
 
             if new:
                 print("Found new league:", league_found)
+
+def start_crawling():
+    c = Crawler()
+
+    # looking for league
+    link_league_found = c.look_for_leagues()
+    c.find_thesaurus_legues(link_league_found.values())
+    c.find_new_league_to_manage(link_league_found.values())
+
+    for league_link, league_name in link_league_found.items():
+        league = League.read_by_name(league_name)
+        if league:
+            cl = CrawlerLeague(league, league_link)
+            cl.start_crawling()

@@ -1,8 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 
-import src.application.Domain.League as League
 import src.util.util as util
+import src.application.Domain.Team as Team
+import src.application.Domain.Player as Player
+
+from src.application.Crawl.CrawlerPlayer import CrawlerPlayer
 
 
 class CrawlerTeam(object):
@@ -11,14 +14,14 @@ class CrawlerTeam(object):
         self.team = team
         self.team_link = team_link
 
-    def look_for_players(self, force_parsing=True):
+        page = requests.get(self.team_link).text
+        self.soup = BeautifulSoup(page, "html.parser")
+
+    def look_for_players(self, force_parsing=False):
         current_players = self.team.get_current_players()
         players_found = {}
         if len(current_players) == 0 or force_parsing:
-            page = requests.get(self.team_link).text
-            soup = BeautifulSoup(page, "html.parser")
-
-            table = soup.find('table', {"class": "table table-striped table-hover no-footer"})
+            table = self.soup.find('table', {"class": "table table-striped table-hover no-footer"})
             for tr in table.find_all("tr"):
                 a = tr.find("a")
                 if a:
@@ -28,14 +31,13 @@ class CrawlerTeam(object):
         return players_found
 
 
-    def look_for_team_attributes(self, time_passed = 21, force_parsing=True):
-        last_team_attributes = self.team.get_last_team_attributes()
+    def look_for_team_attributes(self, day_passed = 21, force_parsing=False):
+        last_team_attributes = None
+        if self.team:
+            last_team_attributes = self.team.get_last_team_attributes()
         attributes_found = {}
-        if not last_team_attributes or util.compare_time_to_now(last_team_attributes.date, time_passed) or force_parsing:
-            page = requests.get(self.team_link).text
-            soup = BeautifulSoup(page, "html.parser")
-
-            div = soup.find('div', {"class": "card mb-20"})
+        if not last_team_attributes or util.compare_time_to_now(last_team_attributes.date, day_passed) or force_parsing:
+            div = self.soup.find('div', {"class": "card mb-20"})
             i = 0
             for li in div.find_all("li"):
                 value_str = str(li.span.string)
@@ -56,6 +58,40 @@ class CrawlerTeam(object):
 
                 i=i+1
         return attributes_found
+
+
+    def look_for_base_data(self):
+        h1 = self.soup.find('div', {"class": "info"}).h1
+        data_string = str(h1.string)
+        team_long_name = data_string[0:data_string.index("(")].strip()
+        team_fifa_api_id = data_string[data_string.index("(")+1:-1].split(" ")[1]
+        return team_long_name, int(team_fifa_api_id)
+
+
+    def start_crawling(self):
+        if not self.team:
+            # looking for name and fifa_api_id
+            team_long_name, team_fifa_api_id = self.look_for_base_data()
+            team = Team.read_by_team_fifa_api_id(team_fifa_api_id)
+            if team:
+                # a team with the same fifa api id has been found in the database
+                print("Found a team [ " + team_long_name + " ] in the DB with the same fifa_api_id [ " + team_fifa_api_id + " ]")
+
+            self.team = Team.write_new_team(team_long_name, team_fifa_api_id)
+
+        # looking for player
+        link_players_found = self.look_for_players()
+        for player_link, player_name in link_players_found.items():
+            player_fifa_api_id = player_link[25:]
+            player = Player.read_by_fifa_api_id(player_fifa_api_id)
+
+            cp = CrawlerPlayer(player, player_link)
+            cp.start_crawling()
+
+        # looking for build up play
+        attributes_found = self.look_for_team_attributes()
+        self.team.save_team_attributes(attributes_found)
+
 
 
 def get_group_label(i):

@@ -27,7 +27,7 @@ class SQLiteConnection(object):
             id_condition = "WHERE "
 
             for attrbiute, value in id.items():
-                id_condition += attrbiute+"='"+str(value)+"' AND "
+                id_condition += attrbiute+"='"+str(value).replace("'","''")+"' AND "
             id_condition = id_condition[0:-4]
 
         if column_filter=='*':
@@ -68,6 +68,21 @@ class SQLiteConnection(object):
                 row[name] = sqllite_row[i]
             row_results.append(row)
         return row_results
+
+    def insert(self, table_name, attributes):
+        insert = "INSERT INTO "+table_name+" "
+
+        columns = "("
+        values  = "VALUES ("
+        for column, value in attributes.items():
+            columns += column+","
+            values += "'"+str(value)+"',"
+
+        columns = columns[:-1]+")"
+        values = values[:-1] + ")"
+
+        insert += columns+" "+values+";"
+        self.cursor.execute(insert)
 
     def execute_query(self, query):
         rows = []

@@ -46,6 +46,7 @@ class League(object):
         :return:
         '''
         import src.application.Domain.Team as Team
+
         if not season:
             season = ""
 
