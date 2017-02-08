@@ -1,6 +1,7 @@
 import logging
 
 import src.application.Domain.Match as Match
+import src.application.Domain.Player as Player
 import src.application.Domain.Team_Attributes as Team_Attributes
 
 import src.util.SQLLite as SQLLite
@@ -54,8 +55,24 @@ class Team(object):
         else:
             return matches
 
-    def get_team_attributes(self,):
+    def get_last_team_attributes(self):
+        team_attributes = self.get_team_attributes()
+        max_date = "0000-00-00"
+        last_team_attributes = None
+
+        for team_attributes in self.get_team_attributes():
+            if team_attributes.date > max_date:
+                max_date = team_attributes.date
+                last_team_attributes = team_attributes
+
+        return last_team_attributes
+
+
+    def get_team_attributes(self, date=None):
         return Team_Attributes.read_by_team_api_id(self.team_api_id)
+
+    def get_current_team_attributes(self):
+        return self.get_team_attributes(util.get_today_date())
 
     def get_points_by_season_and_stage(self, season, stage, n=None):
         '''
@@ -198,6 +215,20 @@ class Team(object):
 
         return shoton
 
+
+    def get_players(self, season = None):
+        '''
+        Return all players that played in this team
+        if season, return the players for that season
+        :param season:
+        :return:
+        '''
+        return Player.read_by_team_api_id(self.team_api_id, season)
+
+
+    def get_current_players(self):
+        return self.get_players(season = util.get_current_season())
+
 def read_all():
     '''
     Read all the teams
@@ -243,8 +274,10 @@ def read_by_name(team_long_name):
         return Cache.get_element(team_long_name, "TEAM_BY_LONG_NAME")
     except KeyError:
         pass
-
-    sqllite_row = SQLLite.get_connection().select("Team", **{"team_long_name": team_long_name})[0]
+    try:
+        sqllite_row = SQLLite.get_connection().select("Team", **{"team_long_name": team_long_name})[0]
+    except IndexError:
+        return None
     team = Team(sqllite_row["id"])
     for attribute, value in sqllite_row.items():
         team.__setattr__(attribute, value)
@@ -252,7 +285,3 @@ def read_by_name(team_long_name):
     Cache.add_element(team_long_name, team, "TEAM_BY_API_ID")
     Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
     return team
-
-def read_by_league_id(league_id, season=None):
-
-    pass

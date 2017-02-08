@@ -1,6 +1,8 @@
 import os
 import configparser
 import datetime
+import dateutil.parser
+from datetime import timedelta
 
 from logging import Logger
 import logging
@@ -49,6 +51,22 @@ def get_current_season():
     else:
         return str(year-1) + "/" + str(year)
 
+
+def get_today_date():
+    return datetime.datetime.now().isoformat().split("T")[0]
+
+
+def compare_time_to_now(iso_time_string, days_to_subtract=0):
+    '''
+    TRUE if input_time < (current_time-days)
+            EX: input_time = 2017-01-01
+                current_time = 2017-02-08
+                days = 30   ret TRUE --> 30 day are passed
+    :param iso_time_string:
+    :param days_to_subtract:
+    :return:
+    '''
+    return dateutil.parser.parse(iso_time_string) < (datetime.datetime.now() - timedelta(days=days_to_subtract))
 
 
 

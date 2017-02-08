@@ -8,10 +8,10 @@ class CrawlerLeague(object):
         self.host_url = host_url
         self.league = league
 
-    def look_for_teams(self, link):
+    def look_for_teams(self, link, force_parsing=True):
         current_teams = self.league.get_teams_current_season()
         teams_found = {}
-        if len(current_teams) == 0:
+        if len(current_teams) == 0 or force_parsing:
             page = requests.get(link).text
             soup = BeautifulSoup(page, "html.parser")
 

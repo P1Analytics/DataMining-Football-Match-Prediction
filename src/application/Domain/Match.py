@@ -151,3 +151,48 @@ def read_matches_by_away_team(team_api_id, season=None):
 
     Cache.add_element(str(team_api_id)+"_"+season, match_list,"MATCH_AWAY")
     return match_list
+
+
+def read_players_api_id_by_team_api_id(team_api_id, season=None):
+    '''
+    return a list of player_api_id
+    if season is set, consider only that list
+    :param team_api_id:
+    :param season:
+    :return:
+    '''
+    players_api_id = set()
+    filter = {}
+    if season:
+        filter["season"]=season
+    else:
+        season=""
+    try:
+        return Cache.get_element(str(team_api_id)+"_"+season, "MATCH_GET_PLAYERS_BY_TEAM_API_ID")
+    except KeyError:
+        pass
+
+    filter["home_team_api_id"] = team_api_id
+    for sqllite_row in SQLLite.get_connection().select("Match", column_filter="home_player_1, home_player_2, "
+                                                                              "home_player_3, home_player_4, "
+                                                                              "home_player_5, home_player_6, "
+                                                                              "home_player_7, home_player_8, "
+                                                                              "home_player_9, home_player_10, "
+                                                                              "home_player_11", **filter):
+        for home_player_i, player_api_id in sqllite_row.items():
+            if player_api_id:
+                players_api_id.add(player_api_id)
+
+    del(filter["home_team_api_id"])
+    filter["away_team_api_id"] = team_api_id
+    for sqllite_row in SQLLite.get_connection().select("Match", column_filter="away_player_1, away_player_2, "
+                                                                              "away_player_3, away_player_4, "
+                                                                              "away_player_5, away_player_6, "
+                                                                              "away_player_7, away_player_8, "
+                                                                              "away_player_9, away_player_10, "
+                                                                              "away_player_11", **filter):
+        for away_player_i, player_api_id in sqllite_row.items():
+            if player_api_id:
+                players_api_id.add(player_api_id)
+    Cache.add_element(str(team_api_id)+"_"+season, players_api_id, "MATCH_GET_PLAYERS_BY_TEAM_API_ID")
+    return players_api_id

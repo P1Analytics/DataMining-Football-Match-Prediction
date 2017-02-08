@@ -42,10 +42,12 @@ def read_by_team_api_id(team_api_id):
         return Cache.get_element(team_api_id, "TEAM_ATTRIBUTES")
     except KeyError:
         pass
-    sqllite_row = SQLLite.get_connection().select("Team_Attributes", **{"team_api_id": team_api_id})[0]
-    team_attributes = Team_Attributes(sqllite_row["id"])
-    for attribute, value in sqllite_row.items():
-        team_attributes.__setattr__(attribute, value)
+    team_attributes_list = []
+    for sqllite_row in SQLLite.get_connection().select("Team_Attributes", **{"team_api_id": team_api_id}):
+        team_attributes = Team_Attributes(sqllite_row["id"])
+        for attribute, value in sqllite_row.items():
+            team_attributes.__setattr__(attribute, value)
+        team_attributes_list.append(team_attributes)
 
-    Cache.add_element(team_api_id, team_attributes, "TEAM_ATTRIBUTES")
-    return team_attributes
+    Cache.add_element(team_api_id, team_attributes_list, "TEAM_ATTRIBUTES")
+    return team_attributes_list

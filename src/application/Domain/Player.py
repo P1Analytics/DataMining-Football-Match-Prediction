@@ -1,6 +1,8 @@
 import src.util.SQLLite as SQLLite
 import src.util.Cache as Cache
 
+import src.application.Domain.Match as Match
+
 class Player(object):
     def __init__(self, id):
         self.id = id
@@ -25,7 +27,6 @@ def read_by_api_id(player_api_id):
     :param player_api_id:
     :return:
     '''
-
     try:
         return Cache.get_element(player_api_id, "PLAYER_BY_API_ID")
     except KeyError:
@@ -39,5 +40,38 @@ def read_by_api_id(player_api_id):
 
     Cache.add_element(player_api_id, player, "PLAYER_BY_API_ID")
     return player
+
+
+def read_by_team_api_id(team_api_id, season=None):
+    '''
+    Return list of players that play in the team identified my team_api_id
+    if season is set, consider only that season
+    :param team_api_id:
+    :param season:
+    :return:
+    '''
+
+    if not season:
+        season = ""
+    try:
+        return Cache.get_element(str(team_api_id)+"_"+season, "PLAYER_BY_TEAM_API_ID")
+    except KeyError:
+        pass
+    players = []
+    players_api_id = Match.read_players_api_id_by_team_api_id(team_api_id, season)
+    for player_api_id in players_api_id:
+        try:
+            player = Cache.get_element(player_api_id, "PLAYER_BY_API_ID")
+        except KeyError:
+            filter = {"player_api_id": player_api_id}
+            sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
+            player = Player(sqllite_row["id"])
+            for attribute, value in sqllite_row.items():
+                player.__setattr__(attribute, value)
+            Cache.add_element(player_api_id, player, "PLAYER_BY_API_ID")
+        players.append(player)
+
+    Cache.add_element(str(team_api_id)+"_"+season, players, "PLAYER_BY_TEAM_API_ID")
+    return players
 
 
