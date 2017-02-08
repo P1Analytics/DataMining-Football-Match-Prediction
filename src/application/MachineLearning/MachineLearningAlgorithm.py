@@ -108,7 +108,7 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
 
 
 
-def run_all_algorithms(data, data_label, data_description=None, train_percentage=0.8, **params):
+def run_all_algorithms(data, data_label, data_description=None, train_percentage=0.7, **params):
 
     if data_description:
         train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
