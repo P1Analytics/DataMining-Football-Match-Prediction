@@ -36,7 +36,7 @@ class CrawlerPlayer(object):
         row_birthday = meta_text[meta_text.index("(")+1:meta_text.index(")")]
         birthday = get_db_birthday_date(row_birthday)
 
-
+        # TODO weight and height
 
 
         return player_long_name, int(player_fifa_api_id), birthday+" 00:00:00", 0, 0
