@@ -18,13 +18,13 @@ class Country(object):
         return League.read_by_country(self.id)
 
 
-def read_all():
+def read_all(column_filter='*'):
     '''
     Reads all tuple in the database
     :return:
     '''
     countries = []
-    for c in SQLLite.read_all("Country"):
+    for c in SQLLite.read_all("Country", column_filter):
         country = Country(c["id"])
         for attribute, value in c.items():
             country.__setattr__(attribute, value)

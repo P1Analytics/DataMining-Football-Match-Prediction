@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 import src.application.Domain.League as League
+import src.application.Domain.Match as Match
 import src.util.util as util
 from src.application.Crawl.enetscores.CrawlMatch import CrawlerMatch
 from src.application.Crawl.enetscores.CrawlerLeague import CrawlerLeague
@@ -31,18 +32,23 @@ class Crawler(object):
             league_data_stage = header.a.attrs['data-stage']
 
             # check if the this league corresponds to one of those one managed!
-            link_league_to_check = "http://football-data.mx-api.enetscores.com/page/xhr/standings/1%2F0%2F0%2F0%2F"+league_data_stage+"%2F0/"
-            cl = CrawlerLeague(None, link_league_to_check)
-            if cl.is_a_managed_league(league_data_stage) and len(league_name)>3:
+
+            cl = CrawlerLeague(None, league_data_stage)
+            if cl.is_a_managed_league() and len(league_name)>3:
 
                 league = League.read_by_name(league_name)
                 if league:
-                    print(league_name, league_data_stage)
+                    season = cl.get_season()
+                    print(league_name, league_data_stage, season)
                     for div_event in body.find_all('div', {'class':'mx-stage-events'}):
+
+                        # event correspond to "match_api_id"
                         event = str(div_event.attrs["class"][3]).split("-")[2]
-                        event_link = "http://json.mx-api.enetscores.com/live_data/event/"+event+"/0"
-                        cm = CrawlerMatch(league, event_link)
-                        cm.parse_json()
+
+                        match = Match.read_by_match_api_id(event)
+                        cm = CrawlerMatch(match, league, event)
+                        cm.parse_json(season)
+
                 else:
                     log.debug("League by name not found ["+league_name+", "+league_data_stage+"]")
 

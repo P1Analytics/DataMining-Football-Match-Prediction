@@ -42,18 +42,54 @@ class Match(object):
         import src.application.Domain.Shot as Shot
         return Shot.read_match_shot(self, on)
 
-def read_all():
+    def are_teams_linedup(self,):
+        hp = "home_player_"
+        ap = "away_player_"
+
+        for i in range(1, 11):
+            hp_i = hp+str(i)
+            ap_i = ap+str(i)
+            if not self.__getattribute__(hp_i) or not self.__getattribute__(ap_i):
+                return False
+        return True
+
+
+
+def read_all(column_filter='*'):
     '''
     Read all the matches
     :return:
     '''
     match_list = []
-    for p in SQLLite.read_all("Match"):
+    for p in SQLLite.read_all("Match", column_filter=column_filter):
         match = Match(p["id"])
         for attribute, value in p.items():
             match.__setattr__(attribute, value)
         match_list.append(match)
     return match_list
+
+
+def read_by_match_api_id(match_api_id):
+    '''
+    return the match by its api id
+    :param match_api_id:
+    :return:
+    '''
+    try:
+        return Cache.get_element(str(match_api_id), "MATCH_BY_API_ID")
+    except KeyError:
+        pass
+
+    try:
+        sqllite_row = SQLLite.get_connection().select("Match", **{"match_api_id":str(match_api_id)})[0]
+    except IndexError:
+        return None
+    match = Match(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        match.__setattr__(attribute, value)
+
+    Cache.add_element(str(match.match_api_id), match, "MATCH_BY_API_ID")
+    return match
 
 def read_matches_by_league(league_id, season=None):
     '''

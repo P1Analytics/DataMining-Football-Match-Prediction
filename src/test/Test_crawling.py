@@ -1,6 +1,7 @@
 import src.application.Crawl.enetscores.Crawler as Crawler
 import src.application.Domain.Country as Country
 import src.application.Domain.Team as Team
+import src.application.Domain.Match as Match
 import src.util.util as util
 
 util.init_logger()
@@ -20,8 +21,8 @@ napoli = Team.read_by_name("Chaves", like=True)
 #napoli = Team.read_by_team_fifa_api_id(111821)
 print(napoli)
 
+match_api_id = "483129"
+print(Match.read_by_match_api_id(match_api_id))
 
-for l in Country.read_all():
-    print(l)
 
 

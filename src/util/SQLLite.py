@@ -104,5 +104,5 @@ def get_connection():
 
     return sqllite_connection
 
-def read_all(table_name):
-    return get_connection().select(table_name)
+def read_all(table_name, column_filter='*'):
+    return get_connection().select(table_name, column_filter=column_filter)

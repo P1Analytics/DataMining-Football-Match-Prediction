@@ -4,15 +4,21 @@ import requests
 
 import src.util.util as util
 import src.application.Domain.Team as Team
+from src.application.Crawl.enetscores.CrawlerLineup import CrawlerLineup
 
 log = logging.getLogger(__name__)
 class CrawlerMatch(object):
-    def __init__(self, league, match_link):
+    def __init__(self, match, league, event):
+        self.match = match
         self.league = league
-        self.match_link = match_link
+        self.event = event
+
+        self.match_link = "http://json.mx-api.enetscores.com/live_data/event/"+event+"/0"
         self.json_match = json.loads(requests.get(self.match_link).text)["i"][0]
 
-    def parse_json(self):
+        log.debug("Match event ["+event+"] got at link ["+self.match_link+"]")
+
+    def parse_json(self, season):
         status_descfk = self.json_match["status_descfk"]
         status_type = self.json_match["status_type"]
         status_desc_short = self.json_match["status_desc_short"]
@@ -71,7 +77,7 @@ class CrawlerMatch(object):
         match_attributes = {}
         match_attributes["country_id"] = self.league.country_id
         match_attributes["league_id"] = self.league.id
-        match_attributes["season"] = get_season_by_date(startdate.split(" ")[0])
+        match_attributes["season"] = season
         match_attributes["stage"] = round
         match_attributes["date"] = startdate
         match_attributes["match_api_id"] = eventfk
@@ -90,10 +96,12 @@ class CrawlerMatch(object):
             team_link = "http://football-data.mx-api.enetscores.com/page/mx/team/" + awayfk
             print("Home team not found [" + awayfk + "]", team_link)
 
-        # reading team module
+
+        if not self.match or not self.match.are_teams_linedup():
+            lc = CrawlerLineup(self.match, self.event)
+            lc.get_lineups(match_attributes)
 
 
-        print(match_attributes)
 
 
 def get_season_by_date(date):
