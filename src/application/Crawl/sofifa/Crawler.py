@@ -1,15 +1,23 @@
+import logging
+
 import requests
 from bs4 import BeautifulSoup
 
-from src.application.Crawl.CrawlerLeague import CrawlerLeague
 import src.application.Domain.League as League
+import src.util.util as util
+from src.application.Crawl.enetscores.CrawlMatch import CrawlerMatch
+from src.application.Crawl.sofifa.CrawlerLeague import CrawlerLeague
+
+log = logging.getLogger(__name__)
 
 class Crawler(object):
-    def __init__(self, host_url = "http://sofifa.com"):
-        self.host_url = host_url
+    def __init__(self, host_url_league = "http://sofifa.com"
+                     , host_url_match  = "http://football-data.mx-api.enetscores.com/page/xhr"):
+        self.host_url_league = host_url_league
+        self.host_url_match = host_url_match
 
     def look_for_leagues(self):
-        page = requests.get(self.host_url+"/leagues").text
+        page = requests.get(self.host_url_league+"/leagues").text
         soup = BeautifulSoup(page, "html.parser")
         leagues_found = {}
         table = soup.find('table', {"class": "table table-striped table-hover no-footer"})
@@ -19,7 +27,7 @@ class Crawler(object):
                 league = str(a.string).strip()
                 if league.endswith(")"):
                     league = league[:-3].strip()
-                link = self.host_url + a["href"]
+                link = self.host_url_league + a["href"]
                 leagues_found[link] = league
 
         return leagues_found
@@ -47,9 +55,9 @@ class Crawler(object):
             if new:
                 print("Found new league:", league_found)
 
+
 def start_crawling():
     c = Crawler()
-
     # looking for league
     link_league_found = c.look_for_leagues()
     c.find_thesaurus_legues(link_league_found.values())
@@ -60,3 +68,4 @@ def start_crawling():
         if league:
             cl = CrawlerLeague(league, league_link)
             cl.start_crawling()
+

@@ -10,11 +10,12 @@ import logging
 
 project_directory = os.path.dirname(os.path.abspath(__file__))[0:-8]
 
-
 def init_logger():
     Logger.setLevel(logging.getLogger(),10)
-    logging.basicConfig(filename=project_directory+"/data/log/logging.txt",
+    logging.basicConfig(filename=project_directory+"/data/log/logging.txt", filemode="w",
                         level=logging.DEBUG,format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+    logging.getLogger("src.util.util").debug(msg="Initialization logger done")
 
 
 def get_project_directory():
@@ -75,4 +76,18 @@ def compare_time_to_now(iso_time_string, days_to_subtract=0):
     return dateutil.parser.parse(iso_time_string) < (datetime.datetime.now() - timedelta(days=days_to_subtract))
 
 
+def print_dict(my_dict, indent):
+    h = ""
+    for i in range(indent):
+        h += "|\t"
 
+    if type(my_dict) == list:
+        for d in my_dict:
+            print("****")
+            print_dict(d, indent + 1)
+    elif type(my_dict) != dict:
+        print(h, ">",my_dict)
+    else:
+        for k, v in my_dict.items():
+            print(h+"-", k)
+            print_dict(v, indent+1)

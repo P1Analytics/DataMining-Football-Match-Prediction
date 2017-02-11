@@ -56,7 +56,6 @@ class Team(object):
             return matches
 
     def get_last_team_attributes(self):
-        team_attributes = self.get_team_attributes()
         max_date = "0000-00-00"
         last_team_attributes = None
 
@@ -69,7 +68,7 @@ class Team(object):
 
 
     def get_team_attributes(self, date=None):
-        return Team_Attributes.read_by_team_api_id(self.team_api_id)
+        return Team_Attributes.read_by_team_fifa_api_id(self.team_fifa_api_id)
 
     def get_current_team_attributes(self):
         return self.get_team_attributes(util.get_today_date())
@@ -297,7 +296,7 @@ def read_by_team_fifa_api_id(team_fifa_api_id):
     return team
 
 
-def read_by_name(team_long_name):
+def read_by_name(team_long_name, like=False):
     '''
        Read from the DB the team by its name
        :param team_api_id:
@@ -309,7 +308,10 @@ def read_by_name(team_long_name):
     except KeyError:
         pass
     try:
-        sqllite_row = SQLLite.get_connection().select("Team", **{"team_long_name": team_long_name})[0]
+        if like:
+            sqllite_row = SQLLite.get_connection().select_like("Team", **{"team_long_name": team_long_name})[0]
+        else:
+            sqllite_row = SQLLite.get_connection().select("Team", **{"team_long_name": team_long_name})[0]
     except IndexError:
         return None
     team = Team(sqllite_row["id"])

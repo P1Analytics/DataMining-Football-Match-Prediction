@@ -1,8 +1,10 @@
 import sqlite3
+import logging
 
 from src.util import util
 
 sqllite_connection = None
+log = logging.getLogger(__name__)
 
 class SQLiteConnection(object):
     def __init__(self, database_path="data/db/database.sqlite"):
@@ -36,7 +38,9 @@ class SQLiteConnection(object):
             column_names = column_filter.split(",")
 
         row_results = []
-        for sqllite_row in self.cursor.execute("SELECT "+column_filter+" FROM "+table_name+" "+id_condition+";"):
+        select = "SELECT "+column_filter+" FROM "+table_name+" "+id_condition+";"
+        log.debug("select ["+select+"]")
+        for sqllite_row in self.cursor.execute(select):
             if sqllite_row is None:
                 continue
             row = {}
@@ -76,12 +80,13 @@ class SQLiteConnection(object):
         values  = "VALUES ("
         for column, value in attributes.items():
             columns += column+","
-            values += "'"+str(value)+"',"
+            values += "'"+str(value).replace("'","''")+"',"
 
         columns = columns[:-1]+")"
         values = values[:-1] + ")"
 
         insert += columns+" "+values+";"
+        log.debug("insert ["+insert+"]")
         self.cursor.execute(insert)
 
     def execute_query(self, query):

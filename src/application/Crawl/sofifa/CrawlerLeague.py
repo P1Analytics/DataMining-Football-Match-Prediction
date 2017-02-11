@@ -1,8 +1,11 @@
 import requests
 from bs4 import BeautifulSoup
 
+import src.application.Domain.Country as Country
 import src.application.Domain.Team as Team
-from src.application.Crawl.CrawlerTeam import CrawlerTeam
+import src.util.Cache as Cache
+from src.application.Crawl.sofifa.CrawlerTeam import CrawlerTeam
+
 
 class CrawlerLeague(object):
     def __init__(self, league, league_link, host_url="http://sofifa.com"):
@@ -26,7 +29,6 @@ class CrawlerLeague(object):
                     teams_found[link] = team_name
 
         return teams_found
-
 
     def start_crawling(self):
         # looking for teams
