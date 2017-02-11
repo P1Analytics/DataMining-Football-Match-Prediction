@@ -131,11 +131,11 @@ def run_all_algorithms(data, data_label, data_description=None, train_percentage
     mag.train()
     mag.score()
 
-    mag = SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
+    '''mag = SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
     mag.score()
 
     mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
-    mag.score()
+    mag.score()'''
 

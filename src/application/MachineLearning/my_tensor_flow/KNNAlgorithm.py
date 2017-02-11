@@ -2,7 +2,7 @@ import logging
 import numpy as np
 import tensorflow as tf
 import src.util.util as util
-
+from collections import Counter
 from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
 
 class KNNAlgorithm(MachineLearningAlgorithm):
@@ -44,13 +44,14 @@ class KNNAlgorithm(MachineLearningAlgorithm):
         self.x_train = tf.placeholder("float", shape=[None, num_features])
         self.x_test = tf.placeholder("float", shape=[num_features])
 
+
     def train(self):
         # with KNN nothing to train"
         pass
 
-
     def get_distance(self):
-        return tf.reduce_sum(tf.abs(tf.add(self.x_train, tf.negative(self.x_test))), reduction_indices=1)
+        #square distance. Next step is to choose different distance function
+        return tf.reduce_sum(tf.abs(tf.square(tf.add(self.x_train, tf.negative(self.x_test)))), reduction_indices=1)
 
     def get_prediction_function(self):
         distance = self.get_distance()
@@ -67,7 +68,15 @@ class KNNAlgorithm(MachineLearningAlgorithm):
             neighbors_tensor = tf.pack(nearest_neighbors)
             y, idx, count = tf.unique_with_counts(neighbors_tensor)
             prediction = tf.slice(y, begin=[tf.argmax(count, 0)], size=tf.constant([1], dtype=tf.int64))[0]
-            return prediction
+            return neighbors_tensor
+
+    def get_neighbors_label(self,X_data):
+        if self.k != 1:
+            X_dic = Counter(X_data)
+            max_value = max(X_dic, key=X_dic.get)
+            return max_value,float(X_dic[max_value])/float(self.k)
+        else:
+            return self.train_data[X_data],1
 
     def score(self):
         init = tf.global_variables_initializer()
@@ -75,23 +84,28 @@ class KNNAlgorithm(MachineLearningAlgorithm):
         self.session.run(init)
 
         predicted_labels = []
+        probability_events = []
         # loop over test data
         for i in range(len(self.test_data)):
             # Get nearest neighbor
+            prediction_function= self.get_prediction_function()
 
-            nn_index = self.session.run(self.get_prediction_function(),
+            neighbors_tensor_label = self.session.run(prediction_function,
                                         feed_dict={self.x_train: self.train_data, self.x_test: self.test_data[i, :]})
 
+
             # Get nearest neighbor class label and compare it to its true label
-            predicted_labels.append(self.train_label[nn_index])
+            current_label,probability_label = self.get_neighbors_label(self.train_label[neighbors_tensor_label])
+            predicted_labels.append(current_label)
+            probability_events.append(probability_label)
 
             # Calculate accuracy
             accuracy = 0
-            if (self.train_label[nn_index]) == (self.test_label[i]):
+            if (current_label) == (self.test_label[i]):
                 accuracy += 1. / len(self.test_data)
 
         logging.debug("Accuracy on test" + str(accuracy))
-        probability_events = [-1 for l in predicted_labels]
-
         return self.post_score(predicted_labels, probability_events)
+
+
 

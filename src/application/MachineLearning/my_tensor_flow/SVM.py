@@ -180,8 +180,6 @@ def cost(training, classes, inputs,num_features, kernel_type="rbf", C=1, gamma=1
 
 def decide(training, training_instances, testing, testing_instances,
            beta, offset, kernel_type="rbf", gamma=1):
-    """Tests a set of test instances."""
-
 
     kernel = gaussian_kernel(
         testing, testing_instances, training, training_instances, gamma)
