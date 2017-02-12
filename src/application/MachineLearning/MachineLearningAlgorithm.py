@@ -1,6 +1,6 @@
 import random
 import numpy as np
-
+from sklearn.decomposition import PCA
 class MachineLearningAlgorithm(object):
 
     def __init__(self, train_data, train_label, test_data, test_label, train_descirption, test_description):
@@ -77,7 +77,6 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
     :param params:
     :return:
     '''
-
     if data_description:
         train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
     else:
@@ -108,12 +107,16 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
 
 
 
-def run_all_algorithms(data, data_label, data_description=None, train_percentage=0.7, **params):
+def run_all_algorithms(data, data_label, data_description=None, enable_PCA = None, train_percentage=0.7, **params):
+
+    if enable_PCA:
+        data = PCA(2).fit_transform(data)
 
     if data_description:
         train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
     else:
         train_datas, test_datas = split_data(train_percentage, True, [data, data_label])
+
 
     train_data = np.asarray(train_datas[0])
     train_label = np.asarray(train_datas[1])
@@ -127,15 +130,15 @@ def run_all_algorithms(data, data_label, data_description=None, train_percentage
         train_description = ["" for x in range(len(train_data))]
         test_description = ["" for x in range(len(test_data))]
 
-    mag = KNNAlgorithm( train_data, train_label, test_data, test_label, train_description, test_description)
+    '''mag = KNNAlgorithm( train_data, train_label, test_data, test_label, train_description, test_description)
+    mag.train()
+    mag.score()'''
+
+    mag = SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
     mag.score()
 
-    '''mag = SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
-    mag.train()
-    mag.score()
-
-    mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description, **params)
+    '''mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
     mag.score()'''
 

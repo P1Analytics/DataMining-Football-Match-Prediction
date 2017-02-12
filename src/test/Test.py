@@ -10,8 +10,8 @@ def doTest():
     #matches, labels, matches_names = MLInput.team_form("Italy Serie A", 4, n=None, season="2015/2016")
     #matches, labels, matches_names = MLInput.team_home_away_form("Italy Serie A", 4, n=None, season= "2015/2016")
     #matches, labels, matches_names = MLInput.match_statistics("Italy Serie A", n=None, season="2015/2016")
-    params = {"batch_size": 259, "number_step":1000, "kernel":"rbf", "k":9}
-    MachineLearningAlgorithm.run_all_algorithms(matches, labels, matches_names, **params)
+    params = {"batch_size": 259, "number_step":500, "kernel":"rbf", "k":9}
+    MachineLearningAlgorithm.run_all_algorithms(matches, labels, matches_names,True, **params)
 
 
 doTest()
