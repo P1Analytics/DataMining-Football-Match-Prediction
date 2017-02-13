@@ -41,7 +41,7 @@ class Crawler(object):
                 if league_name.strip() in leagues_found:
                     att = False
             if att:
-                print("ATT: league name not found, a thesarus should be there [ "+league+" ]")
+                print("ATT: league name not found, a thesarus should be there [ "+league_name+" ]")
 
 
     def find_new_league_to_manage(self, leagues_found):

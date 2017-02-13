@@ -55,7 +55,7 @@ def read_by_team_fifa_api_id(team_fifa_api_id):
     return team_attributes_list
 
 def write_team_attributes(team, team_attributes, force=False, date=util.get_today_date()+" 00:00:00"):
-    log.debug("write_team_attributes of team_fifa_api_id = ["+team.team_fifa_api_id+"]")
+    log.debug("write_team_attributes of team_fifa_api_id = ["+str(team.team_fifa_api_id)+"]")
 
     team_attributes["team_fifa_api_id"]=team.team_fifa_api_id
     team_attributes["team_api_id"]=team.team_api_id

@@ -1,9 +1,12 @@
+import logging
 import requests
 from bs4 import BeautifulSoup
 
 import src.application.Domain.Team as Team
 from src.application.Crawl.sofifa.CrawlerTeam import CrawlerTeam
 
+
+log = logging.getLogger(__name__)
 
 class CrawlerLeague(object):
     def __init__(self, league, league_link, host_url="http://sofifa.com"):
@@ -33,7 +36,10 @@ class CrawlerLeague(object):
         link_teams_found = self.look_for_teams(self.league_link)
 
         for team_link, team_name in link_teams_found.items():
-            team = Team.read_by_name(team_name)
-            ct = CrawlerTeam(team, team_link)
-            ct.start_crawling()
+            teams = Team.read_by_name(team_name)
+            if len(teams)==1:
+                ct = CrawlerTeam(teams[0], team_link)
+                ct.start_crawling()
+            else:
+                log.warning("More than one team with the same name ["+team_name+"]")
 

@@ -108,32 +108,16 @@ def read_by_name(player_name):
     :param player_api_id:
     :return:
     '''
-    try:
-        return Cache.get_element(player_name, "PLAYER_BY_NAME")
-    except KeyError:
-        pass
-
     filter = {"player_name": player_name}
 
-    try:
-        sqllite_rows = SQLLite.get_connection().select("Player", **filter)
-        if len(sqllite_rows) > 1:
-            # more than one result --> must be only one
-            log.debug("read_by_name returned more than one player with name ["+player_name+"]")
-            # TODO manage more that one players that have the same name
-            return None
-        sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
-    except IndexError:
-        return None
+    players = []
+    for p in SQLLite.get_connection().select("Player", **filter):
+        player = Player(p["id"])
+        for attribute, value in p.items():
+            player.__setattr__(attribute, value)
+        players.append(player)
 
-    player = Player(sqllite_row["id"])
-    for attribute, value in sqllite_row.items():
-        player.__setattr__(attribute, value)
-
-    Cache.add_element(player.player_fifa_api_id, player, "PLAYER_BY_FIFA_API_ID")
-    Cache.add_element(player.player_api_id, player, "PLAYER_BY_API_ID")
-    Cache.add_element(player.player_name, player, "PLAYER_BY_NAME")
-    return player
+    return players
 
 
 def read_by_team_api_id(team_api_id, season=None):
@@ -175,7 +159,7 @@ def write_new_player(player_name, player_fifa_api_id, birthday, height, weight):
                                              "birthday":birthday,
                                              "height":height,
                                               "weight":weight})
-    return read_by_name(player_name)
+    return read_by_fifa_api_id(player_fifa_api_id)
 
 
 def update(player):

@@ -303,17 +303,10 @@ def read_by_name(team_long_name, like=False):
        :return:
        '''
 
-    try:
-        return Cache.get_element(team_long_name, "TEAM_BY_LONG_NAME")
-    except KeyError:
-        pass
-    try:
-        if like:
-            sqllite_rows = SQLLite.get_connection().select_like("Team", **{"team_long_name": team_long_name})
-        else:
-            sqllite_rows = SQLLite.get_connection().select("Team", **{"team_long_name": team_long_name})
-    except IndexError:
-        return None
+    if like:
+        sqllite_rows = SQLLite.get_connection().select_like("Team", **{"team_long_name": team_long_name})
+    else:
+        sqllite_rows = SQLLite.get_connection().select("Team", **{"team_long_name": team_long_name})
 
     teams = []
     for p in sqllite_rows:
@@ -326,7 +319,7 @@ def read_by_name(team_long_name, like=False):
 
 def write_new_team(team_long_name, team_fifa_api_id):
     SQLLite.get_connection().insert("Team", {"team_long_name":team_long_name, "team_fifa_api_id":team_fifa_api_id})
-    return read_by_name(team_long_name)
+    return read_by_team_api_id(team_fifa_api_id)
 
 def update(team):
     SQLLite.get_connection().update("Team", team)

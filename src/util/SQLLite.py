@@ -105,6 +105,7 @@ class SQLiteConnection(object):
         update = update[:-1]
 
         update += "WHERE id = '"+str(object.id)+"'"
+        log.debug("update ["+update+"]")
         self.cursor.execute(update)
 
 

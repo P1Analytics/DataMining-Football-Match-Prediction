@@ -57,7 +57,10 @@ class CrawlerLineup(object):
             except AttributeError:
                 pass
 
-        table_players = self.soup.find_all('table', {'class': 'mx-lineup-table'})[index_table_player]
+        tables_players = self.soup.find_all('table', {'class': 'mx-lineup-table'})
+        if not home and len(tables_players):
+            index_table_player = 2
+        table_players = tables_players[index_table_player]
         for player_td in table_players.find_all('td', {'class':'mx-player-name'}):
             player_api_id = player_td.a.attrs['data-player']
             last_name_player = get_last_name_playerstr((player_td.a.string).strip())
@@ -73,21 +76,20 @@ class CrawlerLineup(object):
                 self.match_attributes[player_attributes_api_id+str(i)] = player_api_id
                 check_player(player_api_id, current_player_name, last_name_player)
             else:
-                log.debug("Player with lastname ["+last_name_player+"] not found at the event["+self.event+"]")
+                log.warning("Player with lastname ["+last_name_player+"] not found at the event["+self.event+"]")
 
 
 def check_player(player_api_id, player_name, last_name_player):
     player = Player.read_by_api_id(player_api_id)
     if not player:
-        player = Player.read_by_name(player_name)
-        if not player:
-            # player not found by name
-            log.debug("checking the player: player not found "+ player_name+", id"+ player_api_id)
-            log.warning("checking the player: player not found "+ player_name+", id"+ player_api_id)
-        else:
+        players = Player.read_by_name(player_name)
+        if len(players)==1:
             # player found by name but not by api id --> update the api id
-            print("player found by name ["+player_name+"] --> updating its api id")
-            player.set_api_id(player_api_id, persist=True)
+            print("player found by name [" + player_name + "] --> updating its api id")
+            players[0].set_api_id(player_api_id, persist=True)
+        else:
+            # player not found by name
+            log.warning("Player to be matched at hand ["+ player_name+"], api id ["+ player_api_id+"]")
 
 def get_last_name_playerstr(player_name):
     if '.' in player_name:
@@ -101,4 +103,10 @@ def get_coordinates(coordinatesa_str):
     else:
         return coordinatesa_str[0:2], coordinatesa_str[2]
 
+'''
+event = '2272056'
 
+cl = CrawlerLineup(None, {}, event)
+print(cl.match_linedup_link)
+cl.get_lineups()
+'''

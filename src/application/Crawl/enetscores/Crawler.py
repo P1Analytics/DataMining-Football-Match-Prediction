@@ -16,7 +16,8 @@ class Crawler(object):
         self.host_url_match = host_url_match
 
 
-    def look_for_matches(self, go_back, i=0, stop_when = 1000):
+    def look_for_matches(self, go_back, stop_when, i=0):
+        print("Elaborating matches of the date:", util.get_date(i))
         matches_link = self.host_url_match + "/sport_events/1%2F"+util.get_date(i)+"%2Fbasic_h2h%2F0%2F0/"
         log.debug("Looking for matches of date ["+util.get_date(i)+"] at link ["+matches_link+"]")
         page = requests.get(matches_link).text
@@ -56,11 +57,11 @@ class Crawler(object):
                     log.debug("League by name not found ["+league_name+", "+league_data_stage+"]")
 
         if go_back and i != stop_when:
-            self.look_for_matches(go_back, i+1)
+            self.look_for_matches(go_back, stop_when, i+1)
 
 
-def start_crawling(go_back=False):
+def start_crawling(go_back=False, stop_when=1000):
     c = Crawler()
 
     # looking for matches
-    c.look_for_matches(go_back)
+    c.look_for_matches(go_back, stop_when)
