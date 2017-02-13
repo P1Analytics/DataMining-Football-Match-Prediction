@@ -53,15 +53,21 @@ def get_current_season():
         return str(year-1) + "/" + str(year)
 
 
+def get_date(days_to_subtract=0, with_hours=False):
+    date = datetime.datetime.now()-timedelta(days=days_to_subtract)
+    if with_hours:
+        return date.isoformat().split("T")
+    else:
+        return date.isoformat().split("T")[0]
+
+
 def get_today_date(with_hours=False):
     '''
     Return the date in ISO format
     :return:
     '''
-    if with_hours:
-        return datetime.datetime.now().isoformat().split("T")
-    else:
-        return datetime.datetime.now().isoformat().split("T")[0]
+    return get_date(days_to_subtract=0, with_hours=with_hours)
+
 
 def compare_time_to_now(iso_time_string, days_to_subtract=0):
     '''

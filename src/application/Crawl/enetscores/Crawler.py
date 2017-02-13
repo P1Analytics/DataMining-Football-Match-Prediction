@@ -16,10 +16,10 @@ class Crawler(object):
         self.host_url_match = host_url_match
 
 
-    def look_for_matches(self, go_back):
-        today_matches_link = self.host_url_match + "/sport_events/1%2"+util.get_today_date()+"%2Fbasic_h2h%2F0%2F0/"
-        log.debug("Looking for matches at ["+today_matches_link+"]")
-        page = requests.get(today_matches_link).text
+    def look_for_matches(self, go_back, i=0, stop_when = 1000):
+        matches_link = self.host_url_match + "/sport_events/1%2F"+util.get_date(i)+"%2Fbasic_h2h%2F0%2F0/"
+        log.debug("Looking for matches of date ["+util.get_date(i)+"] at link ["+matches_link+"]")
+        page = requests.get(matches_link).text
         soup = BeautifulSoup(page, "html.parser")
 
         header_list = soup.find_all('div', {'class':'mx-default-header mx-text-align-left mx-flexbox-container '})
@@ -39,18 +39,24 @@ class Crawler(object):
                 league = League.read_by_name(league_name)
                 if league:
                     season = cl.get_season()
-                    print(league_name, league_data_stage, season)
                     for div_event in body.find_all('div', {'class':'mx-stage-events'}):
 
                         # event correspond to "match_api_id"
                         event = str(div_event.attrs["class"][3]).split("-")[2]
 
                         match = Match.read_by_match_api_id(event)
-                        cm = CrawlerMatch(match, league, event)
-                        cm.parse_json(season)
+                        if not match or not match.are_teams_linedup() or not match.are_incidents_managed():
+                            log.debug("Need to crawl match ["+event+"]")
+                            cm = CrawlerMatch(match, league, event)
+                            cm.parse_json(season)
+                        else:
+                            log.debug("Not need to crawl match [" + event + "]")
 
                 else:
                     log.debug("League by name not found ["+league_name+", "+league_data_stage+"]")
+
+        if go_back and i != stop_when:
+            self.look_for_matches(go_back, i+1)
 
 
 def start_crawling(go_back=False):

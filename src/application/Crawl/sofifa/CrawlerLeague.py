@@ -1,9 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-import src.application.Domain.Country as Country
 import src.application.Domain.Team as Team
-import src.util.Cache as Cache
 from src.application.Crawl.sofifa.CrawlerTeam import CrawlerTeam
 
 

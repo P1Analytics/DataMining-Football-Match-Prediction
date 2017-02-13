@@ -1,8 +1,13 @@
+import logging
+
 import src.util.SQLLite as SQLLite
 import src.util.Cache as Cache
 
 import src.application.Domain.Match as Match
 import src.application.Domain.Player_Attributes as Player_Attributes
+
+
+log = logging.getLogger(__name__)
 
 class Player(object):
     def __init__(self, id):
@@ -30,6 +35,11 @@ class Player(object):
     def save_player_attributes(self, player_attributes):
         Player_Attributes.write_player_attributes(self, player_attributes)
 
+    def set_api_id(self, player_api_id, persist=True):
+        self.player_api_id = player_api_id
+        if persist:
+            update(self)
+
 def read_all():
     players = []
     for p in SQLLite.read_all("Player"):
@@ -51,7 +61,10 @@ def read_by_api_id(player_api_id):
         pass
 
     filter = {"player_api_id": player_api_id}
-    sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
+    try:
+        sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
+    except IndexError:
+        return None
     player = Player(sqllite_row["id"])
     for attribute, value in sqllite_row.items():
         player.__setattr__(attribute, value)
@@ -103,6 +116,12 @@ def read_by_name(player_name):
     filter = {"player_name": player_name}
 
     try:
+        sqllite_rows = SQLLite.get_connection().select("Player", **filter)
+        if len(sqllite_rows) > 1:
+            # more than one result --> must be only one
+            log.debug("read_by_name returned more than one player with name ["+player_name+"]")
+            # TODO manage more that one players that have the same name
+            return None
         sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
     except IndexError:
         return None
@@ -157,5 +176,9 @@ def write_new_player(player_name, player_fifa_api_id, birthday, height, weight):
                                              "height":height,
                                               "weight":weight})
     return read_by_name(player_name)
+
+
+def update(player):
+    SQLLite.get_connection().update("Player", player)
 
 

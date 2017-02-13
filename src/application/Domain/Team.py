@@ -309,21 +309,24 @@ def read_by_name(team_long_name, like=False):
         pass
     try:
         if like:
-            sqllite_row = SQLLite.get_connection().select_like("Team", **{"team_long_name": team_long_name})[0]
+            sqllite_rows = SQLLite.get_connection().select_like("Team", **{"team_long_name": team_long_name})
         else:
-            sqllite_row = SQLLite.get_connection().select("Team", **{"team_long_name": team_long_name})[0]
+            sqllite_rows = SQLLite.get_connection().select("Team", **{"team_long_name": team_long_name})
     except IndexError:
         return None
-    team = Team(sqllite_row["id"])
-    for attribute, value in sqllite_row.items():
-        team.__setattr__(attribute, value)
 
-    Cache.add_element(team.id, team, "TEAM_BY_API_ID")
-    Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
-    Cache.add_element(team.team_fifa_api_id, team, "TEAM_BY_FIFA_API_ID")
-    return team
+    teams = []
+    for p in sqllite_rows:
+        team = Team(p["id"])
+        for attribute, value in p.items():
+            team.__setattr__(attribute, value)
+        teams.append(team)
+    return teams
 
 
 def write_new_team(team_long_name, team_fifa_api_id):
     SQLLite.get_connection().insert("Team", {"team_long_name":team_long_name, "team_fifa_api_id":team_fifa_api_id})
     return read_by_name(team_long_name)
+
+def update(team):
+    SQLLite.get_connection().update("Team", team)

@@ -1,10 +1,14 @@
 import json
 import logging
+
 import requests
 
-import src.util.util as util
+import src.application.Domain.Match as Match
 import src.application.Domain.Team as Team
+import src.util.util as util
+from src.application.Crawl.enetscores.CrawlerIncidents import CrawlerIncidents
 from src.application.Crawl.enetscores.CrawlerLineup import CrawlerLineup
+from src.application.Crawl.enetscores.CrawlerTeam import CrawlerTeam
 
 log = logging.getLogger(__name__)
 class CrawlerMatch(object):
@@ -72,8 +76,6 @@ class CrawlerMatch(object):
         n_away_goal_first_time = util.get_default(self.json_match["results"]["2"]["r"], "5", 0)
         n_away_goal = util.get_default(self.json_match["results"]["2"]["r"], "1", 0)
 
-        #print(round, self.json_match["stats"])
-
         match_attributes = {}
         match_attributes["country_id"] = self.league.country_id
         match_attributes["league_id"] = self.league.id
@@ -86,32 +88,32 @@ class CrawlerMatch(object):
         match_attributes["home_team_goal"] = n_home_goal
         match_attributes["away_team_goal"] = n_away_goal
 
-        home_team = Team.read_by_team_api_id(homefk)
-        if not home_team:
-            team_link = "http://football-data.mx-api.enetscores.com/page/mx/team/"+homefk
-            print("Home team not found ["+homefk+"]", team_link)
+        # check team
+        check_team(homefk)
+        check_team(awayfk)
 
-        away_team = Team.read_by_team_api_id(awayfk)
-        if not away_team:
-            team_link = "http://football-data.mx-api.enetscores.com/page/mx/team/" + awayfk
-            print("Home team not found [" + awayfk + "]", team_link)
-
-
+        # formations
         if not self.match or not self.match.are_teams_linedup():
-            lc = CrawlerLineup(self.match, self.event)
-            lc.get_lineups(match_attributes)
+            lc = CrawlerLineup(self.match, match_attributes, self.event)
+            lc.get_lineups()
 
 
+        # event incidents
+        if not self.match or self.match and not self.match.are_incidents_managed():
+            li = CrawlerIncidents(self.match, match_attributes, self.event)
+            li.get_incidents()
+
+        if not self.match:
+            Match.write_new_match(match_attributes)
+        else:
+            # update match
+            Match.update_match(self.match, match_attributes)
 
 
-def get_season_by_date(date):
-    day = int(date.split("-")[2])
-    month = int(date.split("-")[1])
-    year = int(date.split("-")[0])
-
-    if month > 6 and day > 15:
-        return str(year)+"/"+str(year+1)
-    else:
-        return str(year-1) + "/" + str(year)
+def check_team(team_api_id):
+    home_team = Team.read_by_team_api_id(team_api_id)
+    if not home_team:
+        cm = CrawlerTeam(team_api_id)
+        cm.get_team_name()
 
 

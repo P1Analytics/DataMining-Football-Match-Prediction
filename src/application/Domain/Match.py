@@ -53,6 +53,11 @@ class Match(object):
                 return False
         return True
 
+    def are_incidents_managed(self):
+        if not self.goal or not self.shoton or not self.shotoff or not self.foulcommit or not self.card or not self.cross or not self.corner or not self.possession:
+            return False
+        return True
+
 
 
 def read_all(column_filter='*'):
@@ -232,3 +237,13 @@ def read_players_api_id_by_team_api_id(team_api_id, season=None):
                 players_api_id.add(player_api_id)
     Cache.add_element(str(team_api_id)+"_"+season, players_api_id, "MATCH_GET_PLAYERS_BY_TEAM_API_ID")
     return players_api_id
+
+
+def write_new_match(match_attributes):
+    SQLLite.get_connection().insert("Match", match_attributes)
+
+
+def update_match(match, match_attributes):
+    for attribute, value in match_attributes.items():
+        match.__setattr__(attribute, value)
+    SQLLite.get_connection().update("Match", match)

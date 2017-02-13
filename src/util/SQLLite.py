@@ -95,6 +95,19 @@ class SQLiteConnection(object):
             rows.append(row)
         return rows
 
+    def update(self, table_name, object):
+        column_names = self.getColumnFromTable(table_name)
+        update = "UPDATE "+table_name+" SET "
+
+        for column in column_names:
+            update += column+"='"+str(object.__getattribute__(column)).replace("'", "''")+"',"
+
+        update = update[:-1]
+
+        update += "WHERE id = '"+str(object.id)+"'"
+        self.cursor.execute(update)
+
+
 
 
 def get_connection():
