@@ -64,8 +64,13 @@ def start_crawling():
     c.find_new_league_to_manage(link_league_found.values())
 
     for league_link, league_name in link_league_found.items():
-        league = League.read_by_name(league_name)
-        if league:
+        leagues = League.read_by_name(league_name, like=True)
+        if len(leagues) == 0:
+            log.debug("League by name not found [" + league_name + "]")
+        elif len(leagues) == 1:
+            league = leagues[0]
             cl = CrawlerLeague(league, league_link)
             cl.start_crawling()
+        else:
+            log.warning("Too many leagues by name found [" + league_name + "]")
 

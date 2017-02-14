@@ -1,5 +1,6 @@
 import os
 import configparser
+import time
 import datetime
 import dateutil.parser
 from datetime import timedelta
@@ -68,6 +69,20 @@ def get_today_date(with_hours=False):
     '''
     return get_date(days_to_subtract=0, with_hours=with_hours)
 
+
+def get_date_by_string(date_str, with_hours=False):
+    try:
+        date = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+        if with_hours:
+            return date.isoformat().split("T")
+        else:
+            return date.isoformat().split("T")[0]
+    except ValueError:
+        return None
+
+
+def get_curr_time_millis():
+    return int(round(time.time() * 1000))
 
 def compare_time_to_now(iso_time_string, days_to_subtract=0):
     '''

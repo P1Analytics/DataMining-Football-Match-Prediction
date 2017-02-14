@@ -2,6 +2,7 @@ import sqlite3
 import logging
 
 from src.util import util
+import src.util.Cache as Cache
 
 sqllite_connection = None
 log = logging.getLogger(__name__)
@@ -18,10 +19,18 @@ class SQLiteConnection(object):
         return tables
 
     def getColumnFromTable(self, table_name):
+        try:
+            return Cache.get_element(table_name, "SQLLITE_COLUMN_TABLE")
+        except KeyError:
+            pass
+
         columns = []
         for r in self.cursor.execute("PRAGMA table_info("+table_name+");"):
             columns.append(r[1])
+
+        Cache.add_element(table_name, columns, "SQLLITE_COLUMN_TABLE")
         return columns
+
 
     def select(self, table_name, column_filter='*', **id):
         id_condition = ""
@@ -47,6 +56,8 @@ class SQLiteConnection(object):
             for i, name in enumerate(column_names):
                 row[name] = sqllite_row[i]
             row_results.append(row)
+
+        log.debug("Rows found: "+str(len(row_results)))
         return row_results
 
     def select_like(self, table_name, column_filter='*', **id):
@@ -89,6 +100,9 @@ class SQLiteConnection(object):
         log.debug("insert ["+insert+"]")
         self.cursor.execute(insert)
 
+        log.debug("Rows inserted: " + str(self.cursor.rowcount))
+        self.connection.commit()
+
     def execute_query(self, query):
         rows = []
         for row in self.cursor.execute(query):
@@ -104,11 +118,12 @@ class SQLiteConnection(object):
 
         update = update[:-1]
 
-        update += "WHERE id = '"+str(object.id)+"'"
+        update += " WHERE id = '"+str(object.id)+"'"
         log.debug("update ["+update+"]")
         self.cursor.execute(update)
 
-
+        log.debug("Rows updated: "+str(self.cursor.rowcount))
+        self.connection.commit()
 
 
 def get_connection():

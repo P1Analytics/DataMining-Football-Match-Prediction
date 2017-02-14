@@ -13,21 +13,21 @@ class CrawlerLeague(object):
         self.league = league
         self.league_data_stage = league_data_stage
 
+        self.link_league_to_check = "http://football-data.mx-api.enetscores.com/page/xhr/standings/1%2F0%2F0%2F0%2F" + self.league_data_stage + "%2F0/"
+        log.debug("Check by league data stage [" + self.league_data_stage + "] if this is a managed leage [" + self.link_league_to_check + "]")
+
     def is_a_managed_league(self):
         '''
         check if the league is correct
         "http://football-data.mx-api.enetscores.com/page/xhr/standings/1%2F0%2F0%2F0%2F"+league_data_stage+"%2F0/"
         :return:
         '''
-
         try:
             return Cache.get_element(self.league_data_stage, "CRAWL_LEAGUE_MANAGED")
         except KeyError:
             pass
 
-        link_league_to_check = "http://football-data.mx-api.enetscores.com/page/xhr/standings/1%2F0%2F0%2F0%2F" + self.league_data_stage + "%2F0/"
-        log.debug("Check by league data stage ["+self.league_data_stage+"] if this is a managed leage ["+link_league_to_check+"]")
-        page = requests.get(link_league_to_check).text
+        page = requests.get(self.link_league_to_check).text
         self.soup = BeautifulSoup(page, "html.parser")
         coutnry_name = str(self.soup.find('span', {'class':'mx-country-dropdown-name'}).string).strip()
         country = Country.read_by_name(coutnry_name)
@@ -49,6 +49,10 @@ class CrawlerLeague(object):
             return Cache.get_element(self.league_data_stage, "CRAWL_LEAGUE_SEASON")
         except KeyError:
             pass
+
+        if not self.soup:
+            page = requests.get(self.link_league_to_check).text
+            self.soup = BeautifulSoup(page, "html.parser")
 
         div_season = self.soup.find('div', {'class':'mx-dropdown-container mx-flexbox mx-float-left mx-tournament-dropdown'})
         season = str(div_season.span.string)

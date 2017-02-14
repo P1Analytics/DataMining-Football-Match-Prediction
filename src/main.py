@@ -9,5 +9,9 @@ import src.util.util as util
 
 if __name__ == "__main__":
     util.init_logger()
-    MainGui.run()
+    try:
+        MainGui.run()
+    except KeyboardInterrupt:
+        print("\nClosing the applicarion!")
+        exit(0)
 

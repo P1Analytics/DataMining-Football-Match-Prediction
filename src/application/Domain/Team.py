@@ -226,6 +226,10 @@ class Team(object):
 
 
     def get_current_players(self):
+        '''
+        Return a list of players that play in this team in the current season
+        :return:
+        '''
         return self.get_players(season = util.get_current_season())
 
 
@@ -319,7 +323,10 @@ def read_by_name(team_long_name, like=False):
 
 def write_new_team(team_long_name, team_fifa_api_id):
     SQLLite.get_connection().insert("Team", {"team_long_name":team_long_name, "team_fifa_api_id":team_fifa_api_id})
-    return read_by_team_api_id(team_fifa_api_id)
+    return read_by_team_fifa_api_id(team_fifa_api_id)
 
 def update(team):
     SQLLite.get_connection().update("Team", team)
+    Cache.del_element(team.team_api_id, "TEAM_BY_API_ID")
+    Cache.del_element(team.team_long_name, "TEAM_BY_LONG_NAME")
+    Cache.del_element(team.team_fifa_api_id, "TEAM_BY_FIFA_API_ID")

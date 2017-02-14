@@ -1,9 +1,67 @@
+import gc
 import logging
 import sys
 import copy
+import heapq
+
+from threading import Thread
+from time import sleep
+
+import src.util.util as util
 
 cache_elements = {}
+cache_time_elements = []
+max_cache_size = 1024*1024*512      # 512 MB
 log = logging.getLogger(__name__)
+block_caching_operation = False
+
+def get_cache_size():
+    global block_caching_operation
+
+    block_caching_operation = True
+    cache_size = 0
+    for k, v in cache_elements.items():
+        cache_size += sys.getsizeof(k) + sys.getsizeof(v)  # byte
+    block_caching_operation = False
+
+    if cache_size > 1024*1024:
+        cache_size_str = str(cache_size // (1024*1024))
+        measure = "MB"
+    elif cache_size > 1024:
+        cache_size_str = str(cache_size // (1024))
+        measure = "KB"
+    else:
+        cache_size_str = str(cache_size)
+        measure = "Byte"
+
+
+    return cache_size, cache_size_str, measure
+
+def threaded_function(arg):
+    while True:
+        cache_size, cache_size_str, measure = get_cache_size()
+        log.debug("Size of the cache ["+cache_size_str+" "+measure+"]")
+
+        if cache_size > max_cache_size:
+            log.debug("Cache too big --> removing old elements")
+            n_elemenent_removed = 0
+            while cache_size > max_cache_size // 2 and len(cache_time_elements)>0:
+                time, remove_id = heapq.heappop(cache_time_elements)
+                del (cache_elements[remove_id])
+                n_elemenent_removed += 1
+
+                gc.collect()
+                cache_size, cache_size_str, measure = get_cache_size()
+
+            log.debug("Removed ["+n_elemenent_removed+"] elements")
+            log.debug("New size of the cache [" + cache_size_str + " " + measure + "]")
+
+        sleep(60)
+
+def init_cache():
+    thread = Thread(target=threaded_function, args=(10,))
+    thread.start()
+
 
 def add_element(element_id, element, type = "DEFAULT"):
     '''
@@ -14,9 +72,13 @@ def add_element(element_id, element, type = "DEFAULT"):
     :param type:
     :return:
     '''
+    while block_caching_operation:
+        pass
     if element_id:
-        log.debug(msg="CACHE > adding element with ID ["+str(element_id)+"_"+type+"]")
-        cache_elements[str(element_id)+"_"+type] = copy.copy(element)
+        id = str(element_id)+"_"+type
+        log.debug(msg="CACHE > adding element with ID ["+id+"]")
+        cache_elements[id] = copy.copy(element)
+        heapq.heappush(cache_time_elements, (util.get_curr_time_millis(), id))
 
 def get_element(element_id, type="DEFAULT"):
     '''

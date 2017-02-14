@@ -6,11 +6,11 @@ import src.application.Domain.Team as Team
 import src.application.Domain.Match as Match
 import src.application.Domain.Player as Player
 import src.util.util as util
+import src.util.Cache as Cache
 
 util.init_logger()
-#C1.start_crawling()
-#C2.start_crawling(go_back=True, stop_when=10000)
+Cache.init_cache()
+C1.start_crawling()
+C2.start_crawling(go_back=True)
 
-for l in League.read_all():
-    print(l)
-
+print("stop")

@@ -22,6 +22,9 @@ class CrawlerTeam(object):
         team_short_name = str(self.soup.find_all('span', {'class':'mx-show-micro'})[0].string).strip()
 
         teams = Team.read_by_name(team_long_name)
+        if len(teams) == 0:
+            # team not found
+            log.warning("No Team found in the DB. Team api id ["+self.team_api_id+"] and name ["+team_long_name+"] at the link ["+self.team_link+"]")
         if len(teams) == 1:
             teams[0].team_api_id = self.team_api_id
             teams[0].team_short_name = team_short_name

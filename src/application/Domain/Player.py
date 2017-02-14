@@ -102,7 +102,7 @@ def read_by_fifa_api_id(player_fifa_api_id):
     return player
 
 
-def read_by_name(player_name):
+def read_by_name(player_name, like=False):
     '''
     Read a player by its name
     :param player_api_id:
@@ -110,8 +110,13 @@ def read_by_name(player_name):
     '''
     filter = {"player_name": player_name}
 
+    if like:
+        sqlrows = SQLLite.get_connection().select_like("Player", **filter)
+    else:
+        sqlrows = SQLLite.get_connection().select("Player", **filter)
+
     players = []
-    for p in SQLLite.get_connection().select("Player", **filter):
+    for p in sqlrows:
         player = Player(p["id"])
         for attribute, value in p.items():
             player.__setattr__(attribute, value)
@@ -142,7 +147,11 @@ def read_by_team_api_id(team_api_id, season=None):
             player = Cache.get_element(player_api_id, "PLAYER_BY_API_ID")
         except KeyError:
             filter = {"player_api_id": player_api_id}
-            sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
+            try:
+                sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
+            except IndexError:
+                log.warning("Player api id not found in DB ["+str(player_api_id)+"]")
+                continue
             player = Player(sqllite_row["id"])
             for attribute, value in sqllite_row.items():
                 player.__setattr__(attribute, value)

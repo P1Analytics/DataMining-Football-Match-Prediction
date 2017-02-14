@@ -26,6 +26,8 @@ class Match(object):
         import src.application.Domain.Team as Team
         return Team.read_by_team_api_id(self.home_team_api_id)
 
+
+
     def get_away_team(self):
         '''
         Return the away-team of this match

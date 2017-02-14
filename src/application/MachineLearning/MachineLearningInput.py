@@ -3,7 +3,7 @@ import src.application.Domain.League as League
 import src.application.Domain.Team as Team
 
 def get_datas_by_league(league_name, season=None):
-    league = League.read_by_name(league_name)
+    league = League.read_by_name(league_name)[0]
 
     matches = []
     labels = []
@@ -37,7 +37,7 @@ def get_datas_by_league(league_name, season=None):
 
 def team_form(league_name, representation, n=None, season=None):
     print("team_form, representation:", representation)
-    league = League.read_by_name(league_name)
+    league = League.read_by_name(league_name)[0]
     matches = []
     labels = []
     matches_names = []
@@ -79,7 +79,7 @@ def team_form(league_name, representation, n=None, season=None):
 
 def team_home_away_form(league_name, representation, n=None, season=None):
     print("team_home_away_form, representation:", representation)
-    league = League.read_by_name(league_name)
+    league = League.read_by_name(league_name)[0]
     matches = []
     labels = []
     matches_names = []
@@ -133,7 +133,7 @@ def team_home_away_form(league_name, representation, n=None, season=None):
 
 def match_statistics(league_name, n=None, season=None):
     print("match_statistics")
-    league = League.read_by_name(league_name)
+    league = League.read_by_name(league_name)[0]
     matches = []
     labels = []
     matches_names = []

@@ -36,8 +36,14 @@ class League(object):
         Cache.add_element(self.id, seasons, "SEASONS_BY_LEAGUE")
         return seasons
 
-    def get_matches(self,season=None):
-        return Match.read_matches_by_league(self.id, season)
+    def get_matches(self,season=None, ordered = True):
+        matches = Match.read_matches_by_league(self.id, season)
+
+        if ordered:
+            return sorted(matches, key=lambda match: match.stage)
+        else:
+            return matches
+
 
     def get_teams(self, season=None):
         '''
@@ -130,26 +136,25 @@ def read_by_id(id):
     Cache.add_element(league.country_id, league, "LEAGUE_BY_COUNTRY")
     return league
 
-def read_by_name(name):
+def read_by_name(name, like=False):
     '''
     Return the league with this name
     :param country_id:
     :return:
     '''
-    try:
-        return Cache.get_element(name,"LEAGUE_BY_NAME")
-    except KeyError:
-        pass
+    if like:
+        sqllite_row = SQLLite.get_connection().select_like("League", **{"name": name})
+    else:
+        sqllite_row = SQLLite.get_connection().select("League", **{"name": name})
 
-    try:
-        sqllite_row = SQLLite.get_connection().select_like("League", **{"name": name})[0]
-    except IndexError:
-        return None
-    league = League(sqllite_row["id"])
-    for attribute, value in sqllite_row.items():
-        league.__setattr__(attribute, value)
-    Cache.add_element(name, league, "LEAGUE_BY_NAME")
-    return league
+    leagues = []
+    for p in sqllite_row:
+        league = League(p["id"])
+        for attribute, value in p.items():
+            league.__setattr__(attribute, value)
+        leagues.append(league)
+
+    return leagues
 
 def add_names(league_names):
     for league_id, name in league_names.items():
