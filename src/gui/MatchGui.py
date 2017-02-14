@@ -40,7 +40,13 @@ def run():
 
 def search_by_date():
     date = GuiUtil.input_date_or_day_passed()
-    print(date)
+    matches = Match.read_by_match_date(date)
+
+    if len(matches) == 0:
+        GuiUtil.print_att("No match found in date", date)
+    else:
+        printable_matches = get_printable_matches(matches)
+        GuiUtil.show_list_answer(printable_matches, print_index=True)
 
 
 
@@ -59,10 +65,7 @@ def search_by_team():
     elif len(teams_found) == 1:
         team = teams_found[0]
         matches = team.get_matches(season=util.get_current_season(), ordered=True)
-        printable_matches = []
-        for m in matches:
-            printable_matches.append(get_printable_match(m))
-
+        printable_matches = get_printable_matches(matches)
         GuiUtil.show_list_answer(printable_matches, print_index=False)
 
 
@@ -76,12 +79,14 @@ def search_by_league():
     elif len(leagues) == 1:
         league = leagues[0]
         matches = league.get_matches(season=util.get_current_season(), ordered=True)
-        printable_matches = []
-        for m in matches:
-            printable_matches.append(get_printable_match(m))
-
+        printable_matches = get_printable_matches(matches)
         GuiUtil.show_list_answer(printable_matches, print_index=False)
 
+def get_printable_matches(matches):
+    printable_matches = []
+    for m in matches:
+        printable_matches.append(get_printable_match(m))
+    return printable_matches
 
 def get_printable_match(match):
     match_str = "Stage: "+str(match.stage) + " "+match.date + " "

@@ -1,5 +1,8 @@
 import src.gui.PlayerGui as PlayerGui
 import src.gui.MatchGui as MatchGui
+import src.gui.LeaguesGui as LeaguesGui
+import src.gui.CountryGui as CountryGui
+import src.gui.TeamGui as TeamGui
 import src.util.GuiUtil as GuiUtil
 
 def run():
@@ -24,12 +27,18 @@ def run():
 
             elif user_input == 3:
                 GuiUtil.print_info("Opening", "Leagues")
+                LeaguesGui.run()
+                GuiUtil.print_head(head)
 
             elif user_input == 4:
                 GuiUtil.print_info("Opening", "Countries")
+                CountryGui.run()
+                GuiUtil.print_head(head)
 
             elif user_input == 5:
                 GuiUtil.print_info("Opening", "Teams")
+                TeamGui.run()
+                GuiUtil.print_head(head)
 
             GuiUtil.print_menu("Browse the application to discover different data", menu)
         except ValueError:

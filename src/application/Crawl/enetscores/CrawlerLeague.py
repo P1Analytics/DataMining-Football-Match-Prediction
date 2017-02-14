@@ -29,9 +29,9 @@ class CrawlerLeague(object):
 
         page = requests.get(self.link_league_to_check).text
         self.soup = BeautifulSoup(page, "html.parser")
-        coutnry_name = str(self.soup.find('span', {'class':'mx-country-dropdown-name'}).string).strip()
-        country = Country.read_by_name(coutnry_name)
-        if not country:
+        country_name = str(self.soup.find('span', {'class':'mx-country-dropdown-name'}).string).strip()
+        countries = Country.read_by_name(country_name, like=True)
+        if len(countries)==0:
             # this country is not managed!!
             Cache.add_element(self.league_data_stage, False, "CRAWL_LEAGUE_MANAGED")
             return False

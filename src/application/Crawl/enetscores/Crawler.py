@@ -36,12 +36,12 @@ class Crawler(object):
 
             cl = CrawlerLeague(None, league_data_stage)
             if cl.is_a_managed_league() and len(league_name)>3:
-
                 leagues = League.read_by_name(league_name, like=True)
                 if len(leagues) == 0:
                     log.debug("League by name not found [" + league_name + ", " + league_data_stage + "]")
                 elif len(leagues)==1:
                     league = leagues[0]
+                    print("\tLooking for the league [" + league_name + "]")
                     season = cl.get_season()
                     for div_event in body.find_all('div', {'class':'mx-stage-events'}):
 

@@ -10,7 +10,7 @@ import src.util.Cache as Cache
 
 util.init_logger()
 Cache.init_cache()
-C1.start_crawling()
+#C1.start_crawling()
 C2.start_crawling(go_back=True)
 
 print("stop")

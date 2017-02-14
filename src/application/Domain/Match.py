@@ -98,6 +98,17 @@ def read_by_match_api_id(match_api_id):
     Cache.add_element(str(match.match_api_id), match, "MATCH_BY_API_ID")
     return match
 
+def read_by_match_date(date_str):
+    match_list = []
+    sqllite_rows = SQLLite.get_connection().select_like("Match", **{"date": str(date_str)})
+    for p in sqllite_rows:
+        match = Match(p["id"])
+        for attribute, value in p.items():
+            match.__setattr__(attribute, value)
+        match_list.append(match)
+    return match_list
+
+
 def read_matches_by_league(league_id, season=None):
     '''
     return matches played in the league_id, in a specified season if required

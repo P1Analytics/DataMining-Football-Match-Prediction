@@ -3,6 +3,7 @@ import src.util.util as util
 pad_len = 100
 
 def print_head(head):
+    print()
     print("".ljust(pad_len,'*'))
     head_pad = int((pad_len - len(head) - 2)/2)
     print("".ljust(head_pad,'*')+" "+head+" "+"".ljust(head_pad,'*'))

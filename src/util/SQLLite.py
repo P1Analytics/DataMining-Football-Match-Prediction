@@ -75,7 +75,9 @@ class SQLiteConnection(object):
             column_names = column_filter.split(",")
 
         row_results = []
-        for sqllite_row in self.cursor.execute("SELECT "+column_filter+" FROM "+table_name+" "+id_condition+";"):
+        select_like = "SELECT "+column_filter+" FROM "+table_name+" "+id_condition+";"
+        log.debug("Select like ["+select_like+"]")
+        for sqllite_row in self.cursor.execute(select_like):
             if sqllite_row is None:
                 continue
             row = {}
