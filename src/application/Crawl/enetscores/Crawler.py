@@ -33,14 +33,20 @@ class Crawler(object):
             league_data_stage = header.a.attrs['data-stage']
 
             # check if the this league corresponds to one of those one managed!
-
-            cl = CrawlerLeague(None, league_data_stage)
-            if cl.is_a_managed_league() and len(league_name)>3:
+            cl = CrawlerLeague(league_name, league_data_stage)
+            if cl.is_in_a_managed_country() and len(league_name)>3:
                 leagues = League.read_by_name(league_name, like=True)
                 if len(leagues) == 0:
                     log.debug("League by name not found [" + league_name + ", " + league_data_stage + "]")
-                elif len(leagues)==1:
-                    league = leagues[0]
+                else:
+                    if len(leagues)==1:
+                        league = leagues[0]
+                    else:
+                        league = cl.get_league()
+
+                    if util.is_None(league):
+                        log.warning("Impossible to crawl this league [" + league_name + ", " + league_data_stage + "]")
+
                     print("\tLooking for the league [" + league_name + "]")
                     season = cl.get_season()
                     for div_event in body.find_all('div', {'class':'mx-stage-events'}):
@@ -61,16 +67,14 @@ class Crawler(object):
                             cm.parse_json(season)
                         else:
                             log.debug("Not need to crawl match [" + event + "]")
-                else:
-                    log.warning("Too many leagues by name found [" + league_name + ", " + league_data_stage + "]")
 
 
-def start_crawling(go_back=False, stop_when=1000):
+def start_crawling(go_back=False, stop_when=1000, starting_date_str=None):
     c = Crawler()
 
     # looking for matches
     for i in range(stop_when):
-        date = util.get_date(i)
+        date = util.get_date(days_to_subtract=i, with_hours=False, starting_date_str = starting_date_str)
         c.look_for_matches(date)
         if not go_back:
             break

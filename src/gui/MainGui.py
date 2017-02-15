@@ -3,12 +3,13 @@ import src.gui.MatchGui as MatchGui
 import src.gui.LeaguesGui as LeaguesGui
 import src.gui.CountryGui as CountryGui
 import src.gui.TeamGui as TeamGui
+import src.gui.CrawlGui as CrawlGui
 import src.util.GuiUtil as GuiUtil
 
 def run():
     head = "ScorePrediction application"
     GuiUtil.print_head(head)
-    menu = {1:"Players", 2:"Matches", 3:"Leagues", 4:"Countries", 5:"Teams"}
+    menu = {1:"Players", 2:"Matches", 3:"Leagues", 4:"Countries", 5:"Teams", 6:"Crawling"}
     GuiUtil.print_menu("Browse the application to discover different data", menu)
 
     while True:
@@ -38,6 +39,11 @@ def run():
             elif user_input == 5:
                 GuiUtil.print_info("Opening", "Teams")
                 TeamGui.run()
+                GuiUtil.print_head(head)
+
+            elif user_input == 6:
+                GuiUtil.print_info("Opening", "Crawling")
+                CrawlGui.run()
                 GuiUtil.print_head(head)
 
             GuiUtil.print_menu("Browse the application to discover different data", menu)

@@ -109,6 +109,8 @@ class CrawlerMatch(object):
             # update match
             Match.update_match(self.match, match_attributes)
 
+        print("\t",Team.read_by_team_api_id(homefk).team_long_name,"vs",Team.read_by_team_api_id(awayfk).team_long_name)
+
 
 def check_team(team_api_id):
     home_team = Team.read_by_team_api_id(team_api_id)

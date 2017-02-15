@@ -96,20 +96,28 @@ def get_printable_match(match, show_event_link = False):
     home_team = match.get_home_team()
     away_team = match.get_away_team()
 
+    # HOME TEAM INFO
     if home_team:
         match_str += home_team.team_long_name
     else:
         match_str += str(match.home_team_api_id)
-    match_str += " " + str(match.home_team_goal) + " vs "
+    if match.is_finished():
+        match_str += " " + str(match.home_team_goal)
 
+    match_str += " vs "
+
+    # AWAY TEAM INFO
     if away_team:
         match_str += away_team.team_long_name
     else:
         match_str += str(match.away_team_api_id)
-    match_str += " " + str(match.away_team_goal)
+    if match.is_finished():
+        match_str += " " + str(match.away_team_goal)
+
+    if not match.is_finished():
+        match_str += " (TO BE CRAWLED)"
 
     if show_event_link:
         match_str += " (http://json.mx-api.enetscores.com/live_data/event/"+str(match.match_api_id)+"/0)"
 
     return match_str
-

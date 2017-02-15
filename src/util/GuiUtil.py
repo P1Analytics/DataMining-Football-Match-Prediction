@@ -59,6 +59,10 @@ def print_att(label, value, check_continue=False):
     return 1
 
 
+def print_err(label, value):
+    print("[ERR: "+label+" --> "+str(value)+"]")
+
+
 def input_date_or_day_passed(retry_on_error=True):
     user_input = input("Insert a date (YYYY-MM-DD) or an integer (the day passed from today --> 0 is today): ")
     while True:

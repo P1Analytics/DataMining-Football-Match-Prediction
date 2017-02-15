@@ -54,12 +54,17 @@ def get_current_season():
         return str(year-1) + "/" + str(year)
 
 
-def get_date(days_to_subtract=0, with_hours=False):
-    date = datetime.datetime.now()-timedelta(days=days_to_subtract)
+def get_date(days_to_subtract=0, with_hours=False, starting_date_str = None):
+    if not starting_date_str:
+        date = datetime.datetime.now()-timedelta(days=days_to_subtract)
+    else:
+        date = datetime.datetime.strptime(starting_date_str, '%Y-%m-%d')-timedelta(days=days_to_subtract)
+
     if with_hours:
         return date.isoformat().split("T")
     else:
         return date.isoformat().split("T")[0]
+
 
 
 def get_today_date(with_hours=False):
@@ -95,6 +100,13 @@ def compare_time_to_now(iso_time_string, days_to_subtract=0):
     :return:
     '''
     return dateutil.parser.parse(iso_time_string) < (datetime.datetime.now() - timedelta(days=days_to_subtract))
+
+
+def is_None(input):
+    if type(input)==str:
+        return input == 'None'
+    else:
+        return input is None
 
 
 def print_dict(my_dict, indent):

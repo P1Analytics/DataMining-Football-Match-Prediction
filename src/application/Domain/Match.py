@@ -18,7 +18,7 @@ class Match(object):
                 logging.debug("Match :: AttributeError ["+attribute+"]")
         return to_string
 
-    def get_home_team(self):
+    def  get_home_team(self):
         '''
         Return the home-team of this match
         :return:
@@ -55,8 +55,17 @@ class Match(object):
                 return False
         return True
 
+    def is_finished(self):
+        '''
+        finished if and only if incidents of the match are managed
+        :return:
+        '''
+        if util.is_None(self.goal) and util.is_None(self.shoton) and util.is_None(self.shotoff) and util.is_None(self.foulcommit) and util.is_None(self.card) and util.is_None(self.cross) and util.is_None(self.corner) and util.is_None(self.possession):
+            return False
+        return True
+
     def are_incidents_managed(self):
-        if self.goal=="None" or self.shoton=="None" or self.shotoff=="None" or self.foulcommit=="None" or self.card=="None" or self.cross=="None" or self.corner=="None" or self.possession=="None":
+        if util.is_None(self.goal) or util.is_None(self.shoton) or util.is_None(self.shotoff) or util.is_None(self.foulcommit) or util.is_None(self.card) or util.is_None(self.cross) or util.is_None(self.corner) or util.is_None(self.possession):
             return False
         return True
 
