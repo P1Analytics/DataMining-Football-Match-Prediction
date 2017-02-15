@@ -16,7 +16,7 @@ class Crawler(object):
         self.host_url_match = host_url_match
 
 
-    def look_for_matches(self, date):
+    def look_for_matches(self, date, force_parsing=False):
         print("Elaborating matches of the date:", date)
         matches_link = self.host_url_match + "/sport_events/1%2F"+date+"%2Fbasic_h2h%2F0%2F0/"
         log.debug("Looking for matches of date ["+date+"] at link ["+matches_link+"]")
@@ -49,7 +49,7 @@ class Crawler(object):
                         event = str(div_event.attrs["class"][3]).split("-")[2]
 
                         match = Match.read_by_match_api_id(event)
-                        if not match or not match.are_teams_linedup() or not match.are_incidents_managed() or not match.get_home_team() or not match.get_away_team():
+                        if force_parsing or not match or not match.are_teams_linedup() or not match.are_incidents_managed() or not match.get_home_team() or not match.get_away_team():
                             # crawl when at least one of the following happen:
                             #   - match is not in the DB
                             #   - formation of the teams are not in the DB

@@ -99,7 +99,7 @@ class CrawlerMatch(object):
 
 
         # event incidents
-        if not self.match or self.match and not self.match.are_incidents_managed():
+        if not self.match or (self.match and not self.match.are_incidents_managed()):
             li = CrawlerIncidents(self.match, match_attributes, self.event)
             li.get_incidents()
 

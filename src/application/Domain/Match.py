@@ -51,12 +51,12 @@ class Match(object):
         for i in range(1, 11):
             hp_i = hp+str(i)
             ap_i = ap+str(i)
-            if not self.__getattribute__(hp_i) or not self.__getattribute__(ap_i):
+            if self.__getattribute__(hp_i)=='None' or self.__getattribute__(ap_i)=='None':
                 return False
         return True
 
     def are_incidents_managed(self):
-        if not self.goal or not self.shoton or not self.shotoff or not self.foulcommit or not self.card or not self.cross or not self.corner or not self.possession:
+        if self.goal=="None" or self.shoton=="None" or self.shotoff=="None" or self.foulcommit=="None" or self.card=="None" or self.cross=="None" or self.corner=="None" or self.possession=="None":
             return False
         return True
 

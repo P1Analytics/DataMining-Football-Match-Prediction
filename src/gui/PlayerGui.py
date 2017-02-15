@@ -4,8 +4,8 @@ import src.application.Domain.Team as Team
 
 def run():
     GuiUtil.print_head("Players")
-    menu = {1:"Name",2:"Team"}
-    GuiUtil.print_menu("Find player by:", menu, add_go_back = True)
+    menu = {1:"Find by Name",2:"Find by Team"}
+    GuiUtil.print_menu("Players menu:", menu, add_go_back = True)
 
     while True:
         try:
@@ -23,7 +23,7 @@ def run():
                 raise ValueError
 
             GuiUtil.print_line_separator()
-            GuiUtil.print_menu("Find player by:", menu, add_go_back=True)
+            GuiUtil.print_menu("Players menu:", menu, add_go_back=True)
 
         except ValueError:
             if user_input == 'gb':
@@ -40,7 +40,7 @@ def search_by_name():
         GuiUtil.print_info("Looking for player with similar name", user_input)
         players_found = Player.read_by_name(user_input, like=True)
 
-    GuiUtil.show_list_answer(players_found)
+    show_players(players_found)
 
 
 def search_by_team():
@@ -52,5 +52,11 @@ def search_by_team():
         GuiUtil.print_att("No team found with name", user_input)
     elif len(teams_found) == 1:
         team = teams_found[0]
-        GuiUtil.show_list_answer(team.get_current_players())
+        show_players(team.get_current_players())
+
+def show_players(players_in):
+    player_link = "http://sofifa.com/player/"
+    players_in = sorted(players_in, key=lambda player: player.player_name)
+    players_out = [p.player_name + " " + player_link + str(p.player_fifa_api_id) for p in players_in]
+    GuiUtil.show_list_answer(players_out, print_index=True)
 

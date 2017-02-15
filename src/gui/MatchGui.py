@@ -6,9 +6,9 @@ import src.application.Domain.League as League
 import src.util.util as util
 
 def run():
-    GuiUtil.print_head("Match")
-    menu = {1:"Team",2:"League", 3:"Date"}
-    GuiUtil.print_menu("Find match by:", menu, add_go_back = True)
+    GuiUtil.print_head("Matches")
+    menu = {1:"Find by Team",2:"Find by League", 3:"Find by Date"}
+    GuiUtil.print_menu("Matches menu:", menu, add_go_back = True)
 
     while True:
         try:
@@ -30,7 +30,7 @@ def run():
                 raise ValueError
 
             GuiUtil.print_line_separator()
-            GuiUtil.print_menu("Find matches by:", menu, add_go_back=True)
+            GuiUtil.print_menu("Matches Menu:", menu, add_go_back=True)
 
         except ValueError:
             if user_input == 'gb':
@@ -67,6 +67,9 @@ def search_by_team():
         matches = team.get_matches(season=util.get_current_season(), ordered=True)
         printable_matches = get_printable_matches(matches)
         GuiUtil.show_list_answer(printable_matches, print_index=False)
+    else:
+        GuiUtil.print_att("Too many teams found", "Be more precise")
+
 
 
 def search_by_league():
@@ -88,7 +91,7 @@ def get_printable_matches(matches):
         printable_matches.append(get_printable_match(m))
     return printable_matches
 
-def get_printable_match(match):
+def get_printable_match(match, show_event_link = False):
     match_str = "Stage: "+str(match.stage) + " "+match.date + " "
     home_team = match.get_home_team()
     away_team = match.get_away_team()
@@ -104,6 +107,9 @@ def get_printable_match(match):
     else:
         match_str += str(match.away_team_api_id)
     match_str += " " + str(match.away_team_goal)
+
+    if show_event_link:
+        match_str += " (http://json.mx-api.enetscores.com/live_data/event/"+str(match.match_api_id)+"/0)"
 
     return match_str
 
