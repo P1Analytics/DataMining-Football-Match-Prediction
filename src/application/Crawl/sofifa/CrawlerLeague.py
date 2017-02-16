@@ -44,6 +44,7 @@ class CrawlerLeague(object):
                 ct = CrawlerTeam(None, team_link)
                 ct.start_crawling()
             elif len(teams)==1:
+                print("\t-",team_name, team_link)
                 ct = CrawlerTeam(teams[0], team_link)
                 ct.start_crawling()
             else:

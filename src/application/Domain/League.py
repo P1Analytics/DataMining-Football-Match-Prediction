@@ -36,13 +36,16 @@ class League(object):
         Cache.add_element(self.id, seasons, "SEASONS_BY_LEAGUE")
         return seasons
 
-    def get_matches(self,season=None, ordered = True):
+    def get_matches(self,season=None, ordered = True, date=None):
         matches = Match.read_matches_by_league(self.id, season)
 
         if ordered:
-            return sorted(matches, key=lambda match: match.stage)
-        else:
-            return matches
+            matches = sorted(matches, key=lambda match: match.stage)
+
+        if date:
+            matches = [m for m in matches if m.date.startswith(date)]
+
+        return matches
 
 
     def get_teams(self, season=None):
@@ -70,7 +73,9 @@ class League(object):
 
         teams = []
         for team_api_id in teams_api_id:
-            teams.append(Team.read_by_team_api_id(team_api_id=team_api_id))
+            team = Team.read_by_team_api_id(team_api_id=team_api_id)
+            if not util.is_None(team):
+                teams.append(team)
 
         Cache.add_element(str(self.id)+"_"+season, teams, "TEAMS_BY_LEAGUE")
         return teams

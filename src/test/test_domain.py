@@ -31,3 +31,5 @@ print(match)
 
 for l in League.read_all():
     print(l)
+
+print(League.read_by_name('Belgium Jupiler League|Belgian Jupiler Pro League')[0].get_matches(season='2016/2017'))

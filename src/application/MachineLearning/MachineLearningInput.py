@@ -3,7 +3,7 @@ import src.application.Domain.League as League
 import src.application.Domain.Team as Team
 
 def get_datas_by_league(league_name, season=None):
-    league = League.read_by_name(league_name)[0]
+    league = League.read_by_name(league_name, like=True)[0]
 
     matches = []
     labels = []

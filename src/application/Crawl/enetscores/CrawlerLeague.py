@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 
 class CrawlerLeague(object):
     def __init__(self, league_name, league_data_stage):
+        self.league = None
         self.league_name = league_name
         self.league_data_stage = league_data_stage
 
@@ -38,11 +39,42 @@ class CrawlerLeague(object):
         else:
             if len(countries)==1:
                 country = countries[0]
+                league_found = False
                 for league in country.get_leagues():
                     if self.league_name in league.name:
                         self.league = league
+                        league_found = True
+                if not league_found:
+                    self.league = self.get_league_on_page()
             Cache.add_element(self.league_data_stage, True, "CRAWL_LEAGUE_MANAGED")
             return True
+
+    def get_league_on_page(self):
+        try:
+            return Cache.get_element(self.league_data_stage, "CRAWL_LEAGUE_PAGE")
+        except KeyError:
+            pass
+
+        if not self.soup:
+            page = requests.get(self.link_league_to_check).text
+            self.soup = BeautifulSoup(page, "html.parser")
+
+        div_league = self.soup.find('div', {'class':'mx-dropdown-container mx-flexbox mx-float-left mx-template-dropdown'})
+        league_name = str(div_league.span.string).strip()
+        leagues = League.read_by_name(league_name, like=True)
+        league = None
+        if len(leagues) == 0:
+            # No league found, also with the name in the web page
+            log.warning("No league found, also with the name in the web page ["+self.league_data_stage+"]")
+        elif len(leagues) == 1:
+            league = leagues[0]
+        else:
+            # too many leagues found
+            log.warning("Too many leagues found [" + self.league_data_stage + "]")
+
+        Cache.add_element(self.league_data_stage, league, "CRAWL_LEAGUE_PAGE")
+        return league
+
 
     def get_league(self):
         return self.league

@@ -35,38 +35,32 @@ class Crawler(object):
             # check if the this league corresponds to one of those one managed!
             cl = CrawlerLeague(league_name, league_data_stage)
             if cl.is_in_a_managed_country() and len(league_name)>3:
-                leagues = League.read_by_name(league_name, like=True)
-                if len(leagues) == 0:
-                    log.debug("League by name not found [" + league_name + ", " + league_data_stage + "]")
-                else:
-                    if len(leagues)==1:
-                        league = leagues[0]
+                league = cl.get_league()
+
+                if util.is_None(league):
+                    log.warning("Impossible to crawl this league [" + league_name + ", " + league_data_stage + "]")
+                    continue
+
+                print("\t- Looking for the league [" + league.name + "]")
+                season = cl.get_season()
+                for div_event in body.find_all('div', {'class':'mx-stage-events'}):
+
+                    # event correspond to "match_api_id"
+                    event = str(div_event.attrs["class"][3]).split("-")[2]
+
+                    match = Match.read_by_match_api_id(event)
+                    if force_parsing or not match or not match.are_teams_linedup() or not match.are_incidents_managed() or not match.get_home_team() or not match.get_away_team():
+                        # crawl when at least one of the following happen:
+                        #   - match is not in the DB
+                        #   - formation of the teams are not in the DB
+                        #   - incidents of the match are not in the DB
+                        #   - home_team_api_id is not matched to any team in the DB
+                        #   - away_team_api_id is not matched to any team in the DB
+                        log.debug("Need to crawl match ["+event+"]")
+                        cm = CrawlerMatch(match, league, event)
+                        cm.parse_json(season)
                     else:
-                        league = cl.get_league()
-
-                    if util.is_None(league):
-                        log.warning("Impossible to crawl this league [" + league_name + ", " + league_data_stage + "]")
-
-                    print("\tLooking for the league [" + league_name + "]")
-                    season = cl.get_season()
-                    for div_event in body.find_all('div', {'class':'mx-stage-events'}):
-
-                        # event correspond to "match_api_id"
-                        event = str(div_event.attrs["class"][3]).split("-")[2]
-
-                        match = Match.read_by_match_api_id(event)
-                        if force_parsing or not match or not match.are_teams_linedup() or not match.are_incidents_managed() or not match.get_home_team() or not match.get_away_team():
-                            # crawl when at least one of the following happen:
-                            #   - match is not in the DB
-                            #   - formation of the teams are not in the DB
-                            #   - incidents of the match are not in the DB
-                            #   - home_team_api_id is not matched to any team in the DB
-                            #   - away_team_api_id is not matched to any team in the DB
-                            log.debug("Need to crawl match ["+event+"]")
-                            cm = CrawlerMatch(match, league, event)
-                            cm.parse_json(season)
-                        else:
-                            log.debug("Not need to crawl match [" + event + "]")
+                        log.debug("Not need to crawl match [" + event + "]")
 
 
 def start_crawling(go_back=False, stop_when=1000, starting_date_str=None):

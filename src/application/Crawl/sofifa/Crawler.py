@@ -69,6 +69,7 @@ def start_crawling():
             log.debug("League by name not found [" + league_name + "]")
         elif len(leagues) == 1:
             league = leagues[0]
+            print("Elaborating "+league.name+"...")
             cl = CrawlerLeague(league, league_link)
             cl.start_crawling()
         else:

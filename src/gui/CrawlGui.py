@@ -1,9 +1,9 @@
 import src.util.GuiUtil as GuiUtil
-
 import src.application.Crawl.enetscores.Crawler as CrawlerMatches
+import src.application.Crawl.sofifa.Crawler as CrawlerPlayers
 
 def run():
-    GuiUtil.print_head("Crawl")
+    GuiUtil.print_head("Crawling")
     menu = {1: "Find new matches", 2: "Find new players"}
     GuiUtil.print_menu("Crawl menu:", menu, add_go_back=True)
 
@@ -17,7 +17,7 @@ def run():
 
             elif user_input == 2:
                 GuiUtil.print_info("Finding", "players")
-                #find_new_players()
+                find_new_players()
 
             else:
                 raise ValueError
@@ -44,4 +44,8 @@ def find_new_matches():
 
     go_back = stop_when != 0
     CrawlerMatches.start_crawling(go_back, stop_when, starting_date)
+
+
+def find_new_players():
+    CrawlerPlayers.start_crawling()
 

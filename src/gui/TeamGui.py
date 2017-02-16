@@ -53,10 +53,12 @@ def search_by_country():
             teams = []
             for league in leagues:
                 teams.extend(league.get_teams())
-
-            teams = sorted(teams, key=lambda team: team.team_long_name)
-            teams_to_print = [t.team_long_name+": http://sofifa.com/team/"+str(t.team_fifa_api_id) for t in teams]
-            GuiUtil.show_list_answer(teams_to_print, print_index=True)
+            if len(teams) == 0:
+                GuiUtil.show_list_answer([], print_index=True)
+            else:
+                teams = sorted(teams, key=lambda team: team.team_long_name)
+                teams_to_print = [t.team_long_name+": http://sofifa.com/team/"+str(t.team_fifa_api_id) for t in teams]
+                GuiUtil.show_list_answer(teams_to_print, print_index=True)
 
 def search_by_name():
     user_input = input("Insert team name: ")

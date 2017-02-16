@@ -6,7 +6,7 @@ import src.application.Domain.Shot as Shot
 
 
 def doTest():
-    matches, labels, matches_names = MLInput.get_datas_by_league("Italy Serie A", "2015/2016")
+    matches, labels, matches_names = MLInput.get_datas_by_league("Italy Serie A", "2016/2017")
     #matches, labels, matches_names = MLInput.team_form("Italy Serie A", 4, n=None, season="2015/2016")
     #matches, labels, matches_names = MLInput.team_home_away_form("Italy Serie A", 4, n=None, season= "2015/2016")
     #matches, labels, matches_names = MLInput.match_statistics("Italy Serie A", n=None, season="2015/2016")

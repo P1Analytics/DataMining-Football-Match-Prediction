@@ -31,3 +31,5 @@ class CrawlerTeam(object):
             Team.update(teams[0])
         else:
             log.warning("Team with api id ["+self.team_api_id+"] and name ["+team_long_name+"] at the link ["+self.team_link+"] must be matched at hand")
+
+        return team_short_name
