@@ -320,13 +320,68 @@ def read_by_name(team_long_name, like=False):
         teams.append(team)
     return teams
 
+def delete(team):
+    SQLLite.get_connection().delete("Team", team)
 
-def write_new_team(team_long_name, team_fifa_api_id):
-    SQLLite.get_connection().insert("Team", {"team_long_name":team_long_name, "team_fifa_api_id":team_fifa_api_id})
+def write_new_team(team_long_name, team_fifa_api_id, team_api_id=None, team_short_name=None):
+    team_diz = {}
+    team_diz["team_long_name"] = team_long_name
+    team_diz["team_fifa_api_id"] = team_fifa_api_id
+
+    if team_api_id:
+        team_diz["team_api_id"] = team_api_id
+    if team_short_name:
+        team_diz["team_short_name"] = team_short_name
+
+    SQLLite.get_connection().insert("Team", team_diz)
     return read_by_team_fifa_api_id(team_fifa_api_id)
+
 
 def update(team):
     SQLLite.get_connection().update("Team", team)
     Cache.del_element(team.team_api_id, "TEAM_BY_API_ID")
     Cache.del_element(team.team_long_name, "TEAM_BY_LONG_NAME")
     Cache.del_element(team.team_fifa_api_id, "TEAM_BY_FIFA_API_ID")
+
+
+def merge(team1, team2):
+    # team fifa api id
+    if not util.is_None(team1.team_fifa_api_id):
+        team_fifa_api_id = team1.team_fifa_api_id
+    else:
+        team_fifa_api_id = team2.team_fifa_api_id
+
+    # team api id
+    if not util.is_None(team1.team_api_id):
+        team_api_id = team1.team_api_id
+    else:
+        team_api_id = team2.team_api_id
+
+    # team long name
+    team_long_name = ""
+    if not util.is_None(team1.team_long_name):
+        team_long_name = team1.team_long_name
+    if not util.is_None(team2.team_long_name) and team2.team_long_name!=team_long_name:
+        if team_long_name == "":
+            team_long_name = team2.team_long_name
+        else:
+            team_long_name += "|"+team2.team_long_name
+
+    # team short name
+    team_short_name = ""
+    if not util.is_None(team1.team_short_name):
+        team_short_name = team1.team_short_name
+    if not util.is_None(team2.team_short_name) and team2.team_short_name != team_short_name:
+        if team_short_name == "":
+            team_short_name = team2.team_short_name
+        else:
+            team_short_name += "|"+team2.team_short_name
+
+    delete(team1)
+    delete(team2)
+    team = write_new_team(team_long_name, team_fifa_api_id, team_api_id, team_short_name)
+
+    return team
+
+
+

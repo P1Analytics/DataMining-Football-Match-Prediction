@@ -7,6 +7,13 @@ class MatchEvent(object):
     def __init__(self, id):
         self.id = id
 
+    def get_all_bet_values(self):
+        '''
+        return all the bet values for this match event
+        :return:
+        '''
+        return Bet_Event.read_by_match_event_id_and_event_name(self.id)
+
     def get_last_bet_values(self, event_name):
         '''
         return the last bet_value of the input event name, of this match event
@@ -19,10 +26,20 @@ class MatchEvent(object):
             return None
         return bet_events[-1]
 
-
     def __str__(self):
         return "MatchEvent <id: "+str(self.id)+", match_id: "+str(self.match_id)+">"
 
+
+def read_all():
+    match_events = []
+    sqllite_rows = SQLLite.get_connection().select("Match_Event")
+    for sqllite_row in sqllite_rows:
+        match_event = MatchEvent(sqllite_row["id"])
+        for attribute, value in sqllite_row.items():
+            match_event.__setattr__(attribute, value)
+        match_events.append(match_event)
+
+    return match_events
 
 def read_by_match_id(match_id):
     try:

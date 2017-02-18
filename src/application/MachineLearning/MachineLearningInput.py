@@ -37,7 +37,7 @@ def get_datas_by_league(league_name, season=None):
 
 def team_form(league_name, representation, n=None, season=None):
     print("team_form, representation:", representation)
-    league = League.read_by_name(league_name)[0]
+    league = League.read_by_name(league_name, like=True)[0]
     matches = []
     labels = []
     matches_names = []
@@ -133,7 +133,7 @@ def team_home_away_form(league_name, representation, n=None, season=None):
 
 def match_statistics(league_name, n=None, season=None):
     print("match_statistics")
-    league = League.read_by_name(league_name)[0]
+    league = League.read_by_name(league_name, like=True)[0]
     matches = []
     labels = []
     matches_names = []
@@ -171,7 +171,7 @@ def match_statistics(league_name, n=None, season=None):
         home_form, home_n = home_team.get_points_by_season_and_stage(season, match.stage, n=n)
         away_form, away_n = away_team.get_points_by_season_and_stage(season, match.stage, n=n)
 
-        matches.append(np.asarray([home_goal, away_goal, home_shoton, away_shotoff, home_goal_ratio, away_goal_ratio, home_form, away_form]))
+        matches.append(np.asarray([home_goal, away_goal, home_shoton, away_shoton, home_goal_ratio, away_goal_ratio, home_form, away_form]))
 
 
     matches = np.asarray(matches)

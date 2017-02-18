@@ -93,7 +93,7 @@ class CrawlerMatch(object):
         away_team_name = check_team(awayfk)
 
         # formations
-        if not self.match or not self.match.are_teams_linedup():
+        if not self.match or not self.match.are_teams_linedup() or not self.match.is_finished():
             lc = CrawlerLineup(self.match, match_attributes, self.event)
             lc.get_lineups()
 

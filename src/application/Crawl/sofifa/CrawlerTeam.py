@@ -80,8 +80,8 @@ class CrawlerTeam(object):
             team = Team.read_by_team_fifa_api_id(team_fifa_api_id)
             if team:
                 # a team with the same fifa api id has been found in the database
-                print("Found a team [ " + team_long_name + " ] in the DB with the same fifa_api_id [ " + team_fifa_api_id + " ]")
-
+                print("Found a team [ " + team_long_name + " ] in the DB with the same fifa_api_id [ " + str(team_fifa_api_id) + " ]")
+                exit(-1)
             self.team = Team.write_new_team(team_long_name, team_fifa_api_id)
 
         # looking for players belonging this team

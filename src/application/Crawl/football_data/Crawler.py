@@ -66,6 +66,7 @@ def start_crawling():
 
     for country in Country.read_all():
         print("\t- Looking in the country:", country.name)
+
         n_try = 1
         while n_try < 6:
             try:
@@ -75,3 +76,6 @@ def start_crawling():
             except requests.exceptions.ReadTimeout:
                 print("next try")
                 n_try += 1
+
+
+

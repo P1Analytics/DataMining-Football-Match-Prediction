@@ -4,12 +4,13 @@ import src.gui.LeaguesGui as LeaguesGui
 import src.gui.CountryGui as CountryGui
 import src.gui.TeamGui as TeamGui
 import src.gui.CrawlGui as CrawlGui
+import src.gui.BetOddsGui as BetOddsGui
 import src.util.GuiUtil as GuiUtil
 
 def run():
     head = "ScorePrediction application"
     GuiUtil.print_head(head)
-    menu = {1:"Players", 2:"Matches", 3:"Leagues", 4:"Countries", 5:"Teams", 6:"Crawling", 7:"Prediction"}
+    menu = {1:"Players", 2:"Matches", 3:"Leagues", 4:"Countries", 5:"Teams", 6:"Crawling", 7:"Prediction", 8:"Bet odds"}
     GuiUtil.print_menu("Browse the application to discover different data", menu)
 
     while True:
@@ -20,35 +21,33 @@ def run():
                 GuiUtil.print_info("Opening", "Players")
                 PlayerGui.run()
 
-
             elif user_input==2:
                 GuiUtil.print_info("Opening", "Mathces")
                 MatchGui.run()
-
 
             elif user_input == 3:
                 GuiUtil.print_info("Opening", "Leagues")
                 LeaguesGui.run()
 
-
             elif user_input == 4:
                 GuiUtil.print_info("Opening", "Countries")
                 CountryGui.run()
-
 
             elif user_input == 5:
                 GuiUtil.print_info("Opening", "Teams")
                 TeamGui.run()
 
-
             elif user_input == 6:
                 GuiUtil.print_info("Opening", "Crawling")
                 CrawlGui.run()
 
-
             elif user_input == 7:
                 GuiUtil.print_info("Opening", "Predictions")
                 PredictionGui.run()
+
+            elif user_input == 8:
+                GuiUtil.print_info("Opening", "Predictions")
+                BetOddsGui.run()
 
             else:
                 raise ValueError

@@ -11,7 +11,7 @@ class BetEvent(object):
         return "BetEvent <"+str(self.match_event_id)+", "+self.event_name+", "+self.date+", "+self.bet_value+">"
 
 
-def read_by_match_event_id_and_event_name(match_event_id, event_name):
+def read_by_match_event_id_and_event_name(match_event_id, event_name=None):
     '''
     Return the list of bet_event of the input match
     :param match_event_id:
@@ -19,8 +19,14 @@ def read_by_match_event_id_and_event_name(match_event_id, event_name):
     :return:
     '''
 
+    filter = {}
+    filter["match_event_id"] = str(match_event_id)
+
+    if not util.is_None(event_name):
+        filter["event_name"] =  event_name
+
     bet_events = []
-    for sqllite_row in SQLLite.get_connection().select("Bet_Event", **{"match_event_id":str(match_event_id), "event_name":event_name}):
+    for sqllite_row in SQLLite.get_connection().select("Bet_Event", **filter):
         be = BetEvent(sqllite_row["id"])
         for attribute, value in sqllite_row.items():
             be.__setattr__(attribute, value)

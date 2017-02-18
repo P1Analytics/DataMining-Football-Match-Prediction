@@ -156,6 +156,24 @@ class SQLiteConnection(object):
 
         self.connection.isolation_level = old_isolation_level
 
+    def delete(self, table_name, object):
+        delete = "DELETE FROM " + table_name + " WHERE ID = '" + str(object.id) + "';"
+        log.debug("Transaction delete [" + delete + "]")
+
+        old_isolation_level = self.connection.isolation_level
+        self.connection.isolation_level = None
+        try:
+            self.cursor.execute("begin")
+            self.cursor.execute(delete)
+            self.cursor.execute("commit")
+        except Exception as e:
+            print("Errror during transaction --> rolling back!")
+            self.cursor.execute("rollback")
+            raise e
+
+        self.connection.isolation_level = old_isolation_level
+        log.debug("Rows deleted: " + str(self.cursor.rowcount))
+
 
     def update(self, table_name, object):
         column_names = self.getColumnFromTable(table_name)

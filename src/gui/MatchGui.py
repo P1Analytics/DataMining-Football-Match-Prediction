@@ -41,6 +41,7 @@ def run():
 def search_by_date():
     date = GuiUtil.input_date_or_day_passed()
     matches = Match.read_by_match_date(date)
+    matches = sorted(matches, key=lambda match: match.date)
 
     if len(matches) == 0:
         GuiUtil.print_att("No match found in date", date)
@@ -92,7 +93,8 @@ def get_printable_matches(matches):
     return printable_matches
 
 def get_printable_match(match, show_event_link = False):
-    match_str = "Stage: "+str(match.stage) + " "+match.date + " "
+    league = League.read_by_id(match.league_id)
+    match_str = league.name+" Stage: "+str(match.stage) + " "+match.date + "\n"
     home_team = match.get_home_team()
     away_team = match.get_away_team()
 
@@ -101,8 +103,8 @@ def get_printable_match(match, show_event_link = False):
         match_str += home_team.team_long_name
     else:
         match_str += str(match.home_team_api_id)
-    if match.is_finished():
-        match_str += " " + str(match.home_team_goal)
+    #if match.is_finished():
+    match_str += " " + str(match.home_team_goal)
 
     match_str += " vs "
 
@@ -111,8 +113,8 @@ def get_printable_match(match, show_event_link = False):
         match_str += away_team.team_long_name
     else:
         match_str += str(match.away_team_api_id)
-    if match.is_finished():
-        match_str += " " + str(match.away_team_goal)
+    #if match.is_finished():
+    match_str += " " + str(match.away_team_goal)
 
     if not match.is_finished():
         match_str += " (TO BE CRAWLED)"

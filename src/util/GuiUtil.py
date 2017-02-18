@@ -2,6 +2,7 @@ import src.util.util as util
 
 pad_len = 100
 
+
 def print_head(head):
     print()
     print("".ljust(pad_len,'*'))
@@ -9,8 +10,10 @@ def print_head(head):
     print("".ljust(head_pad,'*')+" "+head+" "+"".ljust(head_pad,'*'))
     print("".ljust(pad_len, '*'))
 
+
 def print_line_separator():
     print("".ljust(pad_len, '*'))
+
 
 def print_menu(text, choices, add_go_back=False):
     print(text)
@@ -19,12 +22,15 @@ def print_menu(text, choices, add_go_back=False):
     if add_go_back:
         print("\t- gb : Go back")
 
+
 def print_info(label, user_input):
     print("[INFO: "+label+" --> "+str(user_input)+"]")
 
+
 def show_list_answer(l, print_index=True, label="", label_value=""):
-    if len(l)>0:
-        print ("[ANSWER of "+label+" --> "+str(label_value)+"]")
+    print("[ANSWER of " + label + " --> " + str(label_value) + "]")
+    if len(l) > 0:
+
         print_ans = 1
         if len(l) > 20:
             print_ans = print_att("Too many rows to print", len(l), check_continue=True)
@@ -33,25 +39,31 @@ def show_list_answer(l, print_index=True, label="", label_value=""):
             for i, answer in enumerate(l):
                 answer_str = answer.__str__()
                 print_indent_answer(i+1, answer_str, print_index)
+    else:
+        print_info("Empty list", label_value)
+
 
 def print_indent_answer(i, answer_str, print_index):
 
     answer_line_len = int(pad_len*3/4)
-    if print_index:
-        print("\t" + str(i) + ") " + answer_str[0 : answer_line_len+1])
-    else:
-        print("\t" + answer_str[0: answer_line_len + 1])
+    answer_str_list = answer_str.split("\n")
 
-    line = 1
-    while len(answer_str) >= line * answer_line_len:
-        print("\t\t" + answer_str[line * answer_line_len +1: (line + 1) * answer_line_len+1])
-        line += 1
+    if print_index:
+        print("\t" + str(i) + ") " + answer_str_list[0][0: answer_line_len + 1])
+    else:
+        print("\t" + answer_str_list[0][0: answer_line_len + 1])
+
+    line = 0
+    for answer_str in answer_str_list[1:]:
+        while len(answer_str) >= line * answer_line_len:
+            print("\t\t" + answer_str[line * answer_line_len: (line + 1) * answer_line_len+1])
+            line += 1
 
 
 def print_att(label, value, check_continue=False):
     print("[ATT: "+label+" --> "+str(value)+"]")
     if check_continue:
-        print_menu("Do you want to continue?", {'n':"False", "<enter>":"True"})
+        print_menu("Do you want to continue?", {'n': "False", "<enter>": "True"})
         user_input = input("Type: ")
         if user_input == 'n' or user_input == 'N':
             return 0

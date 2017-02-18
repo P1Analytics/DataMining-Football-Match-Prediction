@@ -72,6 +72,8 @@ def add_element(element_id, element, type = "DEFAULT"):
     :param type:
     :return:
     '''
+    global block_caching_operation
+
     while block_caching_operation:
         pass
     if element_id:

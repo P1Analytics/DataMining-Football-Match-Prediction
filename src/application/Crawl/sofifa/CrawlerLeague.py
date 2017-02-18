@@ -36,7 +36,7 @@ class CrawlerLeague(object):
         link_teams_found = self.look_for_teams(self.league_link)
 
         for team_link, team_name in link_teams_found.items():
-            teams = Team.read_by_name(team_name)
+            teams = Team.read_by_name(team_name, like=True)
             if len(teams)==0:
                 # no team found with this name
                 log.debug("No team found with the name [" + team_name + "]")

@@ -124,7 +124,15 @@ def update_team(team, team_api_id, team_name):
         if team_name not in team.team_long_name:
             print(team_name, team.team_long_name, "Aggiornamento da eseguire")
         if util.is_None(team.team_api_id):
-            print("Team api id to set!!!")
+            team_by_api_id = Team.read_by_team_api_id(team_api_id)
+            if team_by_api_id:
+                # two team that identifies the same team, each of them with useful information --> merge
+                Team.merge(team, team_by_api_id)
+            else:
+                # team not present --> just update the existing one
+                log.debug(("Updating the team_api_id ["+str(team_api_id)+"] of the team ["+team_name+"]"))
+                team.team_api_id = team_api_id
+                Team.update(team)
     else:
         # team non trovato per nome --> search team by its api id and update the name
         team = Team.read_by_team_api_id(team_api_id)
