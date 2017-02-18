@@ -22,9 +22,9 @@ def print_menu(text, choices, add_go_back=False):
 def print_info(label, user_input):
     print("[INFO: "+label+" --> "+str(user_input)+"]")
 
-def show_list_answer(l, print_index=True):
+def show_list_answer(l, print_index=True, label="", label_value=""):
     if len(l)>0:
-        print ("[ANSWER]")
+        print ("[ANSWER of "+label+" --> "+str(label_value)+"]")
         print_ans = 1
         if len(l) > 20:
             print_ans = print_att("Too many rows to print", len(l), check_continue=True)

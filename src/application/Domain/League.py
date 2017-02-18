@@ -30,7 +30,7 @@ class League(object):
             pass
         seasons = []
         query = "SELECT distinct(season) FROM Match WHERE league_id='"+str(self.id)+"'"
-        for sqllite_row in SQLLite.get_connection().execute_query(query):
+        for sqllite_row in SQLLite.get_connection().execute_select(query):
             seasons.append(sqllite_row[0])
 
         Cache.add_element(self.id, seasons, "SEASONS_BY_LEAGUE")
@@ -68,7 +68,7 @@ class League(object):
         query = "SELECT distinct(home_team_api_id) FROM Match WHERE league_id='" + str(self.id) + "'"
         if season != "":
             query += " AND season='"+season+"'"
-        for sqllite_row in SQLLite.get_connection().execute_query(query):
+        for sqllite_row in SQLLite.get_connection().execute_select(query):
             teams_api_id.append(sqllite_row[0])
 
         teams = []
@@ -86,7 +86,7 @@ class League(object):
     def add_name(self, new_league_name):
         names = self.name+"|"+new_league_name
         update = "UPDATE League set name = '"+names+"' where id='"+str(self.id)+"'"
-        SQLLite.get_connection().execute_query(update)
+        SQLLite.get_connection().execute_update(update)
 
 
 def read_all():

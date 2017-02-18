@@ -46,6 +46,8 @@ class CrawlerLeague(object):
                         league_found = True
                 if not league_found:
                     self.league = self.get_league_on_page()
+
+            Cache.add_element(self.league_data_stage, self.league, "CRAWL_LEAGUE_PAGE")
             Cache.add_element(self.league_data_stage, True, "CRAWL_LEAGUE_MANAGED")
             return True
 
@@ -77,6 +79,11 @@ class CrawlerLeague(object):
 
 
     def get_league(self):
+        try:
+            return Cache.get_element(self.league_data_stage, "CRAWL_LEAGUE_PAGE")
+        except KeyError:
+            pass
+
         return self.league
 
     def get_season(self):

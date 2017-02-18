@@ -61,10 +61,9 @@ def get_date(days_to_subtract=0, with_hours=False, starting_date_str = None):
         date = datetime.datetime.strptime(starting_date_str, '%Y-%m-%d')-timedelta(days=days_to_subtract)
 
     if with_hours:
-        return date.isoformat().split("T")
+        return date.strftime("%Y-%m-%d %H:%M:%S")
     else:
         return date.isoformat().split("T")[0]
-
 
 
 def get_today_date(with_hours=False):
@@ -88,6 +87,11 @@ def get_date_by_string(date_str, with_hours=False):
 
 def get_curr_time_millis():
     return int(round(time.time() * 1000))
+
+
+def is_today(date_str):
+    return date_str == get_today_date(with_hours=False)
+
 
 def compare_time_to_now(iso_time_string, days_to_subtract=0):
     '''

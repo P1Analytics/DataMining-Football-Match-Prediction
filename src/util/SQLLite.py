@@ -99,17 +99,63 @@ class SQLiteConnection(object):
         values = values[:-1] + ")"
 
         insert += columns+" "+values+";"
-        log.debug("insert ["+insert+"]")
-        self.cursor.execute(insert)
+
+        log.debug("Begin transaction insert [" + insert + "]")
+
+        old_isolation_level = self.connection.isolation_level
+        self.connection.isolation_level = None
+        try:
+            self.cursor.execute("begin")
+            self.cursor.execute(insert)
+            self.cursor.execute("commit")
+        except Exception as e:
+            print("Errror during transaction --> rolling back!")
+            self.cursor.execute("rollback")
+            raise e
+        self.connection.isolation_level = old_isolation_level
 
         log.debug("Rows inserted: " + str(self.cursor.rowcount))
-        self.connection.commit()
 
-    def execute_query(self, query):
+    def execute_select(self, query):
         rows = []
         for row in self.cursor.execute(query):
             rows.append(row)
         return rows
+
+    def execute_update(self, query):
+        log.debug("Transaction update [" + query + "]")
+        old_isolation_level = self.connection.isolation_level
+        self.connection.isolation_level = None
+
+        try:
+            self.cursor.execute("begin")
+            self.cursor.execute(query)
+            self.cursor.execute("commit")
+        except Exception as e:
+            print("Errror during transaction --> rolling back!")
+            self.cursor.execute("rollback")
+            raise e
+
+        self.connection.isolation_level = old_isolation_level
+        log.debug("Rows updated: " + str(self.cursor.rowcount))
+
+
+    def execute_create(self, query):
+        log.debug("Transaction create [" + query + "]")
+        old_isolation_level = self.connection.isolation_level
+        self.connection.isolation_level = None
+
+        try:
+            self.cursor.execute("begin")
+            self.cursor.execute(query)
+            self.cursor.execute("commit")
+        except Exception as e:
+            print("Errror during transaction --> rolling back!")
+            self.cursor.execute("rollback")
+            raise e
+
+        self.connection.isolation_level = old_isolation_level
+
 
     def update(self, table_name, object):
         column_names = self.getColumnFromTable(table_name)
@@ -121,11 +167,15 @@ class SQLiteConnection(object):
         update = update[:-1]
 
         update += " WHERE id = '"+str(object.id)+"'"
-        log.debug("update ["+update+"]")
-        self.cursor.execute(update)
+        self.execute_update(update)
 
-        log.debug("Rows updated: "+str(self.cursor.rowcount))
-        self.connection.commit()
+    def create_table(self, table_name, create_stmt):
+        for db_table_name in self.getTableNameDataBase():
+            if db_table_name == table_name:
+                # table already in
+                return
+        self.execute_create(create_stmt)
+
 
 
 def get_connection():
@@ -134,6 +184,12 @@ def get_connection():
         sqllite_connection = SQLiteConnection()
 
     return sqllite_connection
+
+def init_database():
+   print("Initializing DB")
+   get_connection().create_table("Match_Event", "CREATE TABLE Match_Event(id INTEGER PRIMARY KEY AUTOINCREMENT, match_id INTEGER)")
+   get_connection().create_table("Bet_Event",
+                                 "CREATE TABLE Bet_Event(id INTEGER PRIMARY KEY AUTOINCREMENT, match_event_id INTEGER, event_name STRING, bet_value STRING, date STRING)")
 
 def read_all(table_name, column_filter='*'):
     return get_connection().select(table_name, column_filter=column_filter)

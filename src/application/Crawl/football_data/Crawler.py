@@ -1,5 +1,6 @@
 import logging
 import requests
+import time
 
 from bs4 import BeautifulSoup
 
@@ -30,15 +31,32 @@ class Crawler(object):
 
         self.link_bet_odds_league_to_check = self.host_url_odds+"/football/"+self.country.name
 
-        page = requests.get(self.link_bet_odds_league_to_check).text
+        page = requests.get(self.link_bet_odds_league_to_check, timeout=10).text
         self.soup = BeautifulSoup(page, "html.parser")
         log.debug("Looking for odds of the country ["+self.country.name+"] at the link ["+self.link_bet_odds_league_to_check+"]")
 
-    def look_for_odds(self):
+    def look_for_league(self):
         for league in self.country.get_leagues():
-            for country_league_li in self.soup.find_all('li', {'class':'innerList'}):
+
+            n_try = 1
+            while n_try < 6:
+                country_league_li_list = self.soup.find_all('li', {'class':'innerList'})
+                if len(country_league_li_list) > 0:
+                    break
+                else:
+                    time.sleep(n_try)
+                    page = requests.get(self.link_bet_odds_league_to_check, timeout=10).text
+                    self.soup = BeautifulSoup(page, "html.parser")
+                    n_try += 1
+            if n_try == 6:
+                print("\t> No match found")
+                return
+
+            for country_league_li in country_league_li_list:
                 bet_odds_league_name = (str(country_league_li.a.string).strip())
+                log.debug("Looking for correspondece with ["+bet_odds_league_name+"]")
                 if correspondence[league.name] == bet_odds_league_name:
+                    print("\t|\t- Looking in the league:", league.name)
                     cl = CrawlerLeague(league, country_league_li.li.a.attrs['href'])
                     cl.start_crawl()
 
@@ -47,5 +65,13 @@ class Crawler(object):
 def start_crawling():
 
     for country in Country.read_all():
-        c = Crawler(country)
-        c.look_for_odds()
+        print("\t- Looking in the country:", country.name)
+        n_try = 1
+        while n_try < 6:
+            try:
+                c = Crawler(country)
+                c.look_for_league()
+                break
+            except requests.exceptions.ReadTimeout:
+                print("next try")
+                n_try += 1

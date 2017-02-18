@@ -4,32 +4,22 @@ import src.application.Domain.Team as Team
 import src.application.Domain.Match as Match
 import src.application.Domain.League as League
 import src.util.Cache as Cache
-
-print(Team.read_by_name('Crotone')[0])
-
-match = Match.read_by_match_api_id(2252423)
-print(match)
-
-for match in Team.read_by_name("Manchester City")[0].get_matches(season="2016/2017", ordered=True):
-    print(match.get_home_team(),match.get_away_team())
-    print(match.match_api_id)
-    print(not match or not match.are_teams_linedup() or not match.are_incidents_managed() or not match.get_home_team() or not match.get_away_team())
-    print(not match)
-    print(not match.are_teams_linedup())
-    print(not match.are_incidents_managed())
-    print(not match.get_home_team())
-    print(not match.get_away_team())
-    print("FIN", match.is_finished())
-    print()
+import src.util.SQLLite as SQLLite
 
 
-match = Match.read_by_match_api_id(2319806)
-print(match)
+print(Team.read_by_team_api_id(8243))
+print(Team.read_by_team_api_id(8245))
+#8245 8243
+'''
+None
+Team team_long_name: Korona Kielce, id: 31925, team_short_name: KKI, team_fifa_api_id: 111083, team_api_id: 8245,
+[]
+'''
+print(Team.read_by_name('Wisla Plock', like=True))
 
-#print(match)
+#SQLLite.get_connection().execute_update("DROP TABLE Bet_Event")
+SQLLite.init_database()
 
+print(SQLLite.get_connection().getTableNameDataBase())
 
-for l in League.read_all():
-    print(l)
-
-print(League.read_by_name('Belgium Jupiler League|Belgian Jupiler Pro League')[0].get_matches(season='2016/2017'))
+print(SQLLite.get_connection().getColumnFromTable("Bet_Event"))

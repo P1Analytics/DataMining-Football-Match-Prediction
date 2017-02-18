@@ -46,7 +46,7 @@ def search_by_date():
         GuiUtil.print_att("No match found in date", date)
     else:
         printable_matches = get_printable_matches(matches)
-        GuiUtil.show_list_answer(printable_matches, print_index=True)
+        GuiUtil.show_list_answer(printable_matches, print_index=True, label="Matches by date", label_value=date)
 
 
 

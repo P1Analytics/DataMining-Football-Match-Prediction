@@ -7,9 +7,11 @@ import src.application.Domain.Team as Team
 import src.application.Domain.Match as Match
 import src.application.Domain.Player as Player
 import src.util.util as util
+import src.util.SQLLite as SQLLite
 import src.util.Cache as Cache
 
 util.init_logger()
+SQLLite.init_database()
 Cache.init_cache()
 #C1.start_crawling()
 #C2.start_crawling(go_back=True)
