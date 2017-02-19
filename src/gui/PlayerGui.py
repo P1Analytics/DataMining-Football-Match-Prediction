@@ -1,6 +1,7 @@
 import src.util.GuiUtil as GuiUtil
 import src.application.Domain.Player as Player
 import src.application.Domain.Team as Team
+import src.util.util as util
 
 
 def run():
@@ -68,10 +69,64 @@ def search_by_team():
 
 def show_players(user_input, players_in, label):
     players_in = sorted(players_in, key=lambda player: player.player_name)
-    players_out = [get_player_str(p) for p in players_in]
+
+    show_details = len(players_in) < 10
+    players_out = [get_player_str(p, show_details) for p in players_in]
+
     GuiUtil.show_list_answer(players_out, print_index=True, label=label, label_value=user_input)
 
 
-def get_player_str(player):
+def get_player_str(player, show_details):
     player_link = "http://sofifa.com/player/"
-    return player.player_name + " " + player_link + str(player.player_fifa_api_id)
+    player_str = player.player_name + " " + player_link + str(player.player_fifa_api_id)
+
+    if show_details:
+        current_palyer_team = player.get_current_team()
+        if current_palyer_team:
+            # current team
+            player_str += '\nCurrent team: ' + current_palyer_team.team_long_name
+
+            # matches played
+            team_matches = current_palyer_team.get_matches(season=util.get_current_season())
+            player_str += '\nGames when he starts from the beginning: ' \
+                          + str(len(player.get_matches(season=util.get_current_season()))) + '/' \
+                          + str(len(team_matches))
+
+            # goals done / received
+            team_goal_done, team_goal_received = current_palyer_team.get_goals_by_season(
+                season=util.get_current_season())
+            if not player.is_gk():
+                goal_done = player.get_goal_done(season=util.get_current_season())
+                player_str += '\nGoal done: ' + str(goal_done) + "/" + str(team_goal_done)
+
+                # assist done
+                assist_done = player.get_assist_done(season=util.get_current_season())
+                team_assist_done = current_palyer_team.get_assist_by_season(season=util.get_current_season())
+                player_str += '\nAssist done: ' + str(assist_done) + "/" + str(team_assist_done)
+            else:
+                goal_recived = player.get_goal_received(season=util.get_current_season())
+                player_str += '\nGoal Received: ' + str(goal_recived) + "/" + str(team_goal_received)
+
+        else:
+            # current team not found
+            player_str += '\nCurrent team: NOT FOUND'
+
+            # matches played
+            player_str += '\nGames when he starts from the beginning: ' \
+                          + str(len(player.get_matches(season=util.get_current_season())))
+
+            # goals done / received
+            if not player.is_gk():
+                goal_done = player.get_goal_done(season=util.get_current_season())
+                player_str += '\nGoal done: ' + str(goal_done)
+
+                # assist done
+                assist_done = player.get_assist_done(season=util.get_current_season())
+                player_str += '\nAssist done: ' + str(assist_done)
+            else:
+                goal_recived = player.get_goal_received(season=util.get_current_season())
+                player_str += '\nGoal Received: ' + str(goal_recived)
+
+    return player_str
+
+

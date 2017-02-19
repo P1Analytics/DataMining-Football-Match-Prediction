@@ -216,6 +216,24 @@ def read_matches_by_away_team(team_api_id, season=None):
     return match_list
 
 
+def read_by_player_api_id(player_api_id):
+    home_player_i = 'home_player_'
+    away_player_i = 'away_player_'
+    or_filter = {}
+    for i in range(11):
+        or_filter[home_player_i + str(i+1)] = player_api_id
+        or_filter[away_player_i + str(i+1)] = player_api_id
+
+    match_list = []
+    for sqllite_row in SQLLite.get_connection().select_or("Match", **or_filter):
+        match = Match(sqllite_row["id"])
+        for attribute, value in sqllite_row.items():
+            match.__setattr__(attribute, value)
+        match_list.append(match)
+
+    return match_list
+
+
 def read_players_api_id_by_team_api_id(team_api_id, season=None):
     '''
     return a list of player_api_id

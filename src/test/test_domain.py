@@ -7,5 +7,9 @@ import src.application.Domain.League as League
 import src.util.Cache as Cache
 import src.util.SQLLite as SQLLite
 
-team = Team.read_by_team_api_id(7896)
+team = Team.read_by_name('inter', like=True)[0]
 print(team)
+
+eder = Players.read_by_name('Eder Citadin Martins')[0]
+print(eder)
+

@@ -8,6 +8,9 @@ import src.util.SQLLite as SQLLite
 import src.util.util as util
 import src.util.Cache as Cache
 
+from bs4 import BeautifulSoup
+
+
 class Team(object):
     def __init__(self, id):
         self.id = id
@@ -19,17 +22,22 @@ class Team(object):
             to_string+=attribute+": "+str(self.__getattribute__(attribute))+", "
         return to_string
 
-    def get_matches(self, season=None, ordered=False):
-        '''
+    def get_matches(self, season=None, ordered=False, finished=True):
+        """
         Return matches of this team
         :param season:
+        :param ordered:
+        :param finished:
         :return:
-        '''
+        """
         matches = Match.read_matches_by_team(self.team_api_id, season)
         if ordered:
-            return sorted(matches, key=lambda match: match.date)
-        else:
-            return matches
+            matches = sorted(matches, key=lambda match: match.date)
+
+        if finished:
+            matches = [m for m in matches if m.is_finished()]
+
+        return matches
 
     def get_home_matches(self, season=None, ordered=False):
         '''
@@ -65,7 +73,6 @@ class Team(object):
                 last_team_attributes = team_attributes
 
         return last_team_attributes
-
 
     def get_team_attributes(self, date=None):
         return Team_Attributes.read_by_team_fifa_api_id(self.team_fifa_api_id)
@@ -188,6 +195,39 @@ class Team(object):
 
         return goal_done, goal_received
 
+    def get_goals_by_season(self, season=None):
+        '''
+        Return the sum of the goals done/received got in this season
+        :param season:
+        :param stage:
+        :param n:
+        :return:
+        '''
+        matches = self.get_matches(season=season)
+        goal_done = 0
+        goal_received = 0
+        for match in matches:
+            if match.get_home_team().team_api_id == self.team_api_id:
+                goal_done += match.home_team_goal
+                goal_received += match.away_team_goal
+            else:
+                goal_done += match.away_team_goal
+                goal_received += match.home_team_goal
+
+        return goal_done, goal_received
+
+    def get_assist_by_season(self, season = None):
+        cnt = 0
+        for match in self.get_matches(season=season):
+            soup = BeautifulSoup(match.goal, "html.parser")
+            for value in soup.find_all('value'):
+                team = value.find('team')
+                if team and int(str(team.string).strip()) == self.team_api_id:
+                    if not util.is_None(value.find('player2')):
+                        cnt += 1
+        return cnt
+
+
     def get_shots(self, season, stage, n=None, on=True):
         '''
         Return the shoton done of this team
@@ -214,7 +254,6 @@ class Team(object):
 
         return shoton
 
-
     def get_players(self, season = None):
         '''
         Return all players that played in this team
@@ -224,14 +263,12 @@ class Team(object):
         '''
         return Player.read_by_team_api_id(self.team_api_id, season)
 
-
     def get_current_players(self):
         '''
         Return a list of players that play in this team in the current season
         :return:
         '''
         return self.get_players(season = util.get_current_season())
-
 
     def save_team_attributes(self, team_attributes, force=False):
         Team_Attributes.write_team_attributes(self, team_attributes, force)

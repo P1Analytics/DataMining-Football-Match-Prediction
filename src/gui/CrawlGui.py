@@ -1,10 +1,12 @@
 import src.util.GuiUtil as GuiUtil
 import src.application.Crawl.enetscores.Crawler as CrawlerMatches
 import src.application.Crawl.sofifa.Crawler as CrawlerPlayers
+import src.application.Crawl.football_data.Crawler as CrawlerBetOdds
+
 
 def run():
     GuiUtil.print_head("Crawling")
-    menu = {1: "Find new matches", 2: "Find new players"}
+    menu = {1: "Find new matches", 2: "Find new players", 3:"Find new bet-odds"}
     GuiUtil.print_menu("Crawl menu:", menu, add_go_back=True)
 
     while True:
@@ -19,6 +21,10 @@ def run():
                 GuiUtil.print_info("Finding", "players")
                 find_new_players()
 
+            elif user_input == 3:
+                GuiUtil.print_info("Finding", "bet-odds")
+                find_new_bet_odds()
+
             else:
                 raise ValueError
 
@@ -29,6 +35,7 @@ def run():
             if user_input == 'gb':
                 return
             print("Insert a valid input!!!")
+
 
 def find_new_matches():
     print("Type the last day to be crawled")
@@ -49,3 +56,6 @@ def find_new_matches():
 def find_new_players():
     CrawlerPlayers.start_crawling()
 
+
+def find_new_bet_odds():
+    CrawlerBetOdds.start_crawling()

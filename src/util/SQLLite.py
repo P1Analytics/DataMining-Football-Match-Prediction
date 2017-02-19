@@ -31,7 +31,6 @@ class SQLiteConnection(object):
         Cache.add_element(table_name, columns, "SQLLITE_COLUMN_TABLE")
         return columns
 
-
     def select(self, table_name, column_filter='*', **id):
         id_condition = ""
         if len(id) > 0:
@@ -48,6 +47,34 @@ class SQLiteConnection(object):
 
         row_results = []
         select = "SELECT "+column_filter+" FROM "+table_name+" "+id_condition+";"
+        log.debug("select ["+select+"]")
+        for sqllite_row in self.cursor.execute(select):
+            if sqllite_row is None:
+                continue
+            row = {}
+            for i, name in enumerate(column_names):
+                row[name] = sqllite_row[i]
+            row_results.append(row)
+
+        log.debug("Rows found: "+str(len(row_results)))
+        return row_results
+
+    def select_or(self, table_name, column_filter='*', **or_conditions):
+        or_condition = ""
+        if len(or_conditions) > 0:
+            or_condition = "WHERE "
+
+            for attrbiute, value in or_conditions.items():
+                or_condition += attrbiute+"='"+str(value).replace("'","''")+"' OR "
+            or_condition = or_condition[0:-3]
+
+        if column_filter == '*':
+            column_names = self.getColumnFromTable(table_name)
+        else:
+            column_names = column_filter.split(",")
+
+        row_results = []
+        select = "SELECT "+column_filter+" FROM "+table_name+" "+or_condition+";"
         log.debug("select ["+select+"]")
         for sqllite_row in self.cursor.execute(select):
             if sqllite_row is None:

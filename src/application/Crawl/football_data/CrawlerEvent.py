@@ -67,7 +67,6 @@ class CrawlerEvent(object):
             return
 
         if len(bet_values.keys()) > 0:
-            print("insert new bet value", bet_values)
             Bet_Event.write_new_bet_event(self.match_event.id, self.event_name, bet_values)
 
     def get_half_time_total_over_under_odds(self):

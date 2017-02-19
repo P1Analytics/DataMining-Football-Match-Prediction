@@ -56,10 +56,6 @@ class CrawlerMatch(object):
             ce = CrawlerEvent(match_event, event_name, event_link)
             ce.start_crawl()
 
-        print("\t|\t|\tMatch event added:", match_event)
-
-
-
     def check_teams_match(self):
         start_time_match = self.get_start_time_match()
         print("\t|\t|\t["+start_time_match+"]")

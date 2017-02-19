@@ -11,6 +11,8 @@ from src.application.Crawl.enetscores.CrawlerLineup import CrawlerLineup
 from src.application.Crawl.enetscores.CrawlerTeam import CrawlerTeam
 
 log = logging.getLogger(__name__)
+
+
 class CrawlerMatch(object):
     def __init__(self, match, league, event):
         self.match = match
@@ -23,6 +25,12 @@ class CrawlerMatch(object):
         log.debug("Match event ["+event+"] got at link ["+self.match_link+"]")
 
     def parse_json(self, season):
+        """
+
+        :param season:
+        :return:
+        """
+        '''
         status_descfk = self.json_match["status_descfk"]
         status_type = self.json_match["status_type"]
         status_desc_short = self.json_match["status_desc_short"]
@@ -35,17 +43,14 @@ class CrawlerMatch(object):
         tournamentfk = self.json_match["tournamentfk"]
         tournament_templatefk = self.json_match["tournament_templatefk"]
         tournament_stagefk = self.json_match["tournament_stagefk"]
-        round = self.json_match["round"]        # should be our stage
+
         live = self.json_match["live"]
 
-        eventfk = self.json_match["eventfk"]
-        homefk = self.json_match["homefk"]
-        awayfk = self.json_match["awayfk"]
-        startdate = self.json_match["startdate"]
         winner = self.json_match["winner"]
         winners = self.json_match["winners"]
         scopes_hash = self.json_match["scopes_hash"]
         incidents_hash = self.json_match["incidents_hash"]
+
 
         n_home_yellow_card = 0
         n_home_double_yellow_card = 0
@@ -70,33 +75,32 @@ class CrawlerMatch(object):
                 n_away_red_card = util.get_default(self.json_match["cards"]["2"], "16", 0)
             except KeyError:
                 pass
-
-        n_home_goal_first_time = util.get_default(self.json_match["results"]["1"]["r"], "5", 0)
+        '''
+        # n_home_goal_first_time = util.get_default(self.json_match["results"]["1"]["r"], "5", 0)
         n_home_goal = util.get_default(self.json_match["results"]["1"]["r"], "1", 0)
-        n_away_goal_first_time = util.get_default(self.json_match["results"]["2"]["r"], "5", 0)
+        # n_away_goal_first_time = util.get_default(self.json_match["results"]["2"]["r"], "5", 0)
         n_away_goal = util.get_default(self.json_match["results"]["2"]["r"], "1", 0)
 
-        match_attributes = {}
+        match_attributes = dict()
         match_attributes["country_id"] = self.league.country_id
         match_attributes["league_id"] = self.league.id
         match_attributes["season"] = season
-        match_attributes["stage"] = round
-        match_attributes["date"] = startdate
-        match_attributes["match_api_id"] = eventfk
-        match_attributes["home_team_api_id"] = homefk
-        match_attributes["away_team_api_id"] = awayfk
+        match_attributes["stage"] = self.json_match["round"]  # should be our stage
+        match_attributes["date"] = self.json_match["startdate"]
+        match_attributes["match_api_id"] = self.json_match["eventfk"]
+        match_attributes["home_team_api_id"] = self.json_match["homefk"]
+        match_attributes["away_team_api_id"] = self.json_match["awayfk"]
         match_attributes["home_team_goal"] = n_home_goal
         match_attributes["away_team_goal"] = n_away_goal
 
         # check team
-        home_team_name = check_team(homefk)
-        away_team_name = check_team(awayfk)
+        home_team_name = check_team(self.json_match["homefk"])
+        away_team_name = check_team(self.json_match["awayfk"])
 
         # formations
         if not self.match or not self.match.are_teams_linedup() or not self.match.is_finished():
             lc = CrawlerLineup(self.match, match_attributes, self.event)
             lc.get_lineups()
-
 
         # event incidents
         if not self.match or (self.match and not self.match.are_incidents_managed()):
@@ -109,7 +113,7 @@ class CrawlerMatch(object):
             # update match
             Match.update_match(self.match, match_attributes)
 
-        print("\t",home_team_name,"vs",away_team_name)
+        print("\t", home_team_name, "vs", away_team_name)
 
 
 def check_team(team_api_id):
@@ -119,6 +123,3 @@ def check_team(team_api_id):
         return cm.get_team_name()
     else:
         return team.team_long_name
-
-
-

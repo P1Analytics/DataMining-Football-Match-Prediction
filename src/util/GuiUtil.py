@@ -30,7 +30,6 @@ def print_info(label, user_input):
 def show_list_answer(l, print_index=True, label="", label_value=""):
     print("[ANSWER of " + label + " --> " + str(label_value) + "]")
     if len(l) > 0:
-
         print_ans = 1
         if len(l) > 20:
             print_ans = print_att("Too many rows to print", len(l), check_continue=True)
@@ -44,7 +43,7 @@ def show_list_answer(l, print_index=True, label="", label_value=""):
 
 
 def print_indent_answer(i, answer_str, print_index):
-
+    print()
     answer_line_len = int(pad_len*3/4)
     answer_str_list = answer_str.split("\n")
 
@@ -53,8 +52,8 @@ def print_indent_answer(i, answer_str, print_index):
     else:
         print("\t" + answer_str_list[0][0: answer_line_len + 1])
 
-    line = 0
     for answer_str in answer_str_list[1:]:
+        line = 0
         while len(answer_str) >= line * answer_line_len:
             print("\t\t" + answer_str[line * answer_line_len: (line + 1) * answer_line_len+1])
             line += 1
@@ -88,3 +87,13 @@ def input_date_or_day_passed(retry_on_error=True):
             return date
 
         user_input = input("Insert a valid value: ")
+
+
+def set_default_str(label, object, attribute, default = 'Not Found'):
+    ret_str = label+" --> "
+    if object:
+        ret_str += object.__getattribute__(attribute)
+    else:
+        ret_str += default
+
+    return ret_str

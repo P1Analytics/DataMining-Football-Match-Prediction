@@ -2,12 +2,15 @@ import logging
 
 import src.util.SQLLite as SQLLite
 import src.util.Cache as Cache
+import src.util.util as util
 
 import src.application.Domain.Match as Match
 import src.application.Domain.Player_Attributes as Player_Attributes
 
+from bs4 import BeautifulSoup
 
 log = logging.getLogger(__name__)
+
 
 class Player(object):
     def __init__(self, id):
@@ -15,8 +18,8 @@ class Player(object):
 
     def __str__(self):
         return "Player <id: "+str(self.id)+", player_api_id:"+str(self.player_api_id)+", player_name:"+str(self.player_name)\
-               +", player_fifa_api_id:"+str(self.player_fifa_api_id)+", birthday:"+str(self.birthday)\
-               +", height:"+str(self.height)+", weight:"+str(self.weight)+">";
+               + ", player_fifa_api_id:"+str(self.player_fifa_api_id)+", birthday:"+str(self.birthday)\
+               + ", height:"+str(self.height)+", weight:"+str(self.weight)+">";
 
     def get_last_player_attributes(self):
         max_date = "0000-00-00"
@@ -29,8 +32,73 @@ class Player(object):
 
         return last_player_attributes
 
-    def get_player_attributes(self, date=None):
+    def get_player_attributes(self):
         return Player_Attributes.read_by_player_fifa_api_id(self.player_fifa_api_id)
+
+    def get_matches(self, season = None):
+        if util.is_None(self.player_api_id):
+            return []
+
+        matches = Match.read_by_player_api_id(self.player_api_id)
+        if not season:
+            return matches
+        else:
+            return [m for m in matches if m.season == season]
+
+    def get_current_team(self):
+        import src.application.Domain.Team as Team
+
+        matches = self.get_matches()
+        if len(matches) > 0:
+            last_match = sorted(matches, key=lambda match: match.date)[-1]
+
+            home_player_i = 'home_player_'
+            away_player_i = 'away_player_'
+            for i in range(11):
+                if last_match.__getattribute__(home_player_i+str(i+1)) == self.player_api_id:
+                    return Team.read_by_team_api_id(last_match.home_team_api_id)
+                if last_match.__getattribute__(away_player_i+str(i+1)) == self.player_api_id:
+                    return Team.read_by_team_api_id(last_match.away_team_api_id)
+        return None
+
+    def get_goal_done(self, season=None):
+        cnt = 0
+        for m in self.get_matches(season=season):
+            soup = BeautifulSoup(m.goal, "html.parser")
+            for player1 in soup.find_all('player1'):
+                if int(str(player1.string).strip()) == self.player_api_id:
+                    cnt += 1
+        return cnt
+
+    def get_goal_received(self, season=None):
+        cnt = 0
+        current_team = self.get_current_team()
+        for m in self.get_matches(season=season):
+            if m.home_team_api_id == current_team.team_api_id:
+                cnt += m.away_team_goal
+            else:
+                cnt += m.home_team_goal
+        return cnt
+
+    def get_assist_done(self, season=None):
+        cnt = 0
+        for m in self.get_matches(season=season):
+            soup = BeautifulSoup(m.goal, "html.parser")
+            for player1 in soup.find_all('player2'):
+                if int(str(player1.string).strip()) == self.player_api_id:
+                    cnt += 1
+        return cnt
+
+    def is_gk(self):
+        player_attributes = self.get_last_player_attributes()
+        overall_gk_attributes = player_attributes.gk_diving
+        overall_gk_attributes += player_attributes.gk_handling
+        overall_gk_attributes += player_attributes.gk_kicking
+        overall_gk_attributes += player_attributes.gk_positioning
+        overall_gk_attributes += player_attributes.gk_reflexes
+
+        return overall_gk_attributes / 5 > 50
+
 
     def save_player_attributes(self, player_attributes):
         Player_Attributes.write_player_attributes(self, player_attributes)
@@ -39,6 +107,7 @@ class Player(object):
         self.player_api_id = player_api_id
         if persist:
             update(self)
+
 
 def read_all():
     players = []
@@ -49,12 +118,13 @@ def read_all():
         players.append(player)
     return players
 
+
 def read_by_api_id(player_api_id):
-    '''
+    """
     Read a player by its api_id
     :param player_api_id:
     :return:
-    '''
+    """
     try:
         return Cache.get_element(player_api_id, "PLAYER_BY_API_ID")
     except KeyError:
@@ -76,11 +146,11 @@ def read_by_api_id(player_api_id):
 
 
 def read_by_fifa_api_id(player_fifa_api_id):
-    '''
-       Read a player by its team_fifa_api_id
-       :param player_api_id:
-       :return:
-       '''
+    """
+    Read a player by its team_fifa_api_id
+    :param player_fifa_api_id:
+    :return:
+    """
     try:
         return Cache.get_element(player_fifa_api_id, "PLAYER_BY_FIFA_API_ID")
     except KeyError:
@@ -103,11 +173,12 @@ def read_by_fifa_api_id(player_fifa_api_id):
 
 
 def read_by_name(player_name, like=False):
-    '''
+    """
     Read a player by its name
-    :param player_api_id:
+    :param player_name:
+    :param like:
     :return:
-    '''
+    """
     filter = {"player_name": player_name}
 
     if like:
@@ -126,13 +197,13 @@ def read_by_name(player_name, like=False):
 
 
 def read_by_team_api_id(team_api_id, season=None):
-    '''
+    """
     Return list of players that play in the team identified my team_api_id
     if season is set, consider only that season
     :param team_api_id:
     :param season:
     :return:
-    '''
+    """
 
     if not season:
         season = ""
@@ -163,15 +234,13 @@ def read_by_team_api_id(team_api_id, season=None):
 
 
 def write_new_player(player_name, player_fifa_api_id, birthday, height, weight):
-    SQLLite.get_connection().insert("Player", {"player_name":player_name,
-                                             "player_fifa_api_id":player_fifa_api_id,
-                                             "birthday":birthday,
-                                             "height":height,
-                                              "weight":weight})
+    SQLLite.get_connection().insert("Player", {"player_name": player_name,
+                                               "player_fifa_api_id": player_fifa_api_id,
+                                               "birthday": birthday,
+                                               "height": height,
+                                               "weight": weight})
     return read_by_fifa_api_id(player_fifa_api_id)
 
 
 def update(player):
     SQLLite.get_connection().update("Player", player)
-
-

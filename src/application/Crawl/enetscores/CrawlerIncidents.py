@@ -5,6 +5,7 @@ import requests
 
 log = logging.getLogger(__name__)
 
+
 class CrawlerIncidents(object):
     def __init__(self, match, match_attributes, event):
         self.match = match
@@ -14,7 +15,6 @@ class CrawlerIncidents(object):
         incident_url = "http://json.mx-api.enetscores.com/live_data/actionzones/" + self.event + "/0?_=1486979583821"
         self.json_incident_match = json.loads(requests.get(incident_url).text)
         log.debug("Instantiated, link ["+incident_url+"]")
-
 
     def get_incidents(self):
         if self.json_incident_match["s"] == "finished":
@@ -34,7 +34,6 @@ class CrawlerIncidents(object):
                 log.debug("Event ["+self.event+"] without incidents")
                 return
 
-
             for incident in self.json_incident_match["i"]:
                 if incident["type"] == "goal":
                     goal += elaborate_tag(incident)
@@ -52,7 +51,7 @@ class CrawlerIncidents(object):
                     corner += elaborate_tag(incident)
                 elif incident["type"] == "special":
                     try:
-                        if incident["subtype"]=="possession":
+                        if incident["subtype"] == "possession":
                             possession += elaborate_tag(incident)
                     except KeyError:
                         pass
@@ -65,7 +64,6 @@ class CrawlerIncidents(object):
             cross += "</cross>"
             corner += "</corner>"
             possession += "</possession>"
-
 
             self.match_attributes["goal"] = goal
             self.match_attributes["shoton"] = shoton
@@ -86,7 +84,7 @@ def elaborate_tag(incident):
 
 def get_string_by_dict(dic):
     dict_str = ""
-    for k,v in dic.items():
+    for k, v in dic.items():
         dict_str += "<" + k + ">"
         if type(v) is dict:
             dict_str += get_string_by_dict(v)
