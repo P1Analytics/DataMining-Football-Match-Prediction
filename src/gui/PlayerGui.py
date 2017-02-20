@@ -60,40 +60,42 @@ def search_by_team():
             GuiUtil.print_att("No team found", user_input)
         elif len(teams_found) == 1:
             team = teams_found[0]
-            show_players(user_input, team.get_current_players(), "Players of the team")
+            show_players(user_input, team.get_current_players(), "Players of the team", team=team, show_details=True)
 
     elif len(teams_found) == 1:
         team = teams_found[0]
-        show_players(user_input, team.get_current_players(), "Players of the team")
+        show_players(user_input, team.get_current_players(), "Players of the team", team=team, show_details=True)
 
 
-def show_players(user_input, players_in, label):
+def show_players(user_input, players_in, label, team=None, show_details=False):
     players_in = sorted(players_in, key=lambda player: player.player_name)
+    print("[ANSWER of " + label + " --> " + str(user_input) + "]")
 
-    show_details = len(players_in) < 10
-    players_out = [get_player_str(p, show_details) for p in players_in]
+    show_details = len(players_in) < 10 or show_details
+    for i, player_in in enumerate(players_in):
+        player_out = get_player_str(player_in, show_details, team)
+        GuiUtil.print_indent_answer(i+1, player_out, True)
 
-    GuiUtil.show_list_answer(players_out, print_index=True, label=label, label_value=user_input)
 
-
-def get_player_str(player, show_details):
+def get_player_str(player, show_details, current_player_team=None):
     player_link = "http://sofifa.com/player/"
     player_str = player.player_name + " " + player_link + str(player.player_fifa_api_id)
 
     if show_details:
-        current_palyer_team = player.get_current_team()
-        if current_palyer_team:
+        if not current_player_team:
+            current_player_team = player.get_current_team()
+        if current_player_team:
             # current team
-            player_str += '\nCurrent team: ' + current_palyer_team.team_long_name
+            player_str += '\nCurrent team: ' + current_player_team.team_long_name
 
             # matches played
-            team_matches = current_palyer_team.get_matches(season=util.get_current_season())
+            team_matches = current_player_team.get_matches(season=util.get_current_season())
             player_str += '\nGames when he starts from the beginning: ' \
                           + str(len(player.get_matches(season=util.get_current_season()))) + '/' \
                           + str(len(team_matches))
 
             # goals done / received
-            team_goal_done, team_goal_received = current_palyer_team.get_goals_by_season(
+            team_goal_done, team_goal_received = current_player_team.get_goals_by_season(
                 season=util.get_current_season())
             if not player.is_gk():
                 goal_done = player.get_goal_done(season=util.get_current_season())
@@ -101,7 +103,7 @@ def get_player_str(player, show_details):
 
                 # assist done
                 assist_done = player.get_assist_done(season=util.get_current_season())
-                team_assist_done = current_palyer_team.get_assist_by_season(season=util.get_current_season())
+                team_assist_done = current_player_team.get_assist_by_season(season=util.get_current_season())
                 player_str += '\nAssist done: ' + str(assist_done) + "/" + str(team_assist_done)
             else:
                 goal_recived = player.get_goal_received(season=util.get_current_season())
