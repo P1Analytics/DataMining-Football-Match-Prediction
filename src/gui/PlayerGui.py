@@ -103,7 +103,7 @@ def get_player_str(player, show_details, current_player_team=None):
 
                 # assist done
                 assist_done = player.get_assist_done(season=util.get_current_season())
-                team_assist_done = current_player_team.get_assist_by_season(season=util.get_current_season())
+                team_assist_done = current_player_team.get_assist_by_season_and_stage(season=util.get_current_season())
                 player_str += '\nAssist done: ' + str(assist_done) + "/" + str(team_assist_done)
             else:
                 goal_recived = player.get_goal_received(season=util.get_current_season())

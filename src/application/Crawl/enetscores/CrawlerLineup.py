@@ -58,8 +58,9 @@ class CrawlerLineup(object):
                 pass
 
         tables_players = self.soup.find_all('table', {'class': 'mx-lineup-table'})
-        if not home and len(tables_players):
+        if not home and len(tables_players)>4:
             index_table_player = 2
+
         table_players = tables_players[index_table_player]
         for player_td in table_players.find_all('td', {'class': 'mx-player-name'}):
             player_api_id = player_td.a.attrs['data-player']
@@ -76,7 +77,9 @@ class CrawlerLineup(object):
                 self.match_attributes[player_attributes_api_id+str(i)] = player_api_id
                 check_player(player_api_id, current_player_name)
             else:
-                log.warning("Player with lastname ["+last_name_player+"] not found at the event["+self.event+"]")
+
+                log.warning("Player with lastname ["+last_name_player+"] not found at the event["+self.event+
+                            "], link ["+self.match_linedup_link+"]")
 
 
 def check_player(player_api_id, player_name):
@@ -89,12 +92,14 @@ def check_player(player_api_id, player_name):
             players[0].set_api_id(player_api_id, persist=True)
         else:
             # player not found by name
-            log.warning("Player to be matched at hand [" + player_name+"], api id [" + player_api_id+"]")
+            log.warning("player not found by name [" + player_name + "], player_api_id [" + player_api_id
+                        + "]. Remove player_fifa_api_id constraint to add it in the DB")
+            # Player.write_new_player(player_name, None, None, None, None, player_api_id=player_api_id)
 
 
 def get_last_name_playerstr(player_name):
     if '.' in player_name:
-        return player_name[player_name.index('.')+1:].strip()
+        return player_name[player_name.rfind('.')+1:].strip()
     else:
         return player_name.split(" ")[-1].strip()
 
@@ -104,11 +109,3 @@ def get_coordinates(coordinatesa_str):
         return coordinatesa_str[0], coordinatesa_str[1]
     else:
         return coordinatesa_str[0:2], coordinatesa_str[2]
-
-'''
-event = '2272056'
-
-cl = CrawlerLineup(None, {}, event)
-print(cl.match_linedup_link)
-cl.get_lineups()
-'''

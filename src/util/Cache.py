@@ -15,6 +15,7 @@ max_cache_size = 1024*1024*512      # 512 MB
 log = logging.getLogger(__name__)
 block_caching_operation = False
 
+
 def get_cache_size():
     global block_caching_operation
 
@@ -37,6 +38,7 @@ def get_cache_size():
 
     return cache_size, cache_size_str, measure
 
+
 def threaded_function(arg):
     while True:
         cache_size, cache_size_str, measure = get_cache_size()
@@ -57,6 +59,7 @@ def threaded_function(arg):
             log.debug("New size of the cache [" + cache_size_str + " " + measure + "]")
 
         sleep(60)
+
 
 def init_cache():
     thread = Thread(target=threaded_function, args=(10,))

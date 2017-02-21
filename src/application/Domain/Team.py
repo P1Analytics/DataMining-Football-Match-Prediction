@@ -22,7 +22,25 @@ class Team(object):
             to_string+=attribute+": "+str(self.__getattribute__(attribute))+", "
         return to_string
 
-    def get_matches(self, season=None, ordered=False, finished=True):
+    def get_trend(self, stage=None, season=None, n=5, home=None):
+
+        matches = self.get_matches(season=season, ordered=True, finished=True, home=home)
+
+        if stage:
+            matches = [m for m in matches if m.stage < stage]
+
+        trend = ""
+        for match in matches[-n:]:
+            if util.is_None(match.get_winner()):
+                trend = "X " + trend
+            elif match.get_winner().team_api_id == self.team_api_id:
+                trend = "V "+trend
+            else:
+                trend = "P "+trend
+
+        return trend
+
+    def get_matches(self, season=None, ordered=False, finished=True, home=None):
         """
         Return matches of this team
         :param season:
@@ -30,7 +48,13 @@ class Team(object):
         :param finished:
         :return:
         """
-        matches = Match.read_matches_by_team(self.team_api_id, season)
+        if util.is_None(home):
+            matches = Match.read_matches_by_team(self.team_api_id, season)
+        elif home:
+            matches = Match.read_matches_by_home_team(self.team_api_id, season)
+        else:
+            matches = Match.read_matches_by_away_team(self.team_api_id, season)
+
         if ordered:
             matches = sorted(matches, key=lambda match: match.date)
 
@@ -38,30 +62,6 @@ class Team(object):
             matches = [m for m in matches if m.is_finished()]
 
         return matches
-
-    def get_home_matches(self, season=None, ordered=False):
-        '''
-        Return home matches of this team
-        :param season:
-        :return:
-        '''
-        matches = Match.read_matches_by_home_team(self.team_api_id, season)
-        if ordered:
-            return sorted(matches, key=lambda match: match.date)
-        else:
-            return matches
-
-    def get_away_matches(self, season=None, ordered=False):
-        '''
-        Return home matches of this team
-        :param season:
-        :return:
-        '''
-        matches = Match.read_matches_by_away_team(self.team_api_id, season)
-        if ordered:
-            return sorted(matches, key=lambda match: match.date)
-        else:
-            return matches
 
     def get_last_team_attributes(self):
         max_date = "0000-00-00"
@@ -119,7 +119,7 @@ class Team(object):
         :param stage:
         :return: points, number of matches considered
         '''
-        matches = self.get_home_matches(season=season, ordered=True)
+        matches = self.get_matches(season=season, ordered=True, home=True)
         previous_matches = []
         for match in matches:
             if match.stage >= stage:
@@ -148,7 +148,7 @@ class Team(object):
         :param stage:
         :return: points, number of matches considered
         '''
-        matches = self.get_away_matches(season=season, ordered=True)
+        matches = self.get_matches(season=season, ordered=True, home=False)
         previous_matches = []
         for match in matches:
             if match.stage >= stage:
@@ -168,7 +168,7 @@ class Team(object):
 
         return points, match_used
 
-    def get_goals_by_season_and_stage(self, season, stage, n=None):
+    def get_goals_by_season_and_stage(self, season, stage, n=None, home=None):
         '''
         Return the sum of the goals done/received got until the stage
         Do not considere the stage in input
@@ -178,22 +178,35 @@ class Team(object):
         :param n:
         :return:
         '''
-        matches = self.get_matches(season=season, ordered=True)
+
+        matches = self.get_matches(season=season, ordered=True, home=home)
+        if n:
+            i = 0
+            for match in matches:
+                if match.stage >= stage:
+                    break
+                i += 1
+            matches = matches[i-n: i]
         goal_done = 0
         goal_received = 0
+        num_matches_considered = 0
         for match in matches:
             if match.stage >= stage:
-                return goal_done, goal_received
-            if n and match.stage < stage-n:
-                continue
-            if match.get_home_team().team_api_id == self.team_api_id:
+                return goal_done, goal_received, num_matches_considered
+
+            if not util.is_None(match.get_home_team()) \
+                    and match.get_home_team().team_api_id == self.team_api_id:
+                num_matches_considered += 1
                 goal_done += match.home_team_goal
                 goal_received += match.away_team_goal
-            else:
+
+            elif not util.is_None(match.get_away_team()) \
+                    and match.get_away_team().team_api_id == self.team_api_id:
+                num_matches_considered += 1
                 goal_done += match.away_team_goal
                 goal_received += match.home_team_goal
 
-        return goal_done, goal_received
+        return goal_done, goal_received, num_matches_considered
 
     def get_goals_by_season(self, season=None):
         '''
@@ -207,18 +220,20 @@ class Team(object):
         goal_done = 0
         goal_received = 0
         for match in matches:
-            if match.get_home_team().team_api_id == self.team_api_id:
+            if match.get_home_team() and match.get_home_team().team_api_id == self.team_api_id:
                 goal_done += match.home_team_goal
                 goal_received += match.away_team_goal
-            else:
+            elif match.get_away_team() and match.get_away_team().team_api_id == self.team_api_id:
                 goal_done += match.away_team_goal
                 goal_received += match.home_team_goal
 
         return goal_done, goal_received
 
-    def get_assist_by_season(self, season = None):
+    def get_assist_by_season_and_stage(self, season=None, stage=None):
         cnt = 0
-        for match in self.get_matches(season=season):
+        for match in self.get_matches(season=season, ordered=True):
+            if not util.is_None(stage) and match.stage >= stage:
+                return cnt
             soup = BeautifulSoup(match.goal, "html.parser")
             for value in soup.find_all('value'):
                 team = value.find('team')
@@ -306,6 +321,7 @@ def read_by_team_api_id(team_api_id):
     for attribute, value in sqllite_row.items():
         team.__setattr__(attribute, value)
 
+    Cache.add_element(team.id, team, "TEAM_BY_ID")
     Cache.add_element(team_api_id, team, "TEAM_BY_API_ID")
     Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
     Cache.add_element(team.team_fifa_api_id, team, "TEAM_BY_FIFA_API_ID")
@@ -331,6 +347,33 @@ def read_by_team_fifa_api_id(team_fifa_api_id):
     for attribute, value in sqllite_row.items():
         team.__setattr__(attribute, value)
 
+    Cache.add_element(team.id, team, "TEAM_BY_ID")
+    Cache.add_element(team.team_api_id, team, "TEAM_BY_API_ID")
+    Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
+    Cache.add_element(team.team_fifa_api_id, team, "TEAM_BY_FIFA_API_ID")
+    return team
+
+
+def read_by_id(id):
+    '''
+    Read from the DB the team by its team_api_id
+    :param team_api_id:
+    :return:
+    '''
+    try:
+        return Cache.get_element(id, "TEAM_BY_ID")
+    except KeyError:
+        pass
+
+    try:
+        sqllite_row = SQLLite.get_connection().select("Team", **{"id": id})[0]
+    except IndexError:
+        return None
+    team = Team(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        team.__setattr__(attribute, value)
+
+    Cache.add_element(team.id, team, "TEAM_BY_ID")
     Cache.add_element(team.id, team, "TEAM_BY_API_ID")
     Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
     Cache.add_element(team.team_fifa_api_id, team, "TEAM_BY_FIFA_API_ID")
@@ -357,8 +400,10 @@ def read_by_name(team_long_name, like=False):
         teams.append(team)
     return teams
 
+
 def delete(team):
     SQLLite.get_connection().delete("Team", team)
+
 
 def write_new_team(team_long_name, team_fifa_api_id, team_api_id=None, team_short_name=None):
     team_diz = {}
@@ -416,8 +461,9 @@ def merge(team1, team2):
 
     delete(team1)
     delete(team2)
-    team = write_new_team(team_long_name, team_fifa_api_id, team_api_id, team_short_name)
 
+    team = write_new_team(team_long_name, team_fifa_api_id, team_api_id, team_short_name)
+    print("Updating team, ", team)
     return team
 
 

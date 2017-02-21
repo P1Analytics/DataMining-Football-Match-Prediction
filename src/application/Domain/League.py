@@ -4,6 +4,8 @@ import src.util.Cache as Cache
 import src.util.SQLLite as SQLLite
 
 import logging
+import operator
+
 
 class League(object):
     def __init__(self, id):
@@ -18,6 +20,26 @@ class League(object):
             except AttributeError:
                 logging.debug("League :: AttributeError ["+attribute+"]")
         return to_string
+
+    def get_ranking(self, season):
+        import src.application.Domain.Team as Team
+
+        matches = self.get_matches(season=season)
+        teams = self.get_teams(season=season)
+        ranking = {team.id: 0 for team in teams}
+        for m in matches:
+            winner = m.get_winner()
+            if not util.is_None(winner):
+                ranking[winner.id] += 3
+            else:
+                ranking[m.get_home_team().id] += 1
+                ranking[m.get_away_team().id] += 1
+
+        ranking_ret = []
+        for team, p in sorted(ranking.items(), key=operator.itemgetter(1))[::-1]:
+            ranking_ret.append((p, Team.read_by_id(team)))
+
+        return ranking_ret
 
     def get_seasons(self):
         '''
@@ -36,11 +58,14 @@ class League(object):
         Cache.add_element(self.id, seasons, "SEASONS_BY_LEAGUE")
         return seasons
 
-    def get_matches(self,season=None, ordered = True, date=None):
+    def get_matches(self,season=None, ordered = True, date=None, finished=True):
         matches = Match.read_matches_by_league(self.id, season)
 
         if ordered:
             matches = sorted(matches, key=lambda match: match.stage)
+
+        if finished:
+            matches = [m for m in matches if m.is_finished()]
 
         if date:
             matches = [m for m in matches if m.date.startswith(date)]

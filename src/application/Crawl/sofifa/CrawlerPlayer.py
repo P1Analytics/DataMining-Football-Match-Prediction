@@ -33,6 +33,11 @@ class CrawlerPlayer(object):
         if not self.player:
             # looking for player name and fifa_api_id
             player_name, player_fifa_api_id, birthday, height, weight = self.look_for_base_data()
+
+            # try to read the player by name
+            plabyers_by_name = Player.read_by_name(player_name, like=True)
+            if len(plabyers_by_name)==1:
+                print("Found a player without fifa api id but with name", plabyers_by_name[0])
             self.player = Player.write_new_player(player_name, player_fifa_api_id, birthday, height, weight)
             print("Player inserted:",self.player.player_name)
 

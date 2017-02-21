@@ -18,15 +18,21 @@ class Match(object):
                 logging.debug("Match :: AttributeError ["+attribute+"]")
         return to_string
 
-    def  get_home_team(self):
+    def get_winner(self):
+        if self.home_team_goal > self.away_team_goal:
+            return self.get_home_team()
+        elif self.home_team_goal < self.away_team_goal:
+            return self.get_away_team()
+        else:
+            return None
+
+    def get_home_team(self):
         '''
         Return the home-team of this match
         :return:
         '''
         import src.application.Domain.Team as Team
         return Team.read_by_team_api_id(self.home_team_api_id)
-
-
 
     def get_away_team(self):
         '''
@@ -68,6 +74,27 @@ class Match(object):
         if util.is_None(self.goal) or util.is_None(self.shoton) or util.is_None(self.shotoff) or util.is_None(self.foulcommit) or util.is_None(self.card) or util.is_None(self.cross) or util.is_None(self.corner) or util.is_None(self.possession):
             return False
         return True
+
+    def get_home_team_lines_up(self):
+        import src.application.Domain.Player as Player
+        attribute = 'home_player_'
+        players = []
+        for i in range(11):
+            player = Player.read_by_api_id(self.__getattribute__(attribute+str(i+1)))
+            players.append(player)
+
+        return players
+
+    def get_away_team_lines_up(self):
+        import src.application.Domain.Player as Player
+        attribute = 'away_player_'
+        players = []
+        for i in range(11):
+            player = Player.read_by_api_id(self.__getattribute__(attribute+str(i+1)))
+            players.append(player)
+
+        return players
+
 
 
 
@@ -217,13 +244,16 @@ def read_matches_by_away_team(team_api_id, season=None):
 
 
 def read_by_player_api_id(player_api_id):
+    try:
+        return Cache.get_element(player_api_id, "MATCH_BY_PLAYER_API_ID")
+    except KeyError:
+        pass
     home_player_i = 'home_player_'
     away_player_i = 'away_player_'
     or_filter = {}
     for i in range(11):
         or_filter[home_player_i + str(i+1)] = player_api_id
         or_filter[away_player_i + str(i+1)] = player_api_id
-
     match_list = []
     for sqllite_row in SQLLite.get_connection().select_or("Match", **or_filter):
         match = Match(sqllite_row["id"])
@@ -231,6 +261,7 @@ def read_by_player_api_id(player_api_id):
             match.__setattr__(attribute, value)
         match_list.append(match)
 
+    Cache.add_element(player_api_id, match_list, "MATCH_BY_PLAYER_API_ID")
     return match_list
 
 

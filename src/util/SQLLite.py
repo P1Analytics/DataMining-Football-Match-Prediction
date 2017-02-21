@@ -1,15 +1,17 @@
+import os
 import sqlite3
 import logging
 
 from src.util import util
 import src.util.Cache as Cache
 
-sqllite_connection = None
+sqllite_connections = dict()
 log = logging.getLogger(__name__)
+
 
 class SQLiteConnection(object):
     def __init__(self, database_path="data/db/database.sqlite"):
-        self.connection = sqlite3.connect(util.get_project_directory()+database_path)
+        self.connection = sqlite3.connect(util.get_project_directory()+database_path, check_same_thread=False)
         self.cursor = self.connection.cursor()
 
     def getTableNameDataBase(self):
@@ -30,6 +32,11 @@ class SQLiteConnection(object):
 
         Cache.add_element(table_name, columns, "SQLLITE_COLUMN_TABLE")
         return columns
+
+    def list_constraints(self):
+        for l in self.cursor.execute("select sql from sqlite_master where type='table'"):
+            print(str(l))
+
 
     def select(self, table_name, column_filter='*', **id):
         id_condition = ""
@@ -222,19 +229,24 @@ class SQLiteConnection(object):
         self.execute_create(create_stmt)
 
 
-
 def get_connection():
-    global sqllite_connection
-    if sqllite_connection is None:
-        sqllite_connection = SQLiteConnection()
+    global sqllite_connections
+    try:
+        return sqllite_connections[os.getpid()]
+    except KeyError:
+        log.debug("creating new connection for process "+str(os.getpid()))
+        sqllite_connections[os.getpid()] = SQLiteConnection()
+        return sqllite_connections[os.getpid()]
 
-    return sqllite_connection
 
 def init_database():
-   print("Initializing DB")
+   print("> Initialization DB")
    get_connection().create_table("Match_Event", "CREATE TABLE Match_Event(id INTEGER PRIMARY KEY AUTOINCREMENT, match_id INTEGER)")
    get_connection().create_table("Bet_Event",
                                  "CREATE TABLE Bet_Event(id INTEGER PRIMARY KEY AUTOINCREMENT, match_event_id INTEGER, event_name STRING, bet_value STRING, date STRING)")
 
+
 def read_all(table_name, column_filter='*'):
     return get_connection().select(table_name, column_filter=column_filter)
+
+# get_connection().list_constraints()

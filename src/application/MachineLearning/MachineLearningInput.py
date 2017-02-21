@@ -19,8 +19,8 @@ def get_datas_by_league(league_name, season=None):
         else:
             labels.append(0)
 
-        home_goal_done, home_goal_received = home_team.get_goals_by_season_and_stage(season, match.stage)
-        away_goal_done, away_goal_received = away_team.get_goals_by_season_and_stage(season, match.stage)
+        home_goal_done, home_goal_received, home_num_match_considered = home_team.get_goals_by_season_and_stage(season, match.stage)
+        away_goal_done, away_goal_received, away_num_match_considered = away_team.get_goals_by_season_and_stage(season, match.stage)
         home_team_points, home_n = home_team.get_points_by_season_and_stage(season, match.stage)
         away_team_points, away_n = away_team.get_points_by_season_and_stage(season, match.stage)
 
@@ -152,9 +152,9 @@ def match_statistics(league_name, n=None, season=None):
         matches_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
 
         # Goals: The subtracted difference in goals from home and away teams over 9 games.
-        home_goal_done, home_goal_received = home_team.get_goals_by_season_and_stage(season, match.stage, n=n)
+        home_goal_done, home_goal_received, home_num_match_considered = home_team.get_goals_by_season_and_stage(season, match.stage, n=n)
         home_goal = home_goal_done - home_goal_received
-        away_goal_done, away_goal_received = home_team.get_goals_by_season_and_stage(season, match.stage, n=n)
+        away_goal_done, away_goal_received, away_num_match_considered = home_team.get_goals_by_season_and_stage(season, match.stage, n=n)
         away_goal = away_goal_done - away_goal_received
 
         # Shots: The subtracted difference in shots from home and away teams over 9 games.

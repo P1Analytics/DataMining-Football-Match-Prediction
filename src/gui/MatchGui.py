@@ -46,9 +46,9 @@ def search_by_date():
     if len(matches) == 0:
         GuiUtil.print_att("No match found in date", date)
     else:
-        printable_matches = get_printable_matches(matches)
-        GuiUtil.show_list_answer(printable_matches, print_index=True, label="Matches by date", label_value=date)
-
+        for i, match in enumerate(matches):
+            match_out = get_printable_match(match)
+            GuiUtil.print_indent_answer(i + 1, match_out, True)
 
 
 def search_by_team():
@@ -66,8 +66,9 @@ def search_by_team():
     elif len(teams_found) == 1:
         team = teams_found[0]
         matches = team.get_matches(season=util.get_current_season(), ordered=True)
-        printable_matches = get_printable_matches(matches)
-        GuiUtil.show_list_answer(printable_matches, print_index=False)
+        for i, match in enumerate(matches):
+            match_out = get_printable_match(match)
+            GuiUtil.print_indent_answer(i + 1, match_out, True)
     else:
         GuiUtil.print_att("Too many teams found", "Be more precise")
 
@@ -83,8 +84,10 @@ def search_by_league():
     elif len(leagues) == 1:
         league = leagues[0]
         matches = league.get_matches(season=util.get_current_season(), ordered=True)
-        printable_matches = get_printable_matches(matches)
-        GuiUtil.show_list_answer(printable_matches, print_index=False)
+        for i, match in enumerate(matches):
+            match_out = get_printable_match(match)
+            GuiUtil.print_indent_answer(i + 1, match_out, True)
+
 
 def get_printable_matches(matches):
     printable_matches = []
@@ -94,7 +97,8 @@ def get_printable_matches(matches):
 
 def get_printable_match(match, show_event_link = False):
     league = League.read_by_id(match.league_id)
-    match_str = league.name+" Stage: "+str(match.stage) + " "+match.date + "\n"
+    match_str = league.name+" - Stage: "+str(match.stage) + " - "+match.date + "\n"
+
     home_team = match.get_home_team()
     away_team = match.get_away_team()
 
@@ -103,7 +107,6 @@ def get_printable_match(match, show_event_link = False):
         match_str += home_team.team_long_name
     else:
         match_str += str(match.home_team_api_id)
-    #if match.is_finished():
     match_str += " " + str(match.home_team_goal)
 
     match_str += " vs "
@@ -113,13 +116,100 @@ def get_printable_match(match, show_event_link = False):
         match_str += away_team.team_long_name
     else:
         match_str += str(match.away_team_api_id)
-    #if match.is_finished():
     match_str += " " + str(match.away_team_goal)
 
     if not match.is_finished():
         match_str += " (TO BE CRAWLED)"
 
+    # team formation home
+    match_str += get_formation(match, home_team, home=True)
+    # team formation away
+    match_str += get_formation(match, away_team, home=False)
+
     if show_event_link:
-        match_str += " (http://json.mx-api.enetscores.com/live_data/event/"+str(match.match_api_id)+"/0)"
+        match_str += "\n(http://json.mx-api.enetscores.com/live_data/event/"+str(match.match_api_id)+"/0)"
 
     return match_str
+
+
+def get_formation(match, team, home=True):
+
+    formation_str = "\n\n" + team.team_short_name
+
+    # get trends
+    formation_str += get_team_trend_str(match, team)
+
+    # get Goals
+    formation_str += "\n"+get_team_goals_str(match, team)
+    formation_str += "\n" + get_team_goals_str(match, team, n=5)
+
+    if home:
+        team_lines = match.get_home_team_lines_up()
+    else:
+        team_lines = match.get_away_team_lines_up()
+
+    team_goal_done, team_goal_received, num_matches = team.get_goals_by_season_and_stage(util.get_current_season(), match.stage)
+
+
+    for i, player in enumerate(team_lines):
+        if not util.is_None(player):
+
+            if player.is_gk():
+                goal_dr = player.get_goal_received(season=util.get_current_season(), stage=match.stage)
+                team_goal_dr = team_goal_received
+            else:
+                goal_dr = player.get_goal_done(season=util.get_current_season(), stage=match.stage)
+                team_goal_dr = team_goal_done
+
+            formation_str += '\n\t' + str(i + 1) + ") " + player.player_name.ljust(25, ".") \
+                             + "\t P: "+str(len(player.get_matches(season=util.get_current_season(), stage=match.stage))) + '/' + str(match.stage-1) \
+                             + "\t G: "+str(goal_dr)+"/"+str(team_goal_dr)
+
+            if not player.is_gk():
+                assist_done = player.get_assist_done(season=util.get_current_season(), stage=match.stage)
+                team_assist_done = team.get_assist_by_season_and_stage(season=util.get_current_season(),
+                                                                       stage=match.stage)
+                formation_str += "\t A: " + str(assist_done) + "/" + str(team_assist_done)
+
+    return formation_str
+
+
+def get_team_goals_str(match, team, n=None):
+
+    goal_done, goal_received, matches = team.get_goals_by_season_and_stage(season=match.season, stage=match.stage, n=n)
+    home_goal_done, home_goal_received, home_matches = team.get_goals_by_season_and_stage(season=match.season, stage=match.stage, home=True, n=n)
+    away_goal_done, away_goal_received, away_matches = team.get_goals_by_season_and_stage(season=match.season, stage=match.stage, home=False, n=n)
+
+    team_goal_str = ""
+
+    if matches > 0:
+        team_goal_str += "\tG: "+str(round(goal_done/matches, 2))+" / "+str(round(goal_received/matches, 2))
+
+    if home_matches > 0:
+        team_goal_str += "\t\tHG: "+ str(round(home_goal_done / home_matches, 2)) + " / " + str(round(home_goal_received / home_matches, 2))
+
+    if away_matches > 0:
+        team_goal_str += "\t\tAG: "+ str(round(away_goal_done / away_matches, 2)) + " / " + str(round(away_goal_received / away_matches, 2))
+
+    if team_goal_str != "":
+        if n:
+            team_goal_str = "(trend " + str(n) + ")" + team_goal_str
+        else:
+            team_goal_str = "(total)\t" + team_goal_str
+
+    return team_goal_str
+
+
+def get_team_trend_str(match, team):
+    trend = team.get_trend(stage=match.stage, season=util.get_current_season())
+    home_trend = team.get_trend(stage=match.stage, season=util.get_current_season(), home=True)
+    away_trend = team.get_trend(stage=match.stage, season=util.get_current_season(), home=False)
+    trend_str = ""
+    if trend.strip() != "":
+        trend_str += "\t\tT: " + trend
+    if home_trend.strip() != "":
+        trend_str += "\t\tHT: " + home_trend
+    if away_trend.strip() != "":
+        trend_str += "\t\tAT: " + away_trend
+
+    return trend_str

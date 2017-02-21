@@ -110,7 +110,6 @@ class CrawlerMatch(object):
 
             return year + "-" + '{0:02d}'.format(month) + "-" + '{0:02d}'.format(day)
         except IndexError:
-            print(start_time_match+" caused index error")
             raise ValueError
 
 
@@ -133,9 +132,10 @@ def update_team(team, team_api_id, team_name):
         # team non trovato per nome --> search team by its api id and update the name
         team = Team.read_by_team_api_id(team_api_id)
         if not team:
-            print("Team not found ["+str(team_api_id)+"], ["+team_name+"]")
+            Team.write_new_team(team_name, None, team_api_id=team_api_id, team_short_name=None)
         else:
             team.team_long_name = team.team_long_name+"|"+team_name
+            print("Crawlermatch update team", team)
             Team.update(team)
 
     if not team:

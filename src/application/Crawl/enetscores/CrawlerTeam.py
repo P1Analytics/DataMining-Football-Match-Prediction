@@ -24,9 +24,8 @@ class CrawlerTeam(object):
 
         teams = Team.read_by_name(team_long_name, like=True)
         if len(teams) == 0:
-            # team not found
-            log.warning("No Team found in the DB. Team api id ["
-                        + self.team_api_id + "] and name [" + team_long_name + "] at the link [" + self.team_link + "]")
+            # team not found --> write it
+            Team.write_new_team(team_long_name, None, team_api_id=self.team_api_id, team_short_name=team_short_name)
         if len(teams) == 1:
             teams[0].team_api_id = self.team_api_id
             teams[0].team_short_name = team_short_name

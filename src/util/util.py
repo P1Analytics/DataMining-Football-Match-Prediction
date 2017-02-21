@@ -11,10 +11,12 @@ import logging
 
 project_directory = os.path.dirname(os.path.abspath(__file__))[0:-8]
 
+log = logging.getLogger(__name__)
+
 def init_logger():
     Logger.setLevel(logging.getLogger(),10)
     logging.basicConfig(filename=project_directory+"/data/log/logging.txt", filemode="w",
-                        level=logging.DEBUG,format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+                        level=logging.DEBUG,format="%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s")
 
     logging.getLogger("src.util.util").debug(msg="Initialization logger done")
 
@@ -111,6 +113,30 @@ def is_None(input):
         return input == 'None'
     else:
         return input is None
+
+
+def indexing():
+    import time
+    start_time = time.time()
+
+    print("> Indexing...")
+    import src.application.Domain.Country as Country
+    for country in Country.read_by_name("Italy"):
+        log.debug("|\t>"+country.name)
+        for league in country.get_leagues():
+            log.debug("|\t|\t>" + league.name)
+            for team in league.get_teams(season=get_current_season()):
+                log.debug("|\t|\t|\t>" + team.team_long_name)
+                team.get_matches(season=get_current_season())
+                for player in team.get_current_players():
+                    if player:
+                        log.debug("|\t|\t|\t|\t>"+player.player_name)
+                        player.get_matches(season=get_current_season())
+                        player.get_current_team()
+
+
+    print("\t ...finished in %s seconds" % round((time.time() - start_time),2))
+
 
 
 def print_dict(my_dict, indent):
