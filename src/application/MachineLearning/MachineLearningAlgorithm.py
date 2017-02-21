@@ -50,7 +50,9 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
         c = list(zip(*datas[0]))
         random.shuffle(c)
         datas = list(zip(*c))
-
+    else:
+        c = list(zip(*datas[0]))
+        datas = list(zip(*c))
     train_datas = []
     test_datas = []
     for data in datas:
@@ -63,7 +65,7 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
 from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
 from src.application.MachineLearning.my_tensor_flow.SVM import SVM
 from src.application.MachineLearning.my_tensor_flow.KNNAlgorithm import KNNAlgorithm
-
+from src.application.MachineLearning.my_tensor_flow.MulticlassSVM import SVM_Multiclass
 
 def get_machine_learning_algorithm(framework, method, data, data_label, data_description=None, train_percentage=0.75, **params):
     '''
@@ -113,9 +115,9 @@ def run_all_algorithms(data, data_label, data_description=None, enable_PCA = Non
         data = PCA(2).fit_transform(data)
 
     if data_description:
-        train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
+        train_datas, test_datas = split_data(train_percentage, False, [data, data_label, data_description])
     else:
-        train_datas, test_datas = split_data(train_percentage, True, [data, data_label])
+        train_datas, test_datas = split_data(train_percentage, False, [data, data_label])
 
 
     train_data = np.asarray(train_datas[0])
@@ -130,15 +132,20 @@ def run_all_algorithms(data, data_label, data_description=None, enable_PCA = Non
         train_description = ["" for x in range(len(train_data))]
         test_description = ["" for x in range(len(test_data))]
 
-    '''mag = KNNAlgorithm( train_data, train_label, test_data, test_label, train_description, test_description)
+    mag = SVM_Multiclass(train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
-    mag.score()'''
-
+    mag.score()
+    '''
+    mag = KNNAlgorithm( train_data, train_label, test_data, test_label, train_description, test_description)
+    mag.train()
+    mag.score()
+    '''
     mag = SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
     mag.score()
-
-    '''mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description, **params)
+    '''
+    mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
-    mag.score()'''
+    mag.score()
+    '''
 

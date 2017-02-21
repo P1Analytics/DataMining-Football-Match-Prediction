@@ -1,197 +1,157 @@
+# Multi-class (Nonlinear) SVM Example
+# ----------------------------------
+#
+# This function wll illustrate how to
+# implement the gaussian kernel with
+# multiple classes on the iris dataset.
+#
+# Gaussian Kernel:
+# K(x1, x2) = exp(-gamma * abs(x1 - x2)^2)
+#
+# X : (Sepal Length, Petal Width)
+# Y: (I. setosa, I. virginica, I. versicolor) (3 classes)
+#
+# Basic idea: introduce an extra dimension to do
+# one vs all classification.
+#
+# The prediction of a point will be the category with
+# the largest margin or distance to boundary.
+
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-import src.util.util as util
-from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
-import logging
-import matplotlib.pyplot as plt
+from sklearn import datasets
+from tensorflow.python.framework import ops
+
+ops.reset_default_graph()
+
+# Create graph
+sess = tf.Session()
+
+# Load the data
+# iris.data = [(Sepal Length, Sepal Width, Petal Length, Petal Width)]
+iris = datasets.load_iris()
+x_vals = np.array([[x[0], x[3]] for x in iris.data])
+y_vals1 = np.array([1 if y == 0 else -1 for y in iris.target])
+y_vals2 = np.array([1 if y == 1 else -1 for y in iris.target])
+y_vals3 = np.array([1 if y == 2 else -1 for y in iris.target])
+y_vals = np.array([y_vals1, y_vals2, y_vals3])
+class1_x = [x[0] for i, x in enumerate(x_vals) if iris.target[i] == 0]
+class1_y = [x[1] for i, x in enumerate(x_vals) if iris.target[i] == 0]
+class2_x = [x[0] for i, x in enumerate(x_vals) if iris.target[i] == 1]
+class2_y = [x[1] for i, x in enumerate(x_vals) if iris.target[i] == 1]
+class3_x = [x[0] for i, x in enumerate(x_vals) if iris.target[i] == 2]
+class3_y = [x[1] for i, x in enumerate(x_vals) if iris.target[i] == 2]
+
+# Declare batch size
+batch_size = 50
+
+# Initialize placeholders
+x_data = tf.placeholder(shape=[None, 2], dtype=tf.float32)
+y_target = tf.placeholder(shape=[3, None], dtype=tf.float32)
+prediction_grid = tf.placeholder(shape=[None, 2], dtype=tf.float32)
+
+# Create variables for svm
+b = tf.Variable(tf.random_normal(shape=[3, batch_size]))
+
+# Gaussian (RBF) kernel
+gamma = tf.constant(-10.0)
+dist = tf.reduce_sum(tf.square(x_data), 1)
+dist = tf.reshape(dist, [-1, 1])
+sq_dists = tf.add(tf.sub(dist, tf.mul(2., tf.matmul(x_data, tf.transpose(x_data)))), tf.transpose(dist))
+my_kernel = tf.exp(tf.mul(gamma, tf.abs(sq_dists)))
 
 
-class SVM(MachineLearningAlgorithm):
-    def __init__(self, train_data
-                     , train_label
-                     , test_data
-                     , test_label
-                     , train_description
-                     , test_description
-                     , **params):
-        '''
-        The input label must be +1 or -1
-        :param train_data:
-        :param train_label:
-        :param test_data:
-        :param test_label:
-        :param batch_percentage:
-        :param number_step:
-        '''
-        MachineLearningAlgorithm.__init__(self, train_data, train_label, test_data, test_label, train_description,
-                                          test_description)
-
-        self.session = tf.Session()
-
-        for i,label in enumerate(self.train_label):
-            if label != 1:
-                self.train_label[i] = -1
-        for i,label in enumerate(self.test_label):
-            if label != 1:
-                self.test_label[i] = -1
-
-        print("Tensor Flow initialization:")
-        print("method: SVM")
-
-        self.num_features = len(self.train_data[0])
-
-        print(self.num_features)
-        self.batch_size = util.get_default(params, "batch_size", 1000)
-        self.number_step = util.get_default(params, "number_step", 5000)
-        self.kernel = util.get_default(params, "kernel", "linear")
-        print("Batch_size:", self.batch_size)
-        print("Number_step:", self.number_step)
-        self.x = tf.placeholder(tf.float32, [None, self.num_features])
-        self.y = tf.placeholder(tf.float32, [None, 1])
-
-        if self.kernel == "linear":
-            self.my_cost,self.decision_function = cost(self.x, self.y,self.batch_size,self.num_features, kernel_type= self.kernel, C=1, gamma=1)
-        else:
-            self.beta, self.offset, self.my_cost = cost(self.x, self.y,self.batch_size,self.num_features, kernel_type= "rbf", C=1, gamma=25)
-
-        self.train_step = tf.train.GradientDescentOptimizer(0.01).minimize(self.my_cost)
+# Declare function to do reshape/batch multiplication
+def reshape_matmul(mat):
+    v1 = tf.expand_dims(mat, 1)
+    v2 = tf.reshape(v1, [3, batch_size, 1])
+    return (tf.batch_matmul(v2, v1))
 
 
-    def train(self,):
-        self.session.run(tf.global_variables_initializer())
-        for step in range(self.number_step):
-            rand_index = np.random.choice(len(self.train_data), size=self.batch_size)
-            batch_data = self.train_data[rand_index]
-            batch_label = np.transpose([self.train_label[rand_index]])
-            self.session.run(self.train_step, feed_dict={self.x: batch_data, self.y: batch_label})
+# Compute SVM Model
+model_output = tf.matmul(b, my_kernel)
+first_term = tf.reduce_sum(b)
+b_vec_cross = tf.matmul(tf.transpose(b), b)
+y_target_cross = reshape_matmul(y_target)
 
+second_term = tf.reduce_sum(tf.mul(my_kernel, tf.mul(b_vec_cross, y_target_cross)), [1, 2])
+loss = tf.reduce_sum(tf.neg(tf.sub(first_term, second_term)))
 
-    def score(self):
-        test_tensor = tf.placeholder(tf.float32, [None,self.num_features ])
+# Gaussian (RBF) prediction kernel
+rA = tf.reshape(tf.reduce_sum(tf.square(x_data), 1), [-1, 1])
+rB = tf.reshape(tf.reduce_sum(tf.square(prediction_grid), 1), [-1, 1])
+pred_sq_dist = tf.add(tf.sub(rA, tf.mul(2., tf.matmul(x_data, tf.transpose(prediction_grid)))), tf.transpose(rB))
+pred_kernel = tf.exp(tf.mul(gamma, tf.abs(pred_sq_dist)))
 
-        if self.kernel == "rbf":
-            model = decide(
-                self.x, self.batch_size, test_tensor, len(self.test_data), self.beta, self.offset, kernel_type="rbf",
-                gamma=1)
+prediction_output = tf.matmul(tf.mul(y_target, b), pred_kernel)
+prediction = tf.arg_max(prediction_output - tf.expand_dims(tf.reduce_mean(prediction_output, 1), 1), 0)
+accuracy = tf.reduce_mean(tf.cast(tf.equal(prediction, tf.argmax(y_target, 0)), tf.float32))
 
-            correct_prediction = tf.equal(self.y, model)
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-            print("Test data classified as signal: %f%%" % self.session.run(
-                accuracy, feed_dict={self.x: self.train_data,
-                                     test_tensor: self.test_data,
-                                     self.y: [[l] for l in self.test_label]}))
+# Declare optimizer
+my_opt = tf.train.GradientDescentOptimizer(0.01)
+train_step = my_opt.minimize(loss)
 
-            classification = self.session.run(model, feed_dict={self.x: self.train_data, test_tensor: self.test_data})
+# Initialize variables
+init = tf.initialize_all_variables()
+sess.run(init)
 
-            x_min, x_max = self.train_data[:, 0].min() - 1, self.train_data[:, 0].max() + 1
-            y_min, y_max = self.train_data[:, 1].min() - 1, self.train_data[:, 1].max() + 1
-            xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
-                                 np.arange(y_min, y_max, 0.02))
-            grid_points = np.c_[xx.ravel(), yy.ravel()]
-            model = decide(
-                self.x, self.batch_size, test_tensor, len(grid_points), self.beta, self.offset, kernel_type="rbf",
-                gamma=1)
+# Training loop
+loss_vec = []
+batch_accuracy = []
+for i in range(100):
+    rand_index = np.random.choice(len(x_vals), size=batch_size)
+    rand_x = x_vals[rand_index]
+    rand_y = y_vals[:, rand_index]
+    sess.run(train_step, feed_dict={x_data: rand_x, y_target: rand_y})
 
-            grid_predictions = self.session.run(model, feed_dict={self.x: self.train_data,
-                                                                    test_tensor: grid_points})
-            print(grid_predictions)
-            grid_predictions = grid_predictions.reshape(xx.shape)
-            plt.figure()
-            plt.contourf(xx, yy, grid_predictions, cmap=plt.cm.Paired, alpha=0.8)
-            plt.scatter(self.test_data[:, 0], self.test_data[:, 1], c=self.test_label)
-            plt.show()
+    temp_loss = sess.run(loss, feed_dict={x_data: rand_x, y_target: rand_y})
+    loss_vec.append(temp_loss)
 
-            predicted_labels = [int(l[0]) for l in classification]
-            probability_events = [-1 for l in classification]
-            return self.post_score(predicted_labels, probability_events)
+    acc_temp = sess.run(accuracy, feed_dict={x_data: rand_x,
+                                             y_target: rand_y,
+                                             prediction_grid: rand_x})
+    batch_accuracy.append(acc_temp)
 
-        elif self.kernel == "linear":
+    if (i + 1) % 25 == 0:
+        print('Step #' + str(i + 1))
+        print('Loss = ' + str(temp_loss))
 
-            model = tf.sign(self.decision_function)
-            correct_prediction = tf.equal(self.y, model)
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-            logging.debug("Accuracy on test" + str(self.session.run(accuracy, feed_dict={self.x: self.test_data,
-                                                                                           self.y: [[l] for l in
-                                                                                                    self.test_label]})))
+# Create a mesh to plot points in
+x_min, x_max = x_vals[:, 0].min() - 1, x_vals[:, 0].max() + 1
+y_min, y_max = x_vals[:, 1].min() - 1, x_vals[:, 1].max() + 1
+xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.02),
+                     np.arange(y_min, y_max, 0.02))
+grid_points = np.c_[xx.ravel(), yy.ravel()]
+grid_predictions = sess.run(prediction, feed_dict={x_data: rand_x,
+                                                   y_target: rand_y,
+                                                   prediction_grid: grid_points})
+grid_predictions = grid_predictions.reshape(xx.shape)
 
-            classification = self.session.run(model, feed_dict={self.x: self.test_data})
+# Plot points and grid
+plt.contourf(xx, yy, grid_predictions, cmap=plt.cm.Paired, alpha=0.8)
+plt.plot(class1_x, class1_y, 'ro', label='I. setosa')
+plt.plot(class2_x, class2_y, 'kx', label='I. versicolor')
+plt.plot(class3_x, class3_y, 'gv', label='I. virginica')
+plt.title('Gaussian SVM Results on Iris Data')
+plt.xlabel('Pedal Length')
+plt.ylabel('Sepal Width')
+plt.legend(loc='lower right')
+plt.ylim([-0.5, 3.0])
+plt.xlim([3.5, 8.5])
+plt.show()
 
-            for clas in classification:
-                print(clas)
+# Plot batch accuracy
+plt.plot(batch_accuracy, 'k-', label='Accuracy')
+plt.title('Batch Accuracy')
+plt.xlabel('Generation')
+plt.ylabel('Accuracy')
+plt.legend(loc='lower right')
+plt.show()
 
-            predicted_labels = [int(l[0]) for l in classification]
-            probability_events = [-1 for l in classification]
-
-            return self.post_score(predicted_labels, probability_events)
-
-
-
-
-    def predict(self, data):
-        pass
-
-
-
-def cross_matrices(tensor_a, a_inputs, tensor_b, b_inputs):
-    """Tiles two tensors in perpendicular dimensions."""
-    expanded_a = tf.expand_dims(tensor_a, 1)
-    expanded_b = tf.expand_dims(tensor_b, 0)
-    tiled_a = tf.tile(expanded_a, tf.constant([1, b_inputs, 1]))
-    tiled_b = tf.tile(expanded_b, tf.constant([a_inputs, 1, 1]))
-
-    return [tiled_a, tiled_b]
-
-
-def get_SVM_Linear_train_step(x,num_features):
-    b = tf.Variable(tf.zeros([1]))
-    w = tf.Variable(tf.zeros([num_features, 1]))
-    y_raw = tf.add(tf.matmul(x, w), b)
-
-    return y_raw,w
-
-def gaussian_kernel(tensor_a, a_inputs, tensor_b, b_inputs, gamma):
-    """Returns the Gaussian kernel matrix of two matrices of vectors
-    element-wise."""
-    cross = cross_matrices(tensor_a, a_inputs, tensor_b, b_inputs)
-
-    kernel = tf.exp(tf.mul(tf.reduce_sum(tf.square(
-        tf.sub(cross[0], cross[1])), reduction_indices=2),
-        tf.neg(tf.constant(gamma, dtype=tf.float32))))
-
-    return kernel
-
-
-def cost(training, classes, inputs,num_features, kernel_type="rbf", C=1, gamma=1):
-    """Returns the kernelised cost to be minimised."""
-    beta = tf.Variable(tf.zeros([inputs, 1]))
-    offset = tf.Variable(tf.zeros([1]))
-
-    if kernel_type == "linear":
-        decision_function,w = get_SVM_Linear_train_step(training,num_features)
-
-        hinge_loss = tf.reduce_sum(tf.maximum(tf.zeros(inputs, 1), 1 - classes * decision_function))
-        regularization_loss = 0.5 * tf.reduce_sum(tf.square(w))
-        svm_loss = regularization_loss + C * hinge_loss
-        return svm_loss, decision_function
-
-    elif kernel_type == "rbf":
-        kernel = gaussian_kernel(training, inputs, training, inputs, gamma)
-
-        x = tf.reshape(tf.div(tf.matmul(tf.matmul(
-            beta, kernel, transpose_a=True), beta), tf.constant([2.0])), [1])
-        y = tf.sub(tf.ones([1]), tf.mul(classes, tf.add(
-            tf.matmul(kernel, beta, transpose_a=True), offset)))
-        z = tf.mul(tf.reduce_sum(tf.reduce_max(
-            tf.concat(1, [y, tf.zeros_like(y)]), reduction_indices=1)),
-            tf.constant([C], dtype=tf.float32))
-        cost = tf.add(x, z)
-
-        return beta, offset, cost
-
-def decide(training, training_instances, testing, testing_instances,
-           beta, offset, kernel_type="rbf", gamma=1):
-
-    kernel = gaussian_kernel(
-        testing, testing_instances, training, training_instances, gamma)
-
-    return tf.sign(tf.add(tf.matmul(kernel, beta), offset))
+# Plot loss over time
+plt.plot(loss_vec, 'k-')
+plt.title('Loss per Generation')
+plt.xlabel('Generation')
+plt.ylabel('Loss')
+plt.show()

@@ -52,9 +52,9 @@ class SVM(MachineLearningAlgorithm):
         self.y = tf.placeholder(tf.float32, [None, 1])
 
         if self.kernel == "linear":
-            self.my_cost,self.decision_function = cost(self.x, self.y,self.batch_size,self.num_features, kernel_type= self.kernel, C=1000)
+            self.my_cost,self.decision_function = cost(self.x, self.y,self.batch_size,self.num_features, kernel_type= self.kernel, C=1)
         if self.kernel == "rbf":
-            self.my_cost,self.b = cost(self.x, self.y,self.batch_size,self.num_features, kernel_type= self.kernel, C=1000)
+            self.my_cost,self.b = cost(self.x, self.y,self.batch_size,self.num_features, kernel_type= self.kernel, C=1)
 
         self.train_step = tf.train.GradientDescentOptimizer(0.01).minimize(self.my_cost)
 
@@ -77,48 +77,42 @@ class SVM(MachineLearningAlgorithm):
         if self.kernel == "linear":
             model = tf.sign(self.decision_function)
 
-            correct_prediction = tf.equal(self.y, model)
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-            logging.debug("Accuracy on test" + str(self.session.run(accuracy, feed_dict={self.x: self.test_data,
-                                                                                           self.y: [[l] for l in
-                                                                                                    self.test_label]})))
+            if self.num_features == 2:
+                linear_plot = Plot(self.train_data)
+                linear_plot.define_grid()
+
+                grid_predictions = self.session.run(model, feed_dict={self.x: linear_plot.grid_points})
+
+                linear_plot.show_decision_bounduaries(grid_predictions,self.data_points,self.data_labels)
+
             classification = self.session.run(model, feed_dict={self.x: self.test_data})
-
-            linear_plot = Plot(self.train_data)
-            linear_plot.define_grid()
-
-            grid_predictions = self.session.run(model, feed_dict={self.x: linear_plot.grid_points})
-
-            linear_plot.show_decision_bounduaries(grid_predictions,self.data_points,self.data_labels)
-
-
             predicted_labels = [int(l[0]) for l in classification]
             probability_events = [-1 for l in classification]
 
         if self.kernel == "rbf":
-            tensor_test = tf.placeholder(tf.float32, [None, self.num_features])
-            model = decision_function(self.x,self.y,tensor_test, self.b)
-            correct_prediction = tf.equal(self.y, model)
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+            tensor_test_data = tf.placeholder(tf.float32, [None, self.num_features])
+            tensor_test_label = tf.placeholder(tf.float32, [None, 1])
+            model = decision_function(self.x,self.y,tensor_test_data, self.b)
 
-            print("Accuracy on test",str(self.session.run(accuracy, feed_dict={self.x: self.train_data,
-                                                                                         self.y: [[l] for l in
-                                                                                                  self.train_label],
-                                                                                         tensor_test: self.test_data})))
+            if self.num_features == 2:
+                rbf_plot = Plot(self.train_data)
+                rbf_plot.define_grid()
 
-            rbf_plot = Plot(self.train_data)
-            rbf_plot.define_grid()
-            [grid_predictions] = self.session.run(model, feed_dict={self.x: self.train_data,
-                                                                                self.y: [[l] for l in
-                                                                                         self.train_label],
-                                                                                tensor_test: rbf_plot.grid_points})
-            rbf_plot.show_decision_bounduaries(grid_predictions,self.test_data,self.test_label)
+                [grid_predictions] = self.session.run(model, feed_dict={self.x: self.train_data,
+                                                                                    self.y: [[l] for l in
+                                                                                             self.train_label],
+                                                                                    tensor_test_data: rbf_plot.grid_points})
+                rbf_plot.show_decision_bounduaries(grid_predictions,self.test_data,self.test_label)
+
+
             classification = self.session.run(model, feed_dict={self.x: self.train_data,
-                                               self.y: [[l] for l in
-                                                        self.train_label],
-                                               tensor_test: rbf_plot.grid_points})
-            predicted_labels = [int(l[0]) for l in classification]
-            probability_events = [-1 for l in classification]
+                                                                self.y: [[l] for l in
+                                                                self.train_label],
+                                                                tensor_test_data: self.test_data})
+
+
+            predicted_labels = [int(l) for l in classification[0]]
+            probability_events = [-1 for l in classification[0]]
         return self.post_score(predicted_labels, probability_events)
 
 
@@ -136,7 +130,7 @@ def get_SVM_Linear_train_step(x,num_features):
     return y_raw,w
 
 def get_SVM_Gaussian_kernel(tensor_1, tensor_2):
-    gamma = tf.constant(-3.0)
+    gamma = tf.constant(-1.0)
     sq_vec = tf.mul(2., tf.matmul(tensor_1, tf.transpose(tensor_2)))
     kernel = tf.exp(tf.mul(gamma, tf.abs(sq_vec)))
     return kernel
