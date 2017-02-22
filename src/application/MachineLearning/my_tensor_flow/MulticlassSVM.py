@@ -17,8 +17,12 @@ class SVM_Multiclass(MachineLearningAlgorithm):
 
         self.session = tf.Session()
 
-        self.data_points = np.concatenate((self.train_data, self.test_data), axis=0)
-        self.data_labels = np.concatenate((self.train_label, self.test_label), axis=0)
+        if len(self.test_data)>0:
+            self.data_points = np.concatenate((self.train_data, self.test_data), axis=0)
+            self.data_labels = np.concatenate((self.train_label, self.test_label), axis=0)
+        else:
+            self.data_points = self.train_data
+            self.data_labels = self.train_label
 
         labels_vals1 = np.array([1 if y == 0 else -1 for y in self.data_labels])
         labels_vals2 = np.array([1 if y == 1 else -1 for y in self.data_labels])
@@ -38,13 +42,14 @@ class SVM_Multiclass(MachineLearningAlgorithm):
 
         self.new_test_label = np.array([labels_vals1, labels_vals2, labels_vals3])
         self.num_features = len(self.train_data[0])
-        self.batch_size = util.get_default(params, "batch_size", 1000)
+        self.batch_size = util.get_default(params, "batch_size", len(self.train_data))
         self.number_step = util.get_default(params, "number_step", 5000)
         self.kernel = util.get_default(params, "kernel", "linear")
 
-        print("Num_features:", self.num_features)
-        print("Batch_size:", self.batch_size)
-        print("Number_step:", self.number_step)
+        #print("SVM_Multiclass")
+        #print("Num_features:", self.num_features)
+        #print("Batch_size:\t", self.batch_size)
+        # print("Number_step:", self.number_step)
 
         self.x = tf.placeholder(tf.float32, [None, self.num_features])
         self.y = tf.placeholder(tf.float32, [3, None])
@@ -63,9 +68,9 @@ class SVM_Multiclass(MachineLearningAlgorithm):
             self.session.run(self.train_step, feed_dict={self.x: batch_data, self.y: batch_label})
             loss = self.session.run(self.my_cost, feed_dict={self.x: batch_data, self.y: batch_label})
 
-            if (step + 1) % 75 == 0:
-                print('Step #' + str(step + 1))
-                print('Loss = ' + str(loss))
+            #if (step + 1) % 75 == 0:
+            #    print('Step #' + str(step + 1))
+            #    print('Loss = ' + str(loss))
 
     def score(self):
 
@@ -79,6 +84,18 @@ class SVM_Multiclass(MachineLearningAlgorithm):
         probability_events = [-1 for l in classification]
 
         return self.post_score(predicted_labels, probability_events)
+
+    def predict(self, data):
+        predicted_tensor = tf.placeholder(tf.float32, [None, self.num_features])
+        model = decision_function(self.x, self.y, predicted_tensor, self.b)
+
+        classification = self.session.run(model, feed_dict={self.x: self.train_data,
+                                                            self.y: self.new_train_label,
+                                                            predicted_tensor: data})
+        predicted_labels = [int(l) for l in classification]
+        probability_events = [-1 for l in classification]
+
+        return predicted_labels, probability_events
 
 
     def reshape_matmul(self,mat):

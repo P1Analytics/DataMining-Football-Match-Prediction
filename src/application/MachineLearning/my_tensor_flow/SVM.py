@@ -39,12 +39,11 @@ class SVM(MachineLearningAlgorithm):
         self.data_points = np.concatenate((self.train_data,self.test_data),axis = 0)
         self.data_labels = np.concatenate((self.train_label,self.test_label),axis = 0)
 
-        print("Tensor Flow initialization:")
-        print("method: SVM")
         self.num_features = len(self.train_data[0])
-        self.batch_size = util.get_default(params, "batch_size", 1000)
+        self.batch_size = util.get_default(params, "batch_size", len(self.train_data))
         self.number_step = util.get_default(params, "number_step", 5000)
         self.kernel = util.get_default(params, "kernel", "linear")
+        print("SVM")
         print("Num_features:",self.num_features)
         print("Batch_size:", self.batch_size)
         print("Number_step:", self.number_step)
@@ -69,9 +68,9 @@ class SVM(MachineLearningAlgorithm):
             self.session.run(self.train_step, feed_dict={self.x: batch_data, self.y: batch_label})
             loss = self.session.run(self.my_cost, feed_dict={self.x: batch_data, self.y: batch_label})
 
-            if (step + 1) % 75 == 0:
-                print('Step #' + str(step + 1))
-                print('Loss = ' + str(loss))
+            #if (step + 1) % 75 == 0:
+            #    print('Step #' + str(step + 1))
+            #    print('Loss = ' + str(loss))
 
     def score(self):
         if self.kernel == "linear":

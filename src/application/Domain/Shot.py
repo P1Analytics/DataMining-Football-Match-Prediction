@@ -18,6 +18,7 @@ class Shot(object):
                 logging.debug("Match :: AttributeError ["+attribute+"]")
         return to_string
 
+
 def read_match_shot(match, on=True):
     if on:
         on_off = "ON"

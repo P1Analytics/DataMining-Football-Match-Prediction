@@ -132,20 +132,60 @@ def run_all_algorithms(data, data_label, data_description=None, enable_PCA = Non
         train_description = ["" for x in range(len(train_data))]
         test_description = ["" for x in range(len(test_data))]
 
+
     mag = SVM_Multiclass(train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
     mag.score()
+
     '''
     mag = KNNAlgorithm( train_data, train_label, test_data, test_label, train_description, test_description)
     mag.train()
     mag.score()
     '''
-    mag = SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
-    mag.train()
-    mag.score()
+
+    if len(set(train_label)) == 2:
+        mag = SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
+        mag.train()
+        mag.score()
     '''
     mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()
     mag.score()
     '''
 
+
+def run_predict_all_algorithms(data, data_label, data_to_predict, label_data_to_predict, data_description=None, data_to_predict_description=None, enable_PCA = None, train_percentage=1, **params):
+
+    if enable_PCA:
+        data = PCA(2).fit_transform(data)
+
+    if data_description:
+        train_datas, test_datas = split_data(train_percentage, False, [data, data_label, data_description])
+    else:
+        train_datas, test_datas = split_data(train_percentage, False, [data, data_label])
+
+    train_data = np.asarray(train_datas[0])
+    train_label = np.asarray(train_datas[1])
+    test_data = np.asarray(test_datas[0])
+    test_label = np.asarray(test_datas[1])
+
+    if data_description:
+        train_description = train_datas[2]
+        test_description = test_datas[2]
+    else:
+        train_description = ["" for x in range(len(train_data))]
+        test_description = ["" for x in range(len(test_data))]
+
+
+    #mag = SVM_Multiclass(train_data, train_label, test_data, test_label, train_description, test_description, **params)
+    mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description,
+                     **params)
+    mag.train()
+    predicted_labels, probability_events = mag.predict(data_to_predict)
+    accuracy = 0
+    for p, l, s in zip(predicted_labels, label_data_to_predict, data_to_predict_description):
+        # print(s, l, p)
+        if p==l:
+            accuracy += 1
+
+    return accuracy / len(label_data_to_predict)

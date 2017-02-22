@@ -6,6 +6,8 @@ import src.util.SQLLite as SQLLite
 import logging
 import operator
 
+from src.application.Exception.MLException import MLException
+
 
 class League(object):
     def __init__(self, id):
@@ -72,7 +74,6 @@ class League(object):
 
         return matches
 
-
     def get_teams(self, season=None):
         '''
         Retrun teams of a league, can be filtered by season
@@ -107,6 +108,43 @@ class League(object):
 
     def get_teams_current_season(self):
         return self.get_teams(util.get_current_season())
+
+    def get_training_matches(self, season, stage_to_predict, stages_to_train, consider_last=False):
+        if util.is_None(stages_to_train):
+            # stages to train not defined --> return only stage of this season
+            return [m for m in self.get_matches(season=season, ordered=True) if m.stage < stage_to_predict]
+        else:
+            # stages to train is defined --> return number this number of stages, also for past season
+            if consider_last:
+                # consider last matches
+                training_matches = [m for m in self.get_matches(season=season, ordered=True)]
+                training_matches = training_matches[::-1]
+            else:
+                training_matches = [m for m in self.get_matches(season=season, ordered=True) if
+                                    m.stage < stage_to_predict]
+
+            if len(training_matches) == 0 and stage_to_predict != 1:
+                raise MLException(0)
+
+            stages_training = set([(m.stage, m.season) for m in training_matches])
+            while len(stages_training) < stages_to_train:
+                # need more matches from the past season, considering the last matches
+                past_training_matches = self.get_training_matches(util.get_previous_season(season),
+                                                                0,
+                                                                stages_to_train - len(stages_training),
+                                                                consider_last=True)
+
+                training_matches.extend(past_training_matches)
+                stages_training = set([(m.stage, m.season) for m in training_matches])
+
+            if len(training_matches) / 10 > stages_to_train:
+                # too matches in training --> remove too far
+                if consider_last:
+                    return training_matches[:stages_to_train * 10]
+                else:
+                    return training_matches[-stages_to_train * 10:]
+
+            return training_matches
 
     def add_name(self, new_league_name):
         names = self.name+"|"+new_league_name

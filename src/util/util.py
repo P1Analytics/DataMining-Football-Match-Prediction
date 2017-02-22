@@ -13,10 +13,13 @@ project_directory = os.path.dirname(os.path.abspath(__file__))[0:-8]
 
 log = logging.getLogger(__name__)
 
+
 def init_logger():
-    Logger.setLevel(logging.getLogger(),10)
-    logging.basicConfig(filename=project_directory+"/data/log/logging.txt", filemode="w",
-                        level=logging.DEBUG,format="%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s")
+    Logger.setLevel(logging.getLogger(), 10)
+    logging.basicConfig(filename=project_directory+"/data/log/logging.txt",
+                        filemode="w",
+                        level=logging.DEBUG,
+                        format="%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s")
 
     logging.getLogger("src.util.util").debug(msg="Initialization logger done")
 
@@ -25,7 +28,7 @@ def get_project_directory():
     return project_directory
 
 
-def read_config_file(relative_file_path, group_key = "[DEFAULT]"):
+def read_config_file(relative_file_path, group_key="[DEFAULT]"):
     config = configparser.ConfigParser()
     config.optionxform = str
     config.read(project_directory+relative_file_path)
@@ -38,9 +41,9 @@ def read_config_file(relative_file_path, group_key = "[DEFAULT]"):
     return vector_component_diz
 
 
-def get_default(dict, key, default):
+def get_default(dictionary, key, default):
     try:
-        return dict[key]
+        return dictionary[key]
     except KeyError:
         return default
 
@@ -56,7 +59,7 @@ def get_current_season():
         return str(year-1) + "/" + str(year)
 
 
-def get_date(days_to_subtract=0, with_hours=False, starting_date_str = None):
+def get_date(days_to_subtract=0, with_hours=False, starting_date_str=None):
     if not starting_date_str:
         date = datetime.datetime.now()-timedelta(days=days_to_subtract)
     else:
@@ -69,10 +72,11 @@ def get_date(days_to_subtract=0, with_hours=False, starting_date_str = None):
 
 
 def get_today_date(with_hours=False):
-    '''
+    """
     Return the date in ISO format
+    :param with_hours:
     :return:
-    '''
+    """
     return get_date(days_to_subtract=0, with_hours=with_hours)
 
 
@@ -96,7 +100,7 @@ def is_today(date_str):
 
 
 def compare_time_to_now(iso_time_string, days_to_subtract=0):
-    '''
+    """
     TRUE if input_time < (current_time-days)
             EX: input_time = 2017-01-01
                 current_time = 2017-02-08
@@ -104,12 +108,13 @@ def compare_time_to_now(iso_time_string, days_to_subtract=0):
     :param iso_time_string:
     :param days_to_subtract:
     :return:
-    '''
+    """
+
     return dateutil.parser.parse(iso_time_string) < (datetime.datetime.now() - timedelta(days=days_to_subtract))
 
 
 def is_None(input):
-    if type(input)==str:
+    if type(input) == str:
         return input == 'None'
     else:
         return input is None
@@ -134,9 +139,12 @@ def indexing():
                         player.get_matches(season=get_current_season())
                         player.get_current_team()
 
+    print("\t ...finished in %s seconds" % round((time.time() - start_time), 2))
 
-    print("\t ...finished in %s seconds" % round((time.time() - start_time),2))
 
+def get_previous_season(season):
+    year = int(season.split('/')[0])
+    return str(year-1)+'/'+str(year)
 
 
 def print_dict(my_dict, indent):
@@ -149,7 +157,7 @@ def print_dict(my_dict, indent):
             print("****")
             print_dict(d, indent + 1)
     elif type(my_dict) != dict:
-        print(h, ">",my_dict)
+        print(h, ">", my_dict)
     else:
         for k, v in my_dict.items():
             print(h+"-", k)
