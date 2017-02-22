@@ -56,7 +56,7 @@ def team_home_away_form(league,
     labels = np.asarray(labels)
     labels_to_predict = np.asarray(labels_to_predict)
 
-    if len(matches) == 0 or len(matches_to_predict) == 0:
+    if len(matches) == 0 or len(matches_to_predict) == 0 or len(set([x for x in labels]))==1:
         raise MLException(2)
 
     return matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_predict

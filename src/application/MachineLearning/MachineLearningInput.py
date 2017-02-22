@@ -93,6 +93,7 @@ def get_datas_by_team(team_api_id, season = None):
     labels = np.asarray(labels)
     return matches, labels, matches_names
 
+
 def match_statistics(league, n=None, season=None):
     print("match_statistics")
     matches = []
