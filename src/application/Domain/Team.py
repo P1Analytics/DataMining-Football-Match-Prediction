@@ -328,9 +328,6 @@ class Team(object):
                 training_matches = [m for m in self.get_matches(season=season, ordered=True, home=home) if
                                     m.stage < stage_to_predict]
 
-            #if len(training_matches) == 0 and stage_to_predict != 1:
-                #raise MLException(1)
-
             stages_training = set([(m.stage, m.season) for m in training_matches])
             while len(stages_training) < stages_to_train:
                 # need more matches from the past season, considering the last matches
@@ -345,7 +342,7 @@ class Team(object):
             if len(training_matches) > stages_to_train:
                 # too matches in training --> remove too far
                 if consider_last:
-                    return training_matches[:stages_to_train]
+                    return training_matches[:stages_to_train][::-1]
                 else:
                     return training_matches[-stages_to_train:]
 

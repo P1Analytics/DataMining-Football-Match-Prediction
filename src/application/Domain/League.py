@@ -116,7 +116,7 @@ class League(object):
         else:
             # stages to train is defined --> return number this number of stages, also for past season
             if consider_last:
-                # consider last matches
+                # start to consider matches of previous seasons --> take them in the reverse order
                 training_matches = [m for m in self.get_matches(season=season, ordered=True)]
                 training_matches = training_matches[::-1]
             else:
@@ -140,7 +140,7 @@ class League(object):
             if len(training_matches) / 10 > stages_to_train:
                 # too matches in training --> remove too far
                 if consider_last:
-                    return training_matches[:stages_to_train * 10]
+                    return training_matches[:stages_to_train * 10][::-1]
                 else:
                     return training_matches[-stages_to_train * 10:]
 

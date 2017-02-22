@@ -1,6 +1,7 @@
 import numpy as np
 from src.application.Exception.MLException import MLException
 
+
 def team_home_away_form(league,
                         representation,
                         stage_to_predict,         # number of next stage we want to predict
@@ -90,32 +91,29 @@ def get_home_away_team_form(home_team,
     away_team_away_form, away_n2 = away_team.get_points_by_train_matches(season, match_stage, stages_to_train,
                                                                          home=False)
 
-    if home_n == 0 or home_n1 == 0 or home_n2 == 0 \
-            or away_n == 0 or away_n1 == 0 or away_n2 == 0:
+    if home_n == 0 or home_n1 == 0 or home_n2 == 0 or away_n == 0 or away_n1 == 0 or away_n2 == 0:
         raise MLException(1)
 
     if representation == 1:
         # Numeric values of the team forms, normalized to interval [0,3]
         return np.asarray([home_form / home_n, home_team_home_form / home_n1, home_team_away_form / home_n2,
-                                   away_form / away_n, away_team_home_form / away_n1, away_team_away_form / away_n2])
+                           away_form / away_n, away_team_home_form / away_n1, away_team_away_form / away_n2])
 
     elif representation == 2:
         # Numeric values of the team forms, normalized to interval [0,3]
         return np.asarray([home_form // home_n, home_team_home_form // home_n1, home_team_away_form // home_n2,
-                                   away_form // away_n, away_team_home_form // away_n1,
-                                   away_team_away_form // away_n2])
-
+                           away_form // away_n, away_team_home_form // away_n1, away_team_away_form // away_n2])
 
     elif representation == 3:
         # subtracted value between the home team form and away team form. This subtracted value is normalized to the interval [-3,3]
         return np.asarray([home_form / home_n - away_form / away_n,
-                                   home_team_home_form / home_n1 - away_team_home_form / away_n1,
-                                   home_team_away_form / home_n2 - away_team_away_form / away_n2])
+                           home_team_home_form / home_n1 - away_team_home_form / away_n1,
+                           home_team_away_form / home_n2 - away_team_away_form / away_n2])
 
     elif representation == 4:
         # discretized values of r3
         return np.asarray([home_form // home_n - away_form // away_n,
-                                   home_team_home_form // home_n1 - away_team_home_form // away_n1,
-                                   home_team_away_form // home_n2 - away_team_away_form // away_n2])
+                           home_team_home_form // home_n1 - away_team_home_form // away_n1,
+                           home_team_away_form // home_n2 - away_team_away_form // away_n2])
 
     return None

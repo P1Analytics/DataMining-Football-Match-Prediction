@@ -13,6 +13,8 @@ def doTest():
     print("League: "+italy_league.name)
 
     for season in italy_league.get_seasons():
+        if season == '2008/2009':
+            continue
         dict_to_plot = dict()
         average_accuracy = dict()
         print()
@@ -25,7 +27,7 @@ def doTest():
                 for representation in range(1, 5):
                     matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_preidct = \
                         MLInput.team_home_away_form(italy_league,
-                        # MLInput.team_form(italy_league,
+                        #MLInput.team_form(italy_league,
                                           representation,
                                           stage,
                                           stages_to_train=10,     # numer of stages to consider --> it define the size of the train (EX: 38 * 10 train input)
@@ -66,10 +68,10 @@ def doTest():
         #plt.plot(average_accuracy[2][1], label='r2')
         #plt.plot(average_accuracy[3][1], label='r3')
         #plt.plot(average_accuracy[4][1], label='r4')
-        plt.plot(range(stage, stage+len(dict_to_plot[1])), dict_to_plot[1], marker='o', linestyle='-', label='r1, '+str(round(average_accuracy[1][1]/average_accuracy[1][0],2)))
-        plt.plot(range(stage, stage+len(dict_to_plot[2])), dict_to_plot[2], marker='o', linestyle='-', label='r2, '+str(round(average_accuracy[2][1]/average_accuracy[2][0],2)))
-        plt.plot(range(stage, stage+len(dict_to_plot[3])), dict_to_plot[3], marker='o', linestyle='-', label='r3, '+str(round(average_accuracy[3][1]/average_accuracy[3][0],2)))
-        plt.plot(range(stage, stage+len(dict_to_plot[4])), dict_to_plot[4], marker='o', linestyle='-', label='r4, '+str(round(average_accuracy[4][1]/average_accuracy[4][0],2)))
+        plt.plot(range(stage-len(dict_to_plot[1]), stage), dict_to_plot[1], marker='o', linestyle='-', label='r1, '+str(round(average_accuracy[1][1]/average_accuracy[1][0],2)))
+        plt.plot(range(stage-len(dict_to_plot[1]), stage), dict_to_plot[2], marker='o', linestyle='-', label='r2, '+str(round(average_accuracy[2][1]/average_accuracy[2][0],2)))
+        plt.plot(range(stage-len(dict_to_plot[1]), stage), dict_to_plot[3], marker='o', linestyle='-', label='r3, '+str(round(average_accuracy[3][1]/average_accuracy[3][0],2)))
+        plt.plot(range(stage-len(dict_to_plot[1]), stage), dict_to_plot[4], marker='o', linestyle='-', label='r4, '+str(round(average_accuracy[4][1]/average_accuracy[4][0],2)))
 
         plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
         fig.savefig(util.get_project_directory()+"data/figure/fig_"+season.replace('/','_')+"_"+str(stage)+".png", bbox_inches='tight')
