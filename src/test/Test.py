@@ -1,6 +1,7 @@
 import src.application.MachineLearning.MachineLearningInput as MLInput
 import src.application.MachineLearning.MachineLearningAlgorithm as MachineLearningAlgorithm
 import src.application.Domain.League as League
+import src.application.Domain.Team as Team
 import src.util.util as util
 
 from src.application.Exception.MLException import MLException
@@ -90,7 +91,45 @@ def doTest():
     MachineLearningAlgorithm.run_all_algorithms(matches, labels, matches_names,False, **params)
     '''
 
+def do_Test_Team():
+    italy_league = League.read_by_name("Italy", like=True)[0]
+    team = Team.read_by_team_fifa_api_id("45")
+    print("League: " + italy_league.name)
 
-doTest()
+    for season in italy_league.get_seasons():
+        if season != '2015/2016':
+            continue
+        dict_to_plot = dict()
+        average_accuracy = dict()
+        print()
+        print("Elaborating season:\t", season)
+        for stage in range(1, 39):
+            print()
+            print("Predicting stage\t", stage)
 
+            try:
+                matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_preidct = MLInput.team_form(team,
+                                          1,
+                                          stage,
+                                          stages_to_train=10,     # numer of stages to consider --> it define the size of the train (EX: 38 * 10 train input)
+                                          season=season)
+                params = {"number_step": 1000, "kernel": "rbf", "k": 9}
+                accuracy = MachineLearningAlgorithm.run_predict_all_algorithms(matches,
+                                                                               labels,
+                                                                               matches_to_predict,
+                                                                               labels_to_preidct,
+                                                                               matches_names,
+                                                                               matches_to_predict_names,
+                                                                               False,
+                                                                               **params)
+
+                print(stage, len(matches), 1, accuracy)
+
+            except MLException:
+                print("No data to predict", season, stage)
+            continue
+
+
+do_Test_Team()
+#doTest()
 

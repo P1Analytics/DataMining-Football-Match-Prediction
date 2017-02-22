@@ -1,8 +1,7 @@
 import numpy as np
 from src.application.Exception.MLException import MLException
 
-
-def team_form(league,
+def team_form(domain,
               representation,
               stage_to_predict,         # number of next stage we want to predict
               season,
@@ -16,7 +15,7 @@ def team_form(league,
     matches_names = []
     matches_to_predict_names = []
 
-    training_matches = league.get_training_matches(season, stage_to_predict, stages_to_train)
+    training_matches = domain.get_training_matches(season, stage_to_predict, stages_to_train)
     for match in training_matches:
         home_team = match.get_home_team()
         away_team = match.get_away_team()
@@ -40,7 +39,7 @@ def team_form(league,
         except MLException:
             continue
 
-    for match in [m for m in league.get_matches(season=season) if m.stage == stage_to_predict]:
+    for match in [m for m in domain.get_matches(season=season) if m.stage == stage_to_predict]:
         home_team = match.get_home_team()
         away_team = match.get_away_team()
 

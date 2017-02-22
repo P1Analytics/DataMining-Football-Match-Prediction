@@ -60,7 +60,9 @@ def get_SVM_estimator(train_data, train_label, kernel):
     parameters = {'kernel': (kernel,), 'C': Cs, 'gamma': gammas}
     svr = SVC(probability=True)
     print("SklearnAlgorithm > Starting GridSearchCV to find the best parameter")
+
     clf = GridSearchCV(svr, parameters)
     clf.fit(train_data, train_label)
     print(clf.cv_results_['params'][clf.best_index_])
+
     return clf.best_estimator_

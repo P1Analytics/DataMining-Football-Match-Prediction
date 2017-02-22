@@ -178,14 +178,16 @@ def run_predict_all_algorithms(data, data_label, data_to_predict, label_data_to_
 
 
     #mag = SVM_Multiclass(train_data, train_label, test_data, test_label, train_description, test_description, **params)
-    mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description,
-                     **params)
-    mag.train()
-    predicted_labels, probability_events = mag.predict(data_to_predict)
-    accuracy = 0
-    for p, l, s in zip(predicted_labels, label_data_to_predict, data_to_predict_description):
-        # print(s, l, p)
-        if p==l:
-            accuracy += 1
-
-    return accuracy / len(label_data_to_predict)
+    if len(train_data) > 6:
+        mag = SklearnAlgorithm("SVM", train_data, train_label, test_data, test_label, train_description, test_description,
+                         **params)
+        mag.train()
+        predicted_labels, probability_events = mag.predict(data_to_predict)
+        accuracy = 0
+        for p, l, s in zip(predicted_labels, label_data_to_predict, data_to_predict_description):
+            # print(s, l, p)
+            if p==l:
+                accuracy += 1
+        return accuracy / len(label_data_to_predict)
+    else:
+        return "To few element to make a prediction"

@@ -65,6 +65,7 @@ class Team(object):
 
         return matches
 
+
     def get_last_team_attributes(self):
         max_date = "0000-00-00"
         last_team_attributes = None
@@ -314,7 +315,13 @@ class Team(object):
     def get_training_matches(self, season, stage_to_predict, stages_to_train, consider_last=False, home=None):
         if util.is_None(stages_to_train):
             # stages to train not defined --> return only stage of this season
-            return [m for m in self.get_matches(season=season, ordered=True,  home=home) if m.stage < stage_to_predict]
+
+            training_matches = [m for m in self.get_matches(season=season, ordered=True,  home=home) if m.stage < stage_to_predict]
+            if (len(training_matches) == 0 and stage_to_predict == 1):
+                raise MLException(0)
+            else:
+                return training_matches
+
         else:
             # stages to train is defined --> return number this number of stages, also for past season
             if consider_last:
