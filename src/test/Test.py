@@ -4,6 +4,7 @@ import src.application.Domain.League as League
 import src.application.Domain.Team as Team
 import src.util.util as util
 
+import numpy as np
 from src.application.Exception.MLException import MLException
 
 import matplotlib.pyplot as plt
@@ -14,8 +15,6 @@ def doTest():
     print("League: "+italy_league.name)
 
     for season in italy_league.get_seasons():
-        if season == '2008/2009':
-            continue
         dict_to_plot = dict()
         average_accuracy = dict()
         print()
@@ -31,19 +30,22 @@ def doTest():
                         #MLInput.team_form(italy_league,
                                           representation,
                                           stage,
-                                          stages_to_train=10,     # numer of stages to consider --> it define the size of the train (EX: 38 * 10 train input)
+                                          stages_to_train=None,     # numer of stages to consider --> it define the size of the train (EX: 38 * 10 train input)
                                           season=season)
 
                     params = {"number_step": 1000, "kernel": "rbf", "k": 9}
 
-                    accuracy = MachineLearningAlgorithm.run_predict_all_algorithms(matches,
-                                                                                   labels,
-                                                                                   matches_to_predict,
-                                                                                   labels_to_preidct,
-                                                                                   matches_names,
-                                                                                   matches_to_predict_names,
-                                                                                   False,
-                                                                                   **params)
+                    try:
+                        accuracy = MachineLearningAlgorithm.run_predict_all_algorithms(matches,
+                                                                                       labels,
+                                                                                       matches_to_predict,
+                                                                                       labels_to_preidct,
+                                                                                       matches_names,
+                                                                                       matches_to_predict_names,
+                                                                                       False,
+                                                                                       **params)
+                    except ValueError:
+                        continue
 
                     print(stage, len(matches), representation, accuracy)
                     try:
@@ -104,31 +106,50 @@ def do_Test_Team():
         print()
         print("Elaborating season:\t", season)
         for stage in range(1, 39):
-            print()
-            print("Predicting stage\t", stage)
+            stage_accuracy = [0,0]
+            for match in italy_league.get_matches(season=season, stage=stage):
+                home_team = match.get_home_team()
+                away_team = match.get_away_team()
+                try:
+                    home_matches, home_labels, home_matches_names, home_matches_to_predict, home_matches_to_predict_names, \
+                    home_labels_to_preidct = MLInput.team_home_away_form(home_team,
+                                                               3,
+                                                               stage,
+                                                               stages_to_train=10,
+                                                               season=season)
 
-            try:
-                matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_preidct = MLInput.team_form(team,
-                                          1,
-                                          stage,
-                                          stages_to_train=10,     # numer of stages to consider --> it define the size of the train (EX: 38 * 10 train input)
-                                          season=season)
-                params = {"number_step": 1000, "kernel": "rbf", "k": 9}
-                accuracy = MachineLearningAlgorithm.run_predict_all_algorithms(matches,
-                                                                               labels,
-                                                                               matches_to_predict,
-                                                                               labels_to_preidct,
-                                                                               matches_names,
-                                                                               matches_to_predict_names,
-                                                                               False,
-                                                                               **params)
+                    away_matches, away_labels, away_matches_names, away_matches_to_predict, away_matches_to_predict_names, \
+                    away_labels_to_preidct = MLInput.team_home_away_form(away_team,
+                                                               3,
+                                                               stage,
+                                                               stages_to_train=10,
+                                                               season=season)
+                    matches = np.concatenate((home_matches, away_matches), axis=0)
+                    labels = np.concatenate((home_labels, away_labels), axis=0)
+                    matches_names = home_matches_names.extend(away_matches_names)
 
-                print(stage, len(matches), 1, accuracy)
+                    params = {"number_step": 1000, "kernel": "rbf", "k": 9}
+                    accuracy = MachineLearningAlgorithm.run_predict_all_algorithms(matches,
+                                                                                   labels,
+                                                                                   home_matches_to_predict,
+                                                                                   home_labels_to_preidct,
+                                                                                   matches_names,
+                                                                                   home_matches_to_predict_names,
+                                                                                   False,
+                                                                                   **params)
+                    stage_accuracy[0] += accuracy
+                    stage_accuracy[1] += 1
+                except MLException:
+                    print("1.No data to predict", season, stage)
+                    print("\t",home_team.team_long_name,"vs", away_team.team_long_name)
+                    continue
+                except ValueError:
+                    print("2.No data to predict", season, stage)
+                    print("\t", home_team.team_long_name, "vs", away_team.team_long_name)
+                    continue
 
-            except MLException:
-                print("No data to predict", season, stage)
-            continue
 
+            print(stage, stage_accuracy[0]/stage_accuracy[1])
 
 do_Test_Team()
 #doTest()

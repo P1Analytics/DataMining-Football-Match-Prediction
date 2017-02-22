@@ -8,14 +8,11 @@ import src.application.MachineLearning.input_train.team_home_away_form as team_h
 
 
 def team_form(domain, representation, stage, stages_to_train, season):
-
-
     return team_form_input.team_form(domain,
                                          representation,
                                          stage,
                                          stages_to_train=stages_to_train,
                                          season=season)
-
 
 
 def team_home_away_form(league, representation, stage, stages_to_train, season):

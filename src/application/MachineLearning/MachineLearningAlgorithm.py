@@ -185,9 +185,12 @@ def run_predict_all_algorithms(data, data_label, data_to_predict, label_data_to_
         predicted_labels, probability_events = mag.predict(data_to_predict)
         accuracy = 0
         for p, l, s in zip(predicted_labels, label_data_to_predict, data_to_predict_description):
-            # print(s, l, p)
+            print("*****")
+            print(s)
+            print('\tResult:', l,"\tPredicted", p)
+            print("*****")
             if p==l:
                 accuracy += 1
         return accuracy / len(label_data_to_predict)
     else:
-        return "To few element to make a prediction"
+        raise ValueError

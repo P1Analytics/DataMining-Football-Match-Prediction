@@ -60,7 +60,7 @@ class League(object):
         Cache.add_element(self.id, seasons, "SEASONS_BY_LEAGUE")
         return seasons
 
-    def get_matches(self,season=None, ordered = True, date=None, finished=True):
+    def get_matches(self,season=None, ordered = True, date=None, finished=True, stage=None):
         matches = Match.read_matches_by_league(self.id, season)
 
         if ordered:
@@ -68,6 +68,9 @@ class League(object):
 
         if finished:
             matches = [m for m in matches if m.is_finished()]
+
+        if stage:
+            matches = [m for m in matches if m.stage == stage]
 
         if date:
             matches = [m for m in matches if m.date.startswith(date)]
