@@ -122,11 +122,8 @@ class PredictionAccuracy(object):
             print("*****")
             if p == l:
                 accuracy += 1
-                team_accuracy_dic[s[0].strip()] = [accuracy, 1]
-                team_accuracy_dic[s[1].strip()] = [accuracy, 1]
-            else:
-                team_accuracy_dic[s[0].strip()] = [accuracy, 1]
-                team_accuracy_dic[s[1].strip()] = [accuracy, 1]
+            team_accuracy_dic[s[0].strip()] = [accuracy, 1]
+            team_accuracy_dic[s[1].strip()] = [accuracy, 1]
 
         update_team_accuracy(self.accuracy_stage_dic, team_accuracy_dic)
 
