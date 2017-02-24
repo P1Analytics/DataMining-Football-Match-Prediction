@@ -115,7 +115,7 @@ def do_Test_Team():
                     home_labels_to_preidct = MLInput.team_home_away_form(home_team,
                                                                3,
                                                                stage,
-                                                               stages_to_train=10,
+                                                               stages_to_train=None,
                                                                season=season)
 
                     away_matches, away_labels, away_matches_names, away_matches_to_predict, away_matches_to_predict_names, \
@@ -129,7 +129,7 @@ def do_Test_Team():
                     matches_names = home_matches_names.extend(away_matches_names)
 
                     params = {"number_step": 1000, "kernel": "rbf", "k": 9}
-                    accuracy = MachineLearningAlgorithm.run_predict_all_algorithms(matches,
+                    accuracy, stage_accuracy_dic = MachineLearningAlgorithm.run_predict_all_algorithms(matches,
                                                                                    labels,
                                                                                    home_matches_to_predict,
                                                                                    home_labels_to_preidct,
@@ -137,6 +137,10 @@ def do_Test_Team():
                                                                                    home_matches_to_predict_names,
                                                                                    False,
                                                                                    **params)
+
+                    dict_to_plot = update_team_accuracy(dict_to_plot, stage_accuracy_dic)
+                    print(dict_to_plot)
+
                     stage_accuracy[0] += accuracy
                     stage_accuracy[1] += 1
                 except MLException:
@@ -150,6 +154,18 @@ def do_Test_Team():
 
 
             print(stage, stage_accuracy[0]/stage_accuracy[1])
+
+
+def update_team_accuracy(team_accuracy_dic, stage_accuracy_dic):
+    for k,v in stage_accuracy_dic.items():
+        try:
+            accuracy  = team_accuracy_dic[k][0] + v[0]
+            predicted_game = team_accuracy_dic[k][1] + v[1]
+            team_accuracy_dic[k] = [accuracy,predicted_game]
+        except KeyError:
+            team_accuracy_dic[k] = v
+
+    return team_accuracy_dic
 
 do_Test_Team()
 #doTest()

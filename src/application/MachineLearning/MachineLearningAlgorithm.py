@@ -153,8 +153,7 @@ def run_all_algorithms(data, data_label, data_description=None, enable_PCA = Non
     mag.score()
     '''
 
-
-def run_predict_all_algorithms(data, data_label, data_to_predict, label_data_to_predict, data_description=None, data_to_predict_description=None, enable_PCA = None, train_percentage=1, **params):
+def run_predict_all_algorithms(data, data_label, data_to_predict, label_data_to_predict, data_description=None, data_to_predict_description=None, enable_PCA = None, train_percentage=1 , **params):
 
     if enable_PCA:
         data = PCA(2).fit_transform(data)
@@ -184,13 +183,23 @@ def run_predict_all_algorithms(data, data_label, data_to_predict, label_data_to_
         mag.train()
         predicted_labels, probability_events = mag.predict(data_to_predict)
         accuracy = 0
+        team_accuracy_dic = {}
         for p, l, s in zip(predicted_labels, label_data_to_predict, data_to_predict_description):
             print("*****")
             print(s)
+            s = s.split("vs")
             print('\tResult:', l,"\tPredicted", p)
             print("*****")
             if p==l:
                 accuracy += 1
-        return accuracy / len(label_data_to_predict)
+                team_accuracy_dic[s[0].strip()] = [accuracy, 1]
+                team_accuracy_dic[s[1].strip()] = [accuracy, 1]
+            else:
+                team_accuracy_dic[s[0].strip()] = [accuracy, 1]
+                team_accuracy_dic[s[1].strip()] = [accuracy, 1]
+
+
+        return accuracy / len(label_data_to_predict),team_accuracy_dic
     else:
         raise ValueError
+
