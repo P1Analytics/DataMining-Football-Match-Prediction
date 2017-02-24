@@ -29,10 +29,13 @@ def get_prediction_accuracy(league, only_team_history=False, **params):
     print("ml_train_input_id", ml_train_input_id)
     print("only_team_history", only_team_history)
 
+    accuracy_stage = dict()
     for stage in stages:
+        print(accuracy_stage)
         print()
         print(season, stage)
         print()
+
         if only_team_history:
             # train ml algorithm only with past mathces of teams
             for match in league.get_matches(season=season, stage=stage):
@@ -67,7 +70,8 @@ def get_prediction_accuracy(league, only_team_history=False, **params):
                     continue
 
                 train_predict(labels, home_labels_to_preidct, matches, matches_names, home_matches_to_predict,
-                              home_matches_to_predict_names, ml_alg_framework, ml_alg_method, ml_alg_params)
+                              home_matches_to_predict_names, ml_alg_framework, ml_alg_method, ml_alg_params,
+                              accuracy_stage)
         else:
             # train ml algorithm with all league matches
             try:
@@ -83,11 +87,12 @@ def get_prediction_accuracy(league, only_team_history=False, **params):
                 continue
 
             train_predict(labels, labels_to_preidct, matches, matches_names, matches_to_predict,
-                          matches_to_predict_names, ml_alg_framework, ml_alg_method, ml_alg_params)
+                          matches_to_predict_names, ml_alg_framework, ml_alg_method, ml_alg_params,
+                          accuracy_stage)
 
 
-def train_predict(labels, labels_to_preidct, matches, matches_names, matches_to_predict, matches_to_predict_names,
-                  ml_alg_framework, ml_alg_method, ml_alg_params):
+def train_predict(labels, labels_to_predict, matches, matches_names, matches_to_predict, matches_to_predict_names,
+                  ml_alg_framework, ml_alg_method, ml_alg_params, accuracy_stage_dic):
     ml_alg = MachineLearningAlgorithm.get_machine_learning_algorithm(ml_alg_framework,
                                                                      ml_alg_method,
                                                                      matches,
@@ -97,8 +102,35 @@ def train_predict(labels, labels_to_preidct, matches, matches_names, matches_to_
                                                                      **ml_alg_params)
     ml_alg.train()
     predicted_labels, probability_events = ml_alg.predict(matches_to_predict)
-    for l, e, r in zip(predicted_labels, matches_to_predict_names, labels_to_preidct):
-        print(e, l, r)
+    accuracy = 0
+    team_accuracy_dic = {}
+    for p, l, s in zip(predicted_labels, labels_to_predict, matches_to_predict_names):
+        print("*****")
+        print(s)
+        s = s.split("vs")
+        print('\tResult:', l, "\tPredicted", p)
+        print("*****")
+        if p == l:
+            accuracy += 1
+            team_accuracy_dic[s[0].strip()] = [accuracy, 1]
+            team_accuracy_dic[s[1].strip()] = [accuracy, 1]
+        else:
+            team_accuracy_dic[s[0].strip()] = [accuracy, 1]
+            team_accuracy_dic[s[1].strip()] = [accuracy, 1]
+
+    update_team_accuracy(accuracy_stage_dic, team_accuracy_dic)
+
+
+def update_team_accuracy(team_accuracy_dic, stage_accuracy_dic):
+    for k,v in stage_accuracy_dic.items():
+        try:
+            accuracy  = team_accuracy_dic[k][0] + v[0]
+            predicted_game = team_accuracy_dic[k][1] + v[1]
+            team_accuracy_dic[k] = [accuracy,predicted_game]
+        except KeyError:
+            team_accuracy_dic[k] = v
+
+    return team_accuracy_dic
 
 
 '''
