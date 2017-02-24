@@ -9,6 +9,7 @@ import src.util.util as util
 import src.util.SQLLite as SQLLite
 import src.application.Crawl.Crawl as Crawl
 
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Score Prediction Application')

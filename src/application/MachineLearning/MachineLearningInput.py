@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import src.application.Domain.League as League
 import src.application.Domain.Team as Team
@@ -5,22 +6,41 @@ import src.application.Domain.Team as Team
 
 import src.application.MachineLearning.input_train.team_form as team_form_input
 import src.application.MachineLearning.input_train.team_home_away_form as team_home_away_form_input
+import src.application.MachineLearning.input_train.match_statistics as match_statistics_input
+
+log = logging.getLogger(__name__)
 
 
-def team_form(domain, representation, stage, stages_to_train, season):
-    return team_form_input.team_form(domain,
+def get_input_to_train(id, domain, representation, stage, stages_to_train, season):
+    if id == 1:
+        log.debug("team form")
+        return team_form_input.team_form(domain,
                                          representation,
                                          stage,
                                          stages_to_train=stages_to_train,
                                          season=season)
+    if id == 2:
+        log.debug("team home away form")
+        return team_home_away_form_input.team_home_away_form(domain,
+                                                             representation,
+                                                             stage,
+                                                             stages_to_train=stages_to_train,
+                                                             season=season)
 
+    if id == 3:
+        log.debug("match statistics")
+        return match_statistics_input.match_statistics(domain,
+                                                       representation,
+                                                       stage,
+                                                       stages_to_train=stages_to_train,
+                                                       season=season)
 
-def team_home_away_form(league, representation, stage, stages_to_train, season):
-    return team_home_away_form_input.team_home_away_form(league,
-                                                         representation,
-                                                         stage,
-                                                         stages_to_train=stages_to_train,
-                                                         season=season)
+    else:
+        print("The only possible choices are:")
+        print("\t1: team_form")
+        print("\t2: team_home_away_form")
+        print("\t3: match_statistics")
+        raise ValueError
 
 
 def get_datas_by_league(league_name, season=None):
@@ -94,50 +114,3 @@ def get_datas_by_team(team_api_id, season = None):
     return matches, labels, matches_names
 
 
-def match_statistics(league, n=None, season=None):
-    print("match_statistics")
-    matches = []
-    labels = []
-    matches_names = []
-
-    for match in league.get_matches(season=season, ordered=True):
-        if n and match.stage <= n or match.stage==1:
-            continue
-
-        home_team = match.get_home_team()
-        away_team = match.get_away_team()
-
-        if match.home_team_goal > match.away_team_goal:
-            labels.append(1)
-        elif match.home_team_goal < match.away_team_goal:
-            labels.append(2)
-        else:
-            labels.append(0)
-
-        matches_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
-
-        # Goals: The subtracted difference in goals from home and away teams over 9 games.
-        home_goal_done, home_goal_received, home_num_match_considered = home_team.get_goals_by_season_and_stage(season, match.stage, n=n)
-        home_goal = home_goal_done - home_goal_received
-        away_goal_done, away_goal_received, away_num_match_considered = home_team.get_goals_by_season_and_stage(season, match.stage, n=n)
-        away_goal = away_goal_done - away_goal_received
-
-        # Shots: The subtracted difference in shots from home and away teams over 9 games.
-        home_shoton = home_team.get_shots(season, match.stage, n=n, on=True)
-        home_shotoff = home_team.get_shots(season, match.stage, n=n, on=False)
-        away_shoton = away_team.get_shots(season, match.stage, n=n, on=True)
-        away_shotoff = away_team.get_shots(season, match.stage, n=n, on=False)
-
-        # Goals ratio
-        home_goal_ratio = home_goal_done / (home_shoton + home_shotoff)
-        away_goal_ratio = away_goal_done / (away_shoton + away_shotoff)
-
-        # Form
-        home_form, home_n = home_team.get_points_by_season_and_stage(season, match.stage, n=n)
-        away_form, away_n = away_team.get_points_by_season_and_stage(season, match.stage, n=n)
-
-        matches.append(np.asarray([home_goal, away_goal, home_shoton, away_shoton, home_goal_ratio, away_goal_ratio, home_form, away_form]))
-
-    matches = np.asarray(matches)
-    labels = np.asarray(labels)
-    return matches, labels, matches_names

@@ -20,4 +20,4 @@ class MLException(Exception):
         return self.code
 
     def __str__(self):
-        return "CODE ["+str(self.code)+"]: "+code_meaning[self.code]
+        return "MLException, CODE ["+str(self.code)+"]: "+code_meaning[self.code]

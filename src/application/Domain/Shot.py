@@ -30,9 +30,9 @@ def read_match_shot(match, on=True):
         pass
 
     if on:
-        bs = BeautifulSoup(match.shoton)
+        bs = BeautifulSoup(match.shoton, "html.parser")
     else:
-        bs = BeautifulSoup(match.shotoff)
+        bs = BeautifulSoup(match.shotoff, "html.parser")
 
     shot_list = []
     for value in bs.contents[0].children:

@@ -1,9 +1,13 @@
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
+import logging
 import numpy as np
 
 from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
 import src.util.util as util
+
+log = logging.getLogger(__name__)
+
 
 class SklearnAlgorithm(MachineLearningAlgorithm):
     def __init__(self, method
@@ -14,7 +18,13 @@ class SklearnAlgorithm(MachineLearningAlgorithm):
                      , train_description
                      , test_description
                      , **params):
-        MachineLearningAlgorithm.__init__(self, train_data, train_label, test_data, test_label, train_description, test_description)
+        MachineLearningAlgorithm.__init__(self,
+                                          train_data,
+                                          train_label,
+                                          test_data,
+                                          test_label,
+                                          train_description,
+                                          test_description)
         self.method = method
         self.estimator = None
         self.params = params
@@ -23,7 +33,6 @@ class SklearnAlgorithm(MachineLearningAlgorithm):
         if self.method == "SVM":
             kernel = util.get_default(self.params, "kernel", "rbf")
             self.estimator = get_SVM_estimator(self.train_data, self.train_label, kernel)
-
 
     def score(self):
         predicted = self.estimator.predict(self.test_data)
@@ -37,7 +46,6 @@ class SklearnAlgorithm(MachineLearningAlgorithm):
             probability_events.append(probs[k][np.where(self.estimator.classes_ == v)][0])
 
         return self.post_score(predicted_labels, probability_events)
-
 
     def predict(self, data):
         predicted = self.estimator.predict(data)
@@ -59,10 +67,10 @@ def get_SVM_estimator(train_data, train_label, kernel):
 
     parameters = {'kernel': (kernel,), 'C': Cs, 'gamma': gammas}
     svr = SVC(probability=True)
-    print("SklearnAlgorithm > Starting GridSearchCV to find the best parameter")
+    log.debug("SklearnAlgorithm > Starting GridSearchCV to find the best parameter")
 
     clf = GridSearchCV(svr, parameters)
     clf.fit(train_data, train_label)
-    print(clf.cv_results_['params'][clf.best_index_])
+    log.debug(clf.cv_results_['params'][clf.best_index_])
 
     return clf.best_estimator_

@@ -96,8 +96,6 @@ class Match(object):
         return players
 
 
-
-
 def read_all(column_filter='*'):
     '''
     Read all the matches

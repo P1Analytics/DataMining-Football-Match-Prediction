@@ -1,6 +1,8 @@
 import random
 import numpy as np
 from sklearn.decomposition import PCA
+
+
 class MachineLearningAlgorithm(object):
 
     def __init__(self, train_data, train_label, test_data, test_label, train_descirption, test_description):
@@ -24,7 +26,7 @@ class MachineLearningAlgorithm(object):
         print("Accuracy", accuracy/len(predicted_labels))
 
         for k, v in enumerate(predicted_labels):
-            print(self.test_description[k],"\t",self.test_label[k], "\t", v, "\t", probability_events[k])
+            print(self.test_description[k], "\t", self.test_label[k], "\t", v, "\t", probability_events[k])
 
         return predicted_labels, probability_events
 
@@ -33,16 +35,16 @@ class MachineLearningAlgorithm(object):
 
 
 def split_data(split_percentage=0.75, shuffle=True, *datas):
-    '''
+    """
 
-    :param train_percentage:
+    :param split_percentage:
     :param shuffle:
     :param datas:
     :return:
-    '''
+    """
     data_size = len(datas[0][0])
     for data in datas[0]:
-        if len(data)!=data_size:
+        if len(data) != data_size:
             raise Exception("Input data with different length")
 
     split_size = int(split_percentage * data_size)
@@ -67,8 +69,15 @@ from src.application.MachineLearning.my_tensor_flow.SVM import SVM
 from src.application.MachineLearning.my_tensor_flow.KNNAlgorithm import KNNAlgorithm
 from src.application.MachineLearning.my_tensor_flow.MulticlassSVM import SVM_Multiclass
 
-def get_machine_learning_algorithm(framework, method, data, data_label, data_description=None, train_percentage=0.75, **params):
-    '''
+
+def get_machine_learning_algorithm(framework,
+                                   method,
+                                   data,
+                                   data_label,
+                                   data_description=None,
+                                   train_percentage=0.75,
+                                   **params):
+    """
 
     :param framework:
     :param method:
@@ -78,7 +87,7 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
     :param train_percentage:
     :param params:
     :return:
-    '''
+    """
     if data_description:
         train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
     else:
@@ -92,24 +101,53 @@ def get_machine_learning_algorithm(framework, method, data, data_label, data_des
         train_description = train_datas[2]
         test_description = test_datas[2]
     else:
-        train_description = ["" for x in range(len(train_data))]
-        test_description = ["" for x in range(len(test_data))]
+        train_description = [""]*len(train_data)
+        test_description = [""]*len(test_data)
 
     if framework == "Sklearn":
-        return SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
+
+        return SklearnAlgorithm(method,
+                                train_data,
+                                train_label,
+                                test_data,
+                                test_label,
+                                train_description,
+                                test_description,
+                                **params)
 
     elif framework == "TensorFlow":
+
         if method == "SVM":
-            return SVM(train_data, train_label, test_data, test_label, train_description, test_description, **params)
+            return SVM(train_data,
+                       train_label,
+                       test_data,
+                       test_label,
+                       train_description,
+                       test_description,
+                       **params)
+
         elif method == "KNN":
-            return KNNAlgorithm(train_data, train_label, test_data, test_label, train_description, test_description, **params)
+
+            return KNNAlgorithm(train_data,
+                                train_label,
+                                test_data,
+                                test_label,
+                                train_description,
+                                test_description,
+                                **params)
     else:
         # use default
-        return SklearnAlgorithm(method, train_data, train_label, test_data, test_label, train_description, test_description, **params)
+        return SklearnAlgorithm(method,
+                                train_data,
+                                train_label,
+                                test_data,
+                                test_label,
+                                train_description,
+                                test_description,
+                                **params)
 
 
-
-def run_all_algorithms(data, data_label, data_description=None, enable_PCA = None, train_percentage=0.7, **params):
+def run_all_algorithms(data, data_label, data_description=None, enable_PCA=False, train_percentage=0.7, **params):
 
     if enable_PCA:
         data = PCA(2).fit_transform(data)
@@ -118,7 +156,6 @@ def run_all_algorithms(data, data_label, data_description=None, enable_PCA = Non
         train_datas, test_datas = split_data(train_percentage, False, [data, data_label, data_description])
     else:
         train_datas, test_datas = split_data(train_percentage, False, [data, data_label])
-
 
     train_data = np.asarray(train_datas[0])
     train_label = np.asarray(train_datas[1])
@@ -129,9 +166,8 @@ def run_all_algorithms(data, data_label, data_description=None, enable_PCA = Non
         train_description = train_datas[2]
         test_description = test_datas[2]
     else:
-        train_description = ["" for x in range(len(train_data))]
-        test_description = ["" for x in range(len(test_data))]
-
+        train_description = [""]*len(train_data)
+        test_description = [""]*len(test_data)
 
     mag = SVM_Multiclass(train_data, train_label, test_data, test_label, train_description, test_description, **params)
     mag.train()

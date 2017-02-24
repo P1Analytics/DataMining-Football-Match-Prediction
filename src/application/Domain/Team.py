@@ -191,6 +191,38 @@ class Team(object):
 
         return points, match_used
 
+    def get_goals_by_train_matches(self, season, stage_to_predict, stages_to_train, home=None):
+        """
+        Return the sum of the goals done/received got until the stage
+        Do not consider the stage in input
+        If set, consider only the last n matches
+
+        :param season:
+        :param stage:
+        :param n:
+        :param home:
+        :return:
+        """
+
+        matches = self.get_training_matches(season, stage_to_predict, stages_to_train, home=home)
+        goal_done = 0
+        goal_received = 0
+        num_matches_considered = 0
+        for match in matches:
+            if not util.is_None(match.get_home_team()) \
+                    and match.get_home_team().team_api_id == self.team_api_id:
+                num_matches_considered += 1
+                goal_done += match.home_team_goal
+                goal_received += match.away_team_goal
+
+            elif not util.is_None(match.get_away_team()) \
+                    and match.get_away_team().team_api_id == self.team_api_id:
+                num_matches_considered += 1
+                goal_done += match.away_team_goal
+                goal_received += match.home_team_goal
+
+        return goal_done, goal_received, num_matches_considered
+
     def get_goals_by_season_and_stage(self, season, stage, n=None, home=None):
         """
         Return the sum of the goals done/received got until the stage
@@ -265,6 +297,29 @@ class Team(object):
                     if not util.is_None(value.find('player2')):
                         cnt += 1
         return cnt
+
+    def get_shots_by_train_matches(self, season, stage_to_predict, stages_to_train, on=True, home=None):
+        """
+        Return the shoton done of this team
+        If n, it considers only the last n matches.
+
+        :param season:
+        :param stage:
+        :param n:
+        :param on:
+        :return:
+        """
+        matches = self.get_training_matches(season, stage_to_predict, stages_to_train, home=home)
+        n_shot = 0
+        for match in matches:
+            for shot in match.get_shots(on):
+                try:
+                    if shot.team == self.team_api_id:
+                        n_shot += 1
+                except AttributeError:
+                    logging.debug("Shot of the Match with api_id [ "+str(match.match_api_id)+" ] has no attribute team")
+
+        return n_shot
 
     def get_shots(self, season, stage, n=None, on=True):
         """

@@ -60,6 +60,7 @@ def search_by_country():
                 teams_to_print = [t.team_long_name+": http://sofifa.com/team/"+str(t.team_fifa_api_id) for t in teams]
                 GuiUtil.show_list_answer(teams_to_print, print_index=True)
 
+
 def search_by_name():
     user_input = input("Insert team name: ")
     teams = Team.read_by_name(user_input, like=True)

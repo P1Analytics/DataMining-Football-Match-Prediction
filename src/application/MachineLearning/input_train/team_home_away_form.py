@@ -7,7 +7,6 @@ def team_home_away_form(league,
                         stage_to_predict,         # number of next stage we want to predict
                         season,
                         stages_to_train=None):
-    print("team_home_away_form, representation:", representation)
     matches = []
     matches_to_predict = []
     labels = []

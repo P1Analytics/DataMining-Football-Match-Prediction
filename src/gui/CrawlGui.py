@@ -43,7 +43,7 @@ def find_new_matches():
 
     while True:
         try:
-            user_input = input("Insert number of days back to date (if 0 --> only the date) to be crawled: ")
+            user_input = input("Insert number of days back to date (if 1 --> only the date) to be crawled: ")
             stop_when = int(user_input)
             break
         except ValueError:
