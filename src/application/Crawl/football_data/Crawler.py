@@ -76,6 +76,3 @@ def start_crawling():
             except requests.exceptions.ReadTimeout:
                 print("next try")
                 n_try += 1
-
-
-

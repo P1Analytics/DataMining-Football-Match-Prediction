@@ -60,7 +60,7 @@ class CrawlerMatch(object):
         start_time_match = self.get_start_time_match()
         print("\t|\t|\t["+start_time_match+"]")
         match = None
-        matches = self.league.get_matches(season=util.get_current_season(), date=start_time_match)
+        matches = self.league.get_matches(season=util.get_current_season(), date=start_time_match, finished=False)
         for m in matches:
             if self.home_team and m.home_team_api_id == self.home_team.team_api_id:
                 match = m
@@ -71,6 +71,7 @@ class CrawlerMatch(object):
             match_id, match_api_id = match.id, match.match_api_id
             self.home_team = update_team(self.home_team, match.home_team_api_id, self.home_team_str)
             self.away_team = update_team(self.away_team, match.away_team_api_id, self.away_team_str)
+
         elif not util.compare_time_to_now(start_time_match, -7):
             # if match related to the event has not been found, its event date is not in one week
             match_id, match_api_id = "", ""

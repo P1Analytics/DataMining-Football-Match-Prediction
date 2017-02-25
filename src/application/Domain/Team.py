@@ -25,7 +25,7 @@ class Team(object):
 
     def get_trend(self, stage=None, season=None, n=5, home=None):
 
-        matches = self.get_matches(season=season, ordered=True, finished=True, home=home)
+        matches = self.get_matches(season=season, ordered=True, home=home)
 
         if stage:
             matches = [m for m in matches if m.stage < stage]
@@ -41,7 +41,7 @@ class Team(object):
 
         return trend
 
-    def get_matches(self, season=None, ordered=False, finished=True, home=None):
+    def get_matches(self, season=None, ordered=False, finished=None, home=None):
         """
         Return matches of this team
         :param season:
@@ -60,7 +60,7 @@ class Team(object):
         if ordered:
             matches = sorted(matches, key=lambda match: match.date)
 
-        if finished:
+        if not util.is_None(finished) and finished:
             matches = [m for m in matches if m.is_finished()]
 
         return matches
@@ -95,101 +95,6 @@ class Team(object):
                 elif match.home_team_goal == match.away_team_goal:
                     points += 1
         return points, len(matches)
-
-    def get_points_by_season_and_stage(self, season, stage, n=None):
-        """
-        Return the sum of the point got until the stage
-        Do not considere the stage in input
-        If n is set, consider only the last n matches
-        :param season:
-        :param stage:
-        :param n:
-        :return:
-        """
-
-
-        matches = self.get_matches(season=season, ordered=True)
-        points = 0
-        match_used = 0
-        for match in matches:
-            if match.stage > stage:
-                return points, match_used
-            if n and match.stage < stage - n:
-                continue
-            match_used += 1
-            if match.get_home_team().team_api_id == self.team_api_id:
-                if match.home_team_goal > match.away_team_goal:
-                    points += 3
-                elif match.home_team_goal == match.away_team_goal:
-                    points += 1
-            else:
-                if match.home_team_goal < match.away_team_goal:
-                    points += 3
-                elif match.home_team_goal == match.away_team_goal:
-                    points += 1
-        return points, match_used
-
-    def get_home_points_by_season_and_stage(self, season, stage, n=None):
-        """
-        Return the sum of the home point got until the stage
-        Do not considere the stage in input
-        If n is set, consider only the last n matches
-
-        :param season:
-        :param stage:
-        :param n:
-        :return:
-        """
-        matches = self.get_matches(season=season, ordered=True, home=True)
-        previous_matches = []
-        for match in matches:
-            if match.stage >= stage:
-                break
-            previous_matches.append(match)
-        if n:
-            matches = previous_matches[-n:]
-
-        points = 0
-        match_used = 0
-        for match in matches:
-            match_used += 1
-            if match.home_team_goal > match.away_team_goal:
-                points += 3
-            elif match.home_team_goal == match.away_team_goal:
-                points += 1
-
-        return points, match_used
-
-    def get_away_points_by_season_and_stage(self, season, stage, n=None):
-        """
-        Return the sum of the away points got until the stage
-        Do not considere the stage in input
-        If n is set, consider only the last n matches
-
-        :param season:
-        :param stage:
-        :param n:
-        :return:
-        """
-        matches = self.get_matches(season=season, ordered=True, home=False)
-        previous_matches = []
-        for match in matches:
-            if match.stage >= stage:
-                break
-            previous_matches.append(match)
-        if n:
-            matches = previous_matches[-n:]
-
-        points = 0
-        match_used = 0
-        for match in matches:
-            match_used += 1
-            if match.home_team_goal < match.away_team_goal:
-                points += 3
-            elif match.home_team_goal == match.away_team_goal:
-                points += 1
-
-        return points, match_used
 
     def get_goals_by_train_matches(self, season, stage_to_predict, stages_to_train, home=None):
         """
@@ -236,7 +141,7 @@ class Team(object):
         :return:
         """
 
-        matches = self.get_matches(season=season, ordered=True, home=home)
+        matches = self.get_matches(season=season, ordered=True, home=home, finished=True)
         if n:
             i = 0
             for match in matches:
@@ -371,7 +276,8 @@ class Team(object):
         if util.is_None(stages_to_train):
             # stages to train not defined --> return only stage of this season
 
-            training_matches = [m for m in self.get_matches(season=season, ordered=True,  home=home) if m.stage < stage_to_predict]
+            training_matches = [m for m in self.get_matches(season=season, ordered=True, home=home)
+                                if m.stage < stage_to_predict]
             if (len(training_matches) == 0 and stage_to_predict == 1):
                 raise MLException(0)
             else:
@@ -384,11 +290,11 @@ class Team(object):
                 training_matches = [m for m in self.get_matches(season=season, ordered=True, home=home)]
                 training_matches = training_matches[::-1]
 
-                if len(training_matches) == 0:
+                if len(training_matches) == 0 and season < '2006/2007':
                     raise MLException(1)
             else:
-                training_matches = [m for m in self.get_matches(season=season, ordered=True, home=home) if
-                                    m.stage < stage_to_predict]
+                training_matches = [m for m in self.get_matches(season=season, ordered=True, home=home)
+                                    if m.stage < stage_to_predict]
 
             stages_training = set([(m.stage, m.season) for m in training_matches])
             while len(stages_training) < stages_to_train:

@@ -26,7 +26,7 @@ class League(object):
     def get_ranking(self, season):
         import src.application.Domain.Team as Team
 
-        matches = self.get_matches(season=season)
+        matches = self.get_matches(season=season, finished=True)
         teams = self.get_teams(season=season)
         ranking = {team.id: 0 for team in teams}
         for m in matches:
@@ -60,13 +60,13 @@ class League(object):
         Cache.add_element(self.id, seasons, "SEASONS_BY_LEAGUE")
         return seasons
 
-    def get_matches(self,season=None, ordered = True, date=None, finished=True, stage=None):
+    def get_matches(self,season=None, ordered = True, date=None, finished=None, stage=None):
         matches = Match.read_matches_by_league(self.id, season)
 
         if ordered:
             matches = sorted(matches, key=lambda match: match.stage)
 
-        if finished:
+        if not util.is_None(finished) and finished:
             matches = [m for m in matches if m.is_finished()]
 
         if stage:
@@ -115,7 +115,8 @@ class League(object):
     def get_training_matches(self, season, stage_to_predict, stages_to_train, consider_last=False):
         if util.is_None(stages_to_train):
             # stages to train not defined --> return only stage of this season
-            return [m for m in self.get_matches(season=season, ordered=True) if m.stage < stage_to_predict]
+            return [m for m in self.get_matches(season=season, ordered=True)
+                    if m.stage < stage_to_predict]
         else:
             # stages to train is defined --> return number this number of stages, also for past season
             if consider_last:
@@ -123,10 +124,10 @@ class League(object):
                 training_matches = [m for m in self.get_matches(season=season, ordered=True)]
                 training_matches = training_matches[::-1]
             else:
-                training_matches = [m for m in self.get_matches(season=season, ordered=True) if
-                                    m.stage < stage_to_predict]
+                training_matches = [m for m in self.get_matches(season=season, ordered=True)
+                                    if m.stage < stage_to_predict]
 
-            if len(training_matches) == 0 and stage_to_predict != 1:
+            if len(training_matches) == 0 and season < '2006/2007':
                 raise MLException(0)
 
             stages_training = set([(m.stage, m.season) for m in training_matches])

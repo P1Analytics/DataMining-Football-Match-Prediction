@@ -2,7 +2,7 @@ import numpy as np
 from src.application.Exception.MLException import MLException
 
 
-def team_home_away_form(league,
+def team_home_away_form(league_or_team,
                         representation,
                         stage_to_predict,         # number of next stage we want to predict
                         season,
@@ -14,7 +14,7 @@ def team_home_away_form(league,
     matches_names = []
     matches_to_predict_names = []
 
-    training_matches = league.get_training_matches(season, stage_to_predict, stages_to_train)
+    training_matches = league_or_team.get_training_matches(season, stage_to_predict, stages_to_train)
 
     for match in training_matches:
         home_team = match.get_home_team()
@@ -22,26 +22,24 @@ def team_home_away_form(league,
 
         try:
             matches.append(get_home_away_team_form(home_team,
-                                                              away_team,
-                                                              season,
-                                                              stage_to_predict,
-                                                              stages_to_train,
-                                                              match.stage,
-                                                              representation))
+                                                   away_team,
+                                                   match.season,
+                                                   stages_to_train,
+                                                   match.stage,
+                                                   representation))
             matches_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
             labels.append(get_label(match))
         except MLException:
             continue
 
-    for match in [m for m in league.get_matches(season=season) if m.stage == stage_to_predict]:
+    for match in [m for m in league_or_team.get_matches(season=season) if m.stage == stage_to_predict]:
         home_team = match.get_home_team()
         away_team = match.get_away_team()
 
         try:
             matches_to_predict.append(get_home_away_team_form(home_team,
                                                               away_team,
-                                                              season,
-                                                              stage_to_predict,
+                                                              match.season,
                                                               stages_to_train,
                                                               match.stage,
                                                               representation))
@@ -72,22 +70,21 @@ def get_label(match):
 
 def get_home_away_team_form(home_team,
                             away_team,
-                            season,
-                            stage_to_predict,
+                            match_season,
                             stages_to_train,
                             match_stage,
                             representation):
-    home_form, home_n = home_team.get_points_by_train_matches(season, stage_to_predict, stages_to_train)
-    away_form, away_n = away_team.get_points_by_train_matches(season, stage_to_predict, stages_to_train)
+    home_form, home_n = home_team.get_points_by_train_matches(match_season, match_stage, stages_to_train)
+    away_form, away_n = away_team.get_points_by_train_matches(match_season, match_stage, stages_to_train)
 
-    home_team_home_form, home_n1 = home_team.get_points_by_train_matches(season, match_stage, stages_to_train,
+    home_team_home_form, home_n1 = home_team.get_points_by_train_matches(match_season, match_stage, stages_to_train,
                                                                          home=True)
-    home_team_away_form, home_n2 = home_team.get_points_by_train_matches(season, match_stage, stages_to_train,
+    home_team_away_form, home_n2 = home_team.get_points_by_train_matches(match_season, match_stage, stages_to_train,
                                                                          home=False)
 
-    away_team_home_form, away_n1 = away_team.get_points_by_train_matches(season, match_stage, stages_to_train,
+    away_team_home_form, away_n1 = away_team.get_points_by_train_matches(match_season, match_stage, stages_to_train,
                                                                          home=True)
-    away_team_away_form, away_n2 = away_team.get_points_by_train_matches(season, match_stage, stages_to_train,
+    away_team_away_form, away_n2 = away_team.get_points_by_train_matches(match_season, match_stage, stages_to_train,
                                                                          home=False)
 
     if home_n == 0 or home_n1 == 0 or home_n2 == 0 or away_n == 0 or away_n1 == 0 or away_n2 == 0:
