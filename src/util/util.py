@@ -121,7 +121,6 @@ def is_None(input):
 
 
 def indexing():
-    import time
     start_time = time.time()
 
     print("> Indexing...")
@@ -140,6 +139,19 @@ def indexing():
                         player.get_current_team()
 
     print("\t ...finished in %s seconds" % round((time.time() - start_time), 2))
+
+
+def get_id_by_time():
+    now = get_today_date(with_hours=True)
+    years = now.split(" ")[0].split("-")[0]
+    month = now.split(" ")[0].split("-")[1]
+    days = now.split(" ")[0].split("-")[2]
+
+    hours = now.split(" ")[1].split(":")[0]
+    minutes = now.split(" ")[1].split(":")[1]
+    seconds = now.split(" ")[1].split(":")[2]
+
+    return years+month+days+hours+minutes+seconds
 
 
 def get_previous_season(season):

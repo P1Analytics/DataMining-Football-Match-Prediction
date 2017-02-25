@@ -5,7 +5,6 @@ class Plot(object):
     def __init__(self,data):
         self.data = data
 
-
     #define the grid of the graph
     def define_grid(self):
         x_min, x_max = self.data[:, 0].min() - 1, self.data[:, 0].max() + 1

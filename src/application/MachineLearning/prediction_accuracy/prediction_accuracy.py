@@ -29,7 +29,7 @@ class TeamPredictionAccuracy(object):
 
 
 class PredictionAccuracy(object):
-    def __init__(self,league, only_team_history=False, **params):
+    def __init__(self, league, only_team_history=False, **params):
         self.league = league
         self.only_team_history = only_team_history
 
@@ -50,7 +50,7 @@ class PredictionAccuracy(object):
 
         self.n_predicted_match     = 0
         self.accuracy_by_team_dic  = dict()
-        self.accuracy_by_stage_dic = {x: 0 for x in range(1, 39)}
+        self.accuracy_by_stage_dic = {x: 0 for x in self.stages}
 
         log.debug("[" + self.season + "], size train [" + str(self.ml_train_stages_to_train) + "], train input id[" +
                   str(self.ml_train_input_id) + "], consider only team history [" + str(self.only_team_history) + "]")
@@ -66,6 +66,9 @@ class PredictionAccuracy(object):
     def get_match_predicted(self):
         return self.n_predicted_match
 
+    def get_stages_accuracy(self):
+        return self.accuracy_by_stage_dic
+
     def print_statistcis(self):
         print(self.accuracy_by_stage_dic)
         print([p.__str__() for t, p in self.accuracy_by_team_dic.items()])
@@ -80,11 +83,11 @@ class PredictionAccuracy(object):
                     away_team = match.get_away_team()
                     try:
                         home_matches, \
-                        home_labels, \
-                        home_matches_names, \
-                        home_matches_to_predict, \
-                        home_matches_to_predict_names, \
-                        home_labels_to_predict = \
+                            home_labels, \
+                            home_matches_names, \
+                            home_matches_to_predict, \
+                            home_matches_to_predict_names, \
+                            home_labels_to_predict = \
                             MLInput.get_input_to_train(self.ml_train_input_id,
                                                        home_team,
                                                        self.representation,
@@ -93,7 +96,7 @@ class PredictionAccuracy(object):
                                                        season=self.season)
 
                         away_matches, away_labels, away_matches_names, away_matches_to_predict, \
-                        away_matches_to_predict_names, away_labels_to_preidct = \
+                            away_matches_to_predict_names, away_labels_to_preidct = \
                             MLInput.get_input_to_train(self.ml_train_input_id,
                                                        away_team,
                                                        self.representation,
@@ -108,7 +111,7 @@ class PredictionAccuracy(object):
                         self.matches_to_predict_names = home_matches_to_predict_names   # the same works with away
                         self.labels_to_predict = home_labels_to_predict                 # the same works with away
 
-                        accuracy = self.train_predict(stage)
+                        accuracy = self.train_predict()
                         self.accuracy_by_stage_dic[stage] += accuracy
                         n_predicted_match += 1
                     except MLException as mle:
@@ -125,27 +128,26 @@ class PredictionAccuracy(object):
                 # train ml algorithm with all league matches
                 try:
                     self.matches, \
-                    self.labels, \
-                    self.matches_names, \
-                    self.matches_to_predict, \
-                    self.matches_to_predict_names, \
-                    self.labels_to_predict = MLInput.get_input_to_train(self.ml_train_input_id,
-                                                                   self.league,
-                                                                   self.representation,
-                                                                   stage,
-                                                                   stages_to_train=self.ml_train_stages_to_train,
-                                                                   season=self.season)
-                    accuracy = self.train_predict(stage)
+                        self.labels, \
+                        self.matches_names, \
+                        self.matches_to_predict, \
+                        self.matches_to_predict_names, \
+                        self.labels_to_predict = MLInput.get_input_to_train(self.ml_train_input_id,
+                                                                            self.league,
+                                                                            self.representation,
+                                                                            stage,
+                                                                            self.ml_train_stages_to_train,
+                                                                            self.season)
+                    accuracy = self.train_predict()
                     self.accuracy_by_stage_dic[stage] = accuracy
                     self.n_predicted_match += len(self.labels_to_predict)
-
 
                 except MLException as mle:
                     del(self.accuracy_by_stage_dic[stage])
                     log.debug(mle)
                     continue
 
-    def train_predict(self, stage):
+    def train_predict(self):
         ml_alg = MachineLearningAlgorithm.get_machine_learning_algorithm(self.ml_alg_framework,
                                                                          self.ml_alg_method,
                                                                          self.matches,
@@ -160,7 +162,9 @@ class PredictionAccuracy(object):
 
         predicted_labels, probability_events = ml_alg.predict(self.matches_to_predict)
         accuracy = 0
-        for predicted_label, label, match_name in zip(predicted_labels, self.labels_to_predict, self.matches_to_predict_names):
+        for predicted_label, label, match_name in zip(predicted_labels,
+                                                      self.labels_to_predict,
+                                                      self.matches_to_predict_names):
             if predicted_label == label:
                 accuracy += 1
             home_team_name = match_name.split("vs")[0].strip()
@@ -177,19 +181,3 @@ class PredictionAccuracy(object):
                 self.accuracy_by_team_dic[away_team_name].next_prediction(predicted_label, label)
 
         return accuracy/len(predicted_labels)
-
-'''
-fig = plt.figure()
-        plt.title(italy_league.name+" ["+season+"]")
-        #plt.plot(average_accuracy[1][1], label='r1')
-        #plt.plot(average_accuracy[2][1], label='r2')
-        #plt.plot(average_accuracy[3][1], label='r3')
-        #plt.plot(average_accuracy[4][1], label='r4')
-        plt.plot(range(stage-len(dict_to_plot[1]), stage), dict_to_plot[1], marker='o', linestyle='-', label='r1, '+str(round(average_accuracy[1][1]/average_accuracy[1][0],2)))
-        #plt.plot(range(stage-len(dict_to_plot[1]), stage), dict_to_plot[2], marker='o', linestyle='-', label='r2, '+str(round(average_accuracy[2][1]/average_accuracy[2][0],2)))
-        #plt.plot(range(stage-len(dict_to_plot[1]), stage), dict_to_plot[3], marker='o', linestyle='-', label='r3, '+str(round(average_accuracy[3][1]/average_accuracy[3][0],2)))
-        #plt.plot(range(stage-len(dict_to_plot[1]), stage), dict_to_plot[4], marker='o', linestyle='-', label='r4, '+str(round(average_accuracy[4][1]/average_accuracy[4][0],2)))
-
-        plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-        fig.savefig(util.get_project_directory()+"data/figure/fig_"+season.replace('/','_')+"_"+str(stage)+".png", bbox_inches='tight')
-        plt.close()'''
