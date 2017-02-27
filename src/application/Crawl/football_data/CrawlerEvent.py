@@ -29,45 +29,49 @@ class CrawlerEvent(object):
             log.debug("No need to crawl ["+self.event_name+"] "+ self.event_link)
             return
 
-        if self.event_name == 'Match Result':
-            self.get_page()
-            bet_values = self.get_match_result_odds()
+        try:
+            if self.event_name == 'Match Result':
+                self.get_page()
+                bet_values = self.get_match_result_odds()
 
-        elif self.event_name == 'Over/Under':
-            self.get_page()
-            bet_values = self.get_over_under_odds()
+            elif self.event_name == 'Over/Under':
+                self.get_page()
+                bet_values = self.get_over_under_odds()
 
-        elif self.event_name == 'Half-time/Full-time':
-            self.get_page()
-            bet_values = self.get_half_time_full_time_odds()
+            elif self.event_name == 'Half-time/Full-time':
+                self.get_page()
+                bet_values = self.get_half_time_full_time_odds()
 
-        elif self.event_name == 'Both Teams To Score':
-            self.get_page()
-            bet_values = self.get_both_teams_to_score_odds()
+            elif self.event_name == 'Both Teams To Score':
+                self.get_page()
+                bet_values = self.get_both_teams_to_score_odds()
 
-        elif self.event_name == 'Double Chance':
-            self.get_page()
-            bet_values = self.get_double_chance_odds()
+            elif self.event_name == 'Double Chance':
+                self.get_page()
+                bet_values = self.get_double_chance_odds()
 
-        elif self.event_name == 'Half-time Double Chance':
-            self.get_page()
-            bet_values = self.get_half_time_double_chance_odds()
+            elif self.event_name == 'Half-time Double Chance':
+                self.get_page()
+                bet_values = self.get_half_time_double_chance_odds()
 
-        elif self.event_name == 'Half-time Result':
-            self.get_page()
-            bet_values = self.get_half_time_result_odds()
+            elif self.event_name == 'Half-time Result':
+                self.get_page()
+                bet_values = self.get_half_time_result_odds()
 
-        elif self.event_name == 'Half-time Totals Over/Under':
-            self.get_page()
-            bet_values = self.get_half_time_total_over_under_odds()
+            elif self.event_name == 'Half-time Totals Over/Under':
+                self.get_page()
+                bet_values = self.get_half_time_total_over_under_odds()
 
-        else:
-            # event not managed
-            log.debug("Event ["+self.event_name+"] not managed")
+            else:
+                # event not managed
+                log.debug("Event ["+self.event_name+"] not managed")
+                return
+
+            if len(bet_values.keys()) > 0:
+                Bet_Event.write_new_bet_event(self.match_event.id, self.event_name, bet_values)
+        except ValueError:
+            print("Crawler Event Value error!!!")
             return
-
-        if len(bet_values.keys()) > 0:
-            Bet_Event.write_new_bet_event(self.match_event.id, self.event_name, bet_values)
 
     def get_half_time_total_over_under_odds(self):
         bet_values = {}

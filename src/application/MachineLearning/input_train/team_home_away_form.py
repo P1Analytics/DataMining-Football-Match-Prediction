@@ -113,3 +113,7 @@ def get_home_away_team_form(home_team,
                            home_team_away_form // home_n2 - away_team_away_form // away_n2])
 
     return None
+
+
+def get_representations():
+    return [1, 2, 3, 4]

@@ -11,6 +11,19 @@ import src.application.MachineLearning.input_train.match_statistics as match_sta
 log = logging.getLogger(__name__)
 
 
+def get_input_ids():
+    return [1, 2, 3]
+
+def get_representations(id):
+    if id == 1:
+        return team_form_input.get_representations()
+    elif id == 2:
+        return team_home_away_form_input.get_representations()
+    elif id == 3:
+        return match_statistics_input.get_representations()
+    else:
+        return []
+
 def get_input_to_train(id, domain, representation, stage, stages_to_train, season):
     if id == 1:
         log.debug("team form")

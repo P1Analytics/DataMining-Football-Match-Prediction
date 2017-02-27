@@ -267,7 +267,9 @@ def write_new_player(player_name, player_fifa_api_id, birthday, height, weight, 
                    "birthday": birthday,
                    "height": height,
                    "weight": weight,
-                   "player_api_id": player_api_id}
+                   }
+    if not util.is_None(player_api_id):
+        player_diz["player_api_id"] = player_api_id
 
     SQLLite.get_connection().insert("Player", player_diz)
     return read_by_fifa_api_id(player_fifa_api_id)

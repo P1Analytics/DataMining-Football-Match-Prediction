@@ -1,4 +1,5 @@
 import logging
+import time
 
 import src.application.MachineLearning.MachineLearningInput as MLInput
 import src.application.MachineLearning.MachineLearningAlgorithm as MachineLearningAlgorithm
@@ -52,6 +53,8 @@ class PredictionAccuracy(object):
         self.accuracy_by_team_dic  = dict()
         self.accuracy_by_stage_dic = {x: 0 for x in self.stages}
 
+        self.finish_time = -1
+
         log.debug("[" + self.season + "], size train [" + str(self.ml_train_stages_to_train) + "], train input id[" +
                   str(self.ml_train_input_id) + "], consider only team history [" + str(self.only_team_history) + "]")
 
@@ -73,7 +76,11 @@ class PredictionAccuracy(object):
         print(self.accuracy_by_stage_dic)
         print([p.__str__() for t, p in self.accuracy_by_team_dic.items()])
 
-    def get_prediction_accuracy(self):
+    def get_execution_time(self):
+        return self.finish_time
+
+    def compute_prediction_accuracy(self):
+        start_time = time.time()
         for stage in self.stages:
             if self.only_team_history:
                 # train ml algorithm only with past mathces of teams
@@ -139,6 +146,7 @@ class PredictionAccuracy(object):
                                                                             self.ml_train_stages_to_train,
                                                                             self.season)
                     accuracy = self.train_predict()
+
                     self.accuracy_by_stage_dic[stage] = accuracy
                     self.n_predicted_match += len(self.labels_to_predict)
 
@@ -146,6 +154,7 @@ class PredictionAccuracy(object):
                     del(self.accuracy_by_stage_dic[stage])
                     log.debug(mle)
                     continue
+        self.finish_time = time.time() - start_time
 
     def train_predict(self):
         ml_alg = MachineLearningAlgorithm.get_machine_learning_algorithm(self.ml_alg_framework,
@@ -162,9 +171,14 @@ class PredictionAccuracy(object):
 
         predicted_labels, probability_events = ml_alg.predict(self.matches_to_predict)
         accuracy = 0
-        for predicted_label, label, match_name in zip(predicted_labels,
-                                                      self.labels_to_predict,
-                                                      self.matches_to_predict_names):
+        for predicted_label, prob, label, match_name in zip(predicted_labels,
+                                                            probability_events,
+                                                            self.labels_to_predict,
+                                                            self.matches_to_predict_names):
+
+
+            #print(match_name, predicted_label, prob)
+
             if predicted_label == label:
                 accuracy += 1
             home_team_name = match_name.split("vs")[0].strip()

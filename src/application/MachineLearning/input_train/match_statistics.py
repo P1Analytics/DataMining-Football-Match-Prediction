@@ -85,3 +85,7 @@ def get_label(match):
         return 2
     else:
         return 0
+
+
+def get_representations():
+    return [1]

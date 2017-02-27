@@ -70,6 +70,10 @@ def team_form(domain,
     return matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_predict
 
 
+def get_representations():
+    return [1, 2, 3, 4]
+
+
 def get_team_form(away_form, away_n, home_form, home_n, representation):
     if representation == 1:
         # Numeric values of the team forms, normalized to interval [0,3]
