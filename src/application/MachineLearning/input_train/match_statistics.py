@@ -55,7 +55,7 @@ def get_match_as_array(away_team, home_team, match, stages_to_train):
                                                                                                          match.stage,
                                                                                                          stages_to_train)
     home_goal = home_goal_done - home_goal_received
-    away_goal_done, away_goal_received, away_num_match_considered = home_team.get_goals_by_train_matches(match.season,
+    away_goal_done, away_goal_received, away_num_match_considered = away_team.get_goals_by_train_matches(match.season,
                                                                                                          match.stage,
                                                                                                          stages_to_train)
     away_goal = away_goal_done - away_goal_received
