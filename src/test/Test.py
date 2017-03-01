@@ -19,7 +19,7 @@ def doTest():
     italy_league = League.read_by_name("Italy", like=True)[0]
     exp = Experiment(3)
     params = {"ml_alg_method":"AdaBoostClassifier", "ml_alg_framework":"Sklearn", "ml_train_stages_to_train":10,
-              "ml_train_input_id":4, "season":'2016/2017'}
+              "ml_train_input_id":4}
     exp.run(italy_league, complete=False, **params)
 
 

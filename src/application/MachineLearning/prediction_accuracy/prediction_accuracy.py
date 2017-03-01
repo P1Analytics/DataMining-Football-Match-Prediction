@@ -126,7 +126,7 @@ class PredictionAccuracy(object):
                         self.accuracy_by_stage_dic[stage] += accuracy
                         n_predicted_match += 1
                     except MLException as mle:
-                        log.debug(mle, home_team.team_long_name, away_team.team_long_name)
+                        #log.debug(mle, home_team.team_long_name, away_team.team_long_name)
                         continue
 
                 if n_predicted_match != 0:

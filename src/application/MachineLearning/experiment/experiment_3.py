@@ -48,7 +48,6 @@ def run_experiment_3(exp, league, ml_train_input_id, ml_train_input_representati
                         curr_denominator += pa.get_match_predicted()
                         curr_execution_time += pa.get_match_predicted() * pa.get_execution_time()
                         curr_average_accuracy += pa.get_match_predicted() * pa.get_average_accuracy()
-                        break
 
                     if curr_denominator != 0:
                         average_time[ml_alg_framework][ml_alg_method] = curr_execution_time / curr_denominator
