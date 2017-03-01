@@ -30,23 +30,24 @@ class TeamPredictionAccuracy(object):
 
 
 class PredictionAccuracy(object):
+
     def __init__(self, league, only_team_history=False, **params):
         self.league = league
         self.only_team_history = only_team_history
 
-        self.season =         util.get_default(params, "season", util.get_current_season())
-        self.stages =         util.get_default(params, "stages", [s for s in range(1, 39)])
+        self.season = util.get_default(params, "season", util.get_current_season())
+        self.stages = util.get_default(params, "stages", [s for s in range(1, 39)])
 
-        self.ml_alg_method =    util.get_default(params, "ml_alg_method", "SVM")
+        self.ml_alg_method    = util.get_default(params, "ml_alg_method", "SVM")
         self.ml_alg_framework = util.get_default(params, "ml_alg_framework", "Sklearn")
 
-        self.ml_train_input_id =        util.get_default(params, "ml_train_input_id", 1)
-        self.representation =           util.get_default(params, "ml_train_input_representation", 1)
+        self.ml_train_input_id        = util.get_default(params, "ml_train_input_id", 1)
+        self.representation           = util.get_default(params, "ml_train_input_representation", 1)
         self.ml_train_stages_to_train = util.get_default(params, "ml_train_stages_to_train", 10)
 
         self.ml_alg_params = dict()
-        self.ml_alg_params["k"] =           util.get_default(params, "ml_alg_k", 9)
-        self.ml_alg_params["kernel"] =      util.get_default(params, "ml_alg_kernel", "rbf")
+        self.ml_alg_params["k"]           = util.get_default(params, "ml_alg_k", 9)
+        self.ml_alg_params["kernel"]      = util.get_default(params, "ml_alg_kernel", "rbf")
         self.ml_alg_params["number_step"] = util.get_default(params, "ml_alg_number_step", 1000)
 
         self.n_predicted_match     = 0
@@ -57,6 +58,9 @@ class PredictionAccuracy(object):
 
         log.debug("[" + self.season + "], size train [" + str(self.ml_train_stages_to_train) + "], train input id[" +
                   str(self.ml_train_input_id) + "], consider only team history [" + str(self.only_team_history) + "]")
+        print("[" + self.season + "], size train [" + str(self.ml_train_stages_to_train) + "], train input id[" +
+                  str(self.ml_train_input_id) + "], consider only team history [" + str(self.only_team_history) + "],"
+                  " ml_alg_framework ["+self.ml_alg_framework+"], ml_alg_method ["+self.ml_alg_method+"]")
 
     def get_average_accuracy(self):
         if len(self.accuracy_by_stage_dic) == 0:
@@ -118,7 +122,7 @@ class PredictionAccuracy(object):
                         self.matches_to_predict_names = home_matches_to_predict_names   # the same works with away
                         self.labels_to_predict = home_labels_to_predict                 # the same works with away
 
-                        accuracy = self.train_predict()
+                        accuracy = self.train_predict(stage)
                         self.accuracy_by_stage_dic[stage] += accuracy
                         n_predicted_match += 1
                     except MLException as mle:
@@ -134,6 +138,7 @@ class PredictionAccuracy(object):
             else:
                 # train ml algorithm with all league matches
                 try:
+
                     self.matches, \
                         self.labels, \
                         self.matches_names, \
@@ -143,9 +148,9 @@ class PredictionAccuracy(object):
                                                                             self.league,
                                                                             self.representation,
                                                                             stage,
-                                                                            self.ml_train_stages_to_train,
-                                                                            self.season)
-                    accuracy = self.train_predict()
+                                                                            stages_to_train=self.ml_train_stages_to_train,
+                                                                            season=self.season)
+                    accuracy = self.train_predict(stage)
 
                     self.accuracy_by_stage_dic[stage] = accuracy
                     self.n_predicted_match += len(self.labels_to_predict)
@@ -156,7 +161,7 @@ class PredictionAccuracy(object):
                     continue
         self.finish_time = time.time() - start_time
 
-    def train_predict(self):
+    def train_predict(self, stage):
         ml_alg = MachineLearningAlgorithm.get_machine_learning_algorithm(self.ml_alg_framework,
                                                                          self.ml_alg_method,
                                                                          self.matches,
@@ -166,18 +171,19 @@ class PredictionAccuracy(object):
                                                                          **self.ml_alg_params)
         try:
             ml_alg.train()
-        except ValueError:
+        except ValueError as ve:
+            print(ve)
             raise MLException(3)
 
         predicted_labels, probability_events = ml_alg.predict(self.matches_to_predict)
         accuracy = 0
+        print("***",stage,"***")
         for predicted_label, prob, label, match_name in zip(predicted_labels,
                                                             probability_events,
                                                             self.labels_to_predict,
                                                             self.matches_to_predict_names):
 
-
-            #print(match_name, predicted_label, prob)
+            print(match_name, predicted_label, "[",label,"]")
 
             if predicted_label == label:
                 accuracy += 1

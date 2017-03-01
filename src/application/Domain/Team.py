@@ -25,10 +25,11 @@ class Team(object):
 
     def get_trend(self, stage=None, season=None, n=5, home=None):
 
-        matches = self.get_matches(season=season, ordered=True, home=home)
+        #matches = self.get_matches(season=season, ordered=True, home=home)
+        matches = self.get_training_matches(season, stage, n, home=home)
 
-        if stage:
-            matches = [m for m in matches if m.stage < stage]
+        #if stage:
+        #    matches = [m for m in matches if m.stage < stage]
 
         trend = ""
         for match in matches[-n:]:

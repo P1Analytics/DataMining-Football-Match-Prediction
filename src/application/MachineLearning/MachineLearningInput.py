@@ -7,6 +7,7 @@ import src.application.Domain.Team as Team
 import src.application.MachineLearning.input_train.team_form as team_form_input
 import src.application.MachineLearning.input_train.team_home_away_form as team_home_away_form_input
 import src.application.MachineLearning.input_train.match_statistics as match_statistics_input
+import src.application.MachineLearning.input_train.kekko_input as kekko_input
 
 log = logging.getLogger(__name__)
 
@@ -48,6 +49,13 @@ def get_input_to_train(id, domain, representation, stage, stages_to_train, seaso
                                                        stages_to_train=stages_to_train,
                                                        season=season)
 
+    if id == 4:
+        log.debug("Kekko input")
+        return kekko_input.kekko_input(domain,
+                                       representation,
+                                       stage,
+                                       season,
+                                       stages_to_train=stages_to_train)
     else:
         print("The only possible choices are:")
         print("\t1: team_form")

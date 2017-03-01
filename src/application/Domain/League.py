@@ -23,10 +23,10 @@ class League(object):
                 logging.debug("League :: AttributeError ["+attribute+"]")
         return to_string
 
-    def get_ranking(self, season):
+    def get_ranking(self, season, stage=None, home=None):
         import src.application.Domain.Team as Team
 
-        matches = self.get_matches(season=season, finished=True)
+        matches = self.get_matches(season=season, finished=True, stage=stage)
         teams = self.get_teams(season=season)
         ranking = {team.id: 0 for team in teams}
         for m in matches:
@@ -39,6 +39,86 @@ class League(object):
 
         ranking_ret = []
         for team, p in sorted(ranking.items(), key=operator.itemgetter(1))[::-1]:
+            ranking_ret.append((p, Team.read_by_id(team)))
+
+        return ranking_ret
+
+    def get_training_ranking(self, season, stage_to_predict, stages_to_train, home=None):
+        import src.application.Domain.Team as Team
+
+        matches = self.get_training_matches(season, stage_to_predict, stages_to_train)
+        teams = self.get_teams(season=season)
+        ranking = {team.id: 0 for team in teams}
+        num_matches = {team.id: 0 for team in teams}
+        for m in matches:
+            winner = m.get_winner()
+            if util.is_None(home):
+                try:
+                    num_matches[m.get_home_team().id] += 1
+                except KeyError:
+                    num_matches[m.get_home_team().id] = 1
+                try:
+                    num_matches[m.get_away_team().id] += 1
+                except KeyError:
+                    num_matches[m.get_away_team().id] = 1
+                # total ranking
+                if not util.is_None(winner):
+                    try:
+                        ranking[winner.id] += 3
+                    except KeyError:
+                        ranking[winner.id] = 3
+
+                else:
+                    try:
+                        ranking[m.get_home_team().id] += 1
+                    except KeyError:
+                        ranking[m.get_home_team().id] = 1
+                    try:
+                        ranking[m.get_away_team().id] += 1
+                    except KeyError:
+                        ranking[m.get_away_team().id] = 1
+
+            elif home:
+                # home ranking
+                try:
+                    num_matches[m.get_home_team().id] += 1
+                except KeyError:
+                    num_matches[m.get_home_team().id] = 1
+                if not util.is_None(winner) and winner.id==m.get_home_team().id:
+                    try:
+                        ranking[winner.id] += 3
+                    except KeyError:
+                        ranking[winner.id] = 3
+                else:
+                    try:
+                        ranking[m.get_home_team().id] += 1
+                    except KeyError:
+                        ranking[m.get_home_team().id] = 1
+            else:
+                # away ranking
+                try:
+                    num_matches[m.get_away_team().id] += 1
+                except KeyError:
+                    num_matches[m.get_away_team().id] = 1
+                if not util.is_None(winner) and winner.id==m.get_away_team().id:
+                    try:
+                        ranking[winner.id] += 3
+                    except KeyError:
+                        ranking[winner.id] = 3
+                else:
+                    try:
+                        ranking[m.get_away_team().id] += 1
+                    except KeyError:
+                        ranking[m.get_away_team().id] = 1
+
+        norm_ranking = dict()
+        for team_id, points in ranking.items():
+            if num_matches[team_id] > 0:
+                norm_ranking[team_id] = points / num_matches[team_id]
+            else:
+                norm_ranking[team_id] = 0
+        ranking_ret = []
+        for team, p in sorted(norm_ranking.items(), key=operator.itemgetter(1))[::-1]:
             ranking_ret.append((p, Team.read_by_id(team)))
 
         return ranking_ret

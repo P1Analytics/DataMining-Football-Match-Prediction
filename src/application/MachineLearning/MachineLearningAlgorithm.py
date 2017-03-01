@@ -147,6 +147,14 @@ def get_machine_learning_algorithm(framework,
                                 **params)
 
 
+def get_frameworks():
+    return ["Sklearn", "TensorFlow"]
+
+
+def get_methods():
+    return ["SVM", "KNN", "RandomForest"]
+
+
 def run_all_algorithms(data, data_label, data_description=None, enable_PCA=False, train_percentage=0.7, **params):
 
     if enable_PCA:

@@ -1,9 +1,16 @@
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+
 import logging
 import numpy as np
 
 from src.application.MachineLearning.MachineLearningAlgorithm import MachineLearningAlgorithm
+from src.application.Exception.MLException import MLException
 import src.util.util as util
 
 log = logging.getLogger(__name__)
@@ -33,6 +40,22 @@ class SklearnAlgorithm(MachineLearningAlgorithm):
         if self.method == "SVM":
             kernel = util.get_default(self.params, "kernel", "rbf")
             self.estimator = get_SVM_estimator(self.train_data, self.train_label, kernel)
+
+        elif self.method == "KNN":
+            self.estimator = get_KNeighborsClassifier(self.train_data, self.train_label)
+
+        elif self.method == "RandomForest":
+            # self.estimator = get_RandomForestClassifier(self.train_data, self.train_label)
+            self.estimator = RandomForestClassifier()
+            self.estimator.fit(self.train_data, self.train_label)
+
+        elif self.method == "AdaBoostClassifier":
+            self.estimator = AdaBoostClassifier(DecisionTreeClassifier(max_depth=5),
+                                                n_estimators=1000, learning_rate=0.1, random_state=42)
+            self.estimator.fit(self.train_data, self.train_label)
+
+        else:
+            raise MLException(4)
 
     def score(self):
         predicted = self.estimator.predict(self.test_data)
@@ -73,4 +96,22 @@ def get_SVM_estimator(train_data, train_label, kernel):
     clf.fit(train_data, train_label)
     log.debug(clf.cv_results_['params'][clf.best_index_])
 
+    return clf.best_estimator_
+
+
+def get_KNeighborsClassifier(train_data, train_label):
+    parameter = {'weights':['uniform', 'distance'], 'n_neighbors':[5,7,9,11,13,15,21,31]}
+    clf = GridSearchCV(KNeighborsClassifier(), parameter)
+    clf.fit(train_data, train_label)
+
+    log.debug(clf.cv_results_['params'][clf.best_index_])
+    return clf.best_estimator_
+
+
+def get_RandomForestClassifier(train_data, train_label):
+    parameter = {}
+    clf = GridSearchCV(RandomForestClassifier(), parameter)
+    clf.fit(train_data, train_label)
+
+    log.debug(clf.cv_results_['params'][clf.best_index_])
     return clf.best_estimator_
