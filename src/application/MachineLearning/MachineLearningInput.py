@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 
 def get_input_ids():
-    return [1, 2, 3]
+    return [1, 2, 3, 4, 5]
 
 def get_representations(id):
     if id == 1:
@@ -33,7 +33,7 @@ def get_input_to_train(id, domain, representation, stage, stages_to_train, seaso
                                          stage,
                                          stages_to_train=stages_to_train,
                                          season=season)
-    if id == 2:
+    elif id == 2:
         log.debug("team home away form")
         return team_home_away_form_input.team_home_away_form(domain,
                                                              representation,
@@ -41,7 +41,7 @@ def get_input_to_train(id, domain, representation, stage, stages_to_train, seaso
                                                              stages_to_train=stages_to_train,
                                                              season=season)
 
-    if id == 3:
+    elif id == 3:
         log.debug("match statistics")
         return match_statistics_input.match_statistics(domain,
                                                        representation,
@@ -49,13 +49,16 @@ def get_input_to_train(id, domain, representation, stage, stages_to_train, seaso
                                                        stages_to_train=stages_to_train,
                                                        season=season)
 
-    if id == 4:
+    elif id == 4:
         log.debug("Kekko input")
         return kekko_input.kekko_input(domain,
                                        representation,
                                        stage,
                                        season,
                                        stages_to_train=stages_to_train)
+
+    elif id == 5:
+        log.debug("Poisson inpunt")
     else:
         print("The only possible choices are:")
         print("\t1: team_form")

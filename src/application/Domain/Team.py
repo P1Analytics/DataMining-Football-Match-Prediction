@@ -66,7 +66,6 @@ class Team(object):
 
         return matches
 
-
     def get_last_team_attributes(self):
         max_date = "0000-00-00"
         last_team_attributes = None
@@ -104,8 +103,8 @@ class Team(object):
         If set, consider only the last n matches
 
         :param season:
-        :param stage:
-        :param n:
+        :param stage_to_predict:
+        :param stages_to_train:
         :param home:
         :return:
         """
