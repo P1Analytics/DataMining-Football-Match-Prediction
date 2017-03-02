@@ -1,13 +1,10 @@
 import logging
-import numpy as np
-import src.application.Domain.League as League
-import src.application.Domain.Team as Team
-
 
 import src.application.MachineLearning.input_train.team_form as team_form_input
 import src.application.MachineLearning.input_train.team_home_away_form as team_home_away_form_input
 import src.application.MachineLearning.input_train.match_statistics as match_statistics_input
 import src.application.MachineLearning.input_train.kekko_input as kekko_input
+import src.application.MachineLearning.input_train.poisson as poisson
 
 log = logging.getLogger(__name__)
 
@@ -59,9 +56,16 @@ def get_input_to_train(id, domain, representation, stage, stages_to_train, seaso
 
     elif id == 5:
         log.debug("Poisson inpunt")
+        return poisson.poisson_input(domain,
+                                       representation,
+                                       stage,
+                                       season,
+                                       stages_to_train=stages_to_train)
     else:
         print("The only possible choices are:")
         print("\t1: team_form")
         print("\t2: team_home_away_form")
         print("\t3: match_statistics")
+        print("\t4: kekko_input")
+        print("\t5: poisson_input")
         raise ValueError

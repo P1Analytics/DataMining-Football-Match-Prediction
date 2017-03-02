@@ -59,7 +59,7 @@ class Experiment(object):
                 #    continue
                 print("Elaborating season..", season)
                 params["season"] = season
-                pa = PredictionAccuracy(league, only_team_history=False, **params)
+                pa = PredictionAccuracy(league, only_team_history=True, **params)
                 pa.compute_prediction_accuracy()
 
                 print("Average accuracy", pa.get_average_accuracy())

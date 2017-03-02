@@ -11,19 +11,6 @@ def kekko_input(domain,
                                         # --> it define the size of the train (EX: 38 * 10 train input)
               ):
 
-    # [last 5 matches,
-    # last 5 matches home,
-    # last 5 matches away,
-    # goal totali FATTI
-    # goal totali SUBITI
-    # goal fatti in casa,
-    # goal subiti in casa,
-    # goal fatti in trasferta
-    # goal subiti in trasferta
-    # posizione in classifica
-    # posizione in classifica casa
-    # posizione in classifica trasferta]
-
     matches = []
     matches_to_predict = []
     labels = []
