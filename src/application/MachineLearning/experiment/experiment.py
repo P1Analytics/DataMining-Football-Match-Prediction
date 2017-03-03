@@ -37,7 +37,9 @@ class Experiment(object):
             else:
                 ml_train_input_id =             util.get_default(params, "ml_train_input_id", 1)
                 ml_train_input_representation = util.get_default(params, "ml_train_input_representation", 1)
-                exp_1.run_experiment_1(self, league, ml_train_input_id, ml_train_input_representation)
+                del(params["ml_train_input_id"])
+                del (params["ml_train_input_representation"])
+                exp_1.run_experiment_1(self, league, ml_train_input_id, ml_train_input_representation, **params)
 
         elif self.type == 2:
             pass
@@ -59,7 +61,7 @@ class Experiment(object):
                 #    continue
                 print("Elaborating season..", season)
                 params["season"] = season
-                pa = PredictionAccuracy(league, only_team_history=True, **params)
+                pa = PredictionAccuracy(league, only_team_history=False, **params)
                 pa.compute_prediction_accuracy()
 
                 print("Average accuracy", pa.get_average_accuracy())

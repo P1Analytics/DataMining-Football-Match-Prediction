@@ -3,12 +3,11 @@ import src.application.MachineLearning.experiment.experiment as experiment
 from src.application.MachineLearning.prediction_accuracy.prediction_accuracy import PredictionAccuracy
 
 
-def run_experiment_1(exp, league, ml_train_input_id, ml_train_input_representation):
+def run_experiment_1(exp, league, ml_train_input_id, ml_train_input_representation, **params):
     print("Running experiment 1")
     print("\tml_train_input_id:", ml_train_input_id)
     print("\tml_train_input_representation:", ml_train_input_representation)
 
-    params = dict()
     params["ml_train_input_id"] = ml_train_input_id
     params["ml_train_input_representation"] = ml_train_input_representation
 

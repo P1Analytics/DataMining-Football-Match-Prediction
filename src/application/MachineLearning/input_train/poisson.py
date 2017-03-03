@@ -1,16 +1,16 @@
 import numpy as np
 
-import src.util.MLUtil as ml_util
+import src.util.MLUtil as MLUtil
 from src.application.Exception.MLException import MLException
 
 
-def poisson_input(domain,
-              representation,
-              stage_to_predict,         # number of next stage we want to predict
-              season,
-              stages_to_train=90,     # numebr of stages to consider
-                                        # --> it define the size of the train (EX: 38 * 10 train input)
-              ):
+def poisson_input(league_or_team,
+                  representation,
+                  stage_to_predict,       # number of next stage we want to predict
+                  season,
+                  stages_to_train=90,     # number of stages to consider
+                                          # --> it define the size of the train (EX: 38 * 10 train input)
+                  ):
     matches = []
     matches_to_predict = []
     labels = []
@@ -18,31 +18,22 @@ def poisson_input(domain,
     matches_names = []
     matches_to_predict_names = []
 
-    training_matches = domain.get_training_matches(season, stage_to_predict, stages_to_train)
-    '''
-    # train set
-    for match in training_matches:
-        home_team = match.get_home_team()
-        away_team = match.get_away_team()
-        try:
-            matches.append(np.asarray(get_match_as_array(away_team, domain, home_team, match, season, stages_to_train)))
-            matches_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
-            labels.append(ml_util.get_label(match))
-        except MLException:
-            continue
-    '''
     # set to be predicted
-    for match in [m for m in domain.get_matches(season=season) if m.stage == stage_to_predict]:
+    for match in [m for m in league_or_team.get_matches(season=season) if m.stage == stage_to_predict]:
         home_team = match.get_home_team()
         away_team = match.get_away_team()
         try:
-            matches_to_predict.append(np.asarray(get_match_as_array(away_team, domain, home_team, match, season, stages_to_train)))
+            matches_to_predict.append(np.asarray(get_match_as_array(away_team,
+                                                                    league_or_team,
+                                                                    home_team,
+                                                                    match,
+                                                                    season,
+                                                                    stages_to_train)))
             matches_to_predict_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
-            labels_to_predict.append(ml_util.get_label(match))
+            labels_to_predict.append(MLUtil.get_label(match))
         except MLException:
             continue
 
-    #if len(matches) == 0 or len(matches_to_predict) == 0:
     if len(matches_to_predict) == 0:
         raise MLException(2)
 
@@ -76,8 +67,7 @@ def get_match_as_array(away_team, domain, home_team, match, season, stages_to_tr
     # get expected number of goals two teams will score
     home_exp_goals = get_goal_expectancy(home_attack_strength, away_defense_strength, avg_home_goal_done)
     away_exp_goals = get_goal_expectancy(away_attack_strength, home_defense_strength, avg_away_goal_done)
-    #print(season, match.stage, home_team.team_long_name,away_team.team_long_name)
-    #print([away_exp_goals, home_exp_goals])
+
     return [home_exp_goals, away_exp_goals]
 
 
@@ -91,6 +81,7 @@ def get_goal_expectancy(t1_attack_strength, t2_defense_strength, average_t1_goal
     :return:
     """
     return t1_attack_strength*t2_defense_strength*average_t1_goals
+
 
 def get_strength(avg_goal_done, avg_goal_rece, team, season, stage, stages_to_train, home=True):
     """
@@ -108,7 +99,10 @@ def get_strength(avg_goal_done, avg_goal_rece, team, season, stage, stages_to_tr
     """
     team_goal_done, team_goal_rece, n = team.get_goals_by_train_matches(season, stage, stages_to_train, home=home)
 
-    return (team_goal_done / n) / avg_goal_done, (team_goal_rece / n) / avg_goal_rece
+    if home:
+        return (team_goal_done / n) / avg_goal_done, (team_goal_rece / n) / avg_goal_rece
+    else:
+        return (team_goal_done / n) / avg_goal_done, (team_goal_rece / n) / avg_goal_rece
 
 
 def get_average_goals(league, season, stage, stages_to_train):
@@ -125,9 +119,9 @@ def get_average_goals(league, season, stage, stages_to_train):
     matches = league.get_training_matches(season, stage, stages_to_train)
     home_goal_done = 0          # equals to away_goal_receive
     home_goal_rece = 0      # equals to away_goal_done
+    n = len(matches)
     for match in matches:
         home_goal_done += match.home_team_goal
         home_goal_rece += match.away_team_goal
 
-    return home_goal_done/len(matches), home_goal_rece/len(matches), \
-           home_goal_rece/len(matches), home_goal_done/len(matches)
+    return home_goal_done / n, home_goal_rece / n, home_goal_rece / n, home_goal_done / n

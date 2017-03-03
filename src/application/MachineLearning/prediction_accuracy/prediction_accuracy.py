@@ -177,13 +177,13 @@ class PredictionAccuracy(object):
 
         predicted_labels, probability_events = ml_alg.predict(self.matches_to_predict)
         accuracy = 0
-        print("***",stage,"***")
+        # print("***",stage,"***")
         for predicted_label, prob, label, match_name in zip(predicted_labels,
                                                             probability_events,
                                                             self.labels_to_predict,
                                                             self.matches_to_predict_names):
 
-            print(match_name, predicted_label, "[",label,"]")
+            # print(match_name, predicted_label, "[",label,"]")
 
             if predicted_label == label:
                 accuracy += 1

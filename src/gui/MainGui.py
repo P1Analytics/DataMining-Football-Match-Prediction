@@ -5,7 +5,9 @@ import src.gui.CountryGui as CountryGui
 import src.gui.TeamGui as TeamGui
 import src.gui.CrawlGui as CrawlGui
 import src.gui.BetOddsGui as BetOddsGui
+import src.gui.PredictionGui as PredictionGui
 import src.util.GuiUtil as GuiUtil
+
 
 def run():
     head = "ScorePrediction application"

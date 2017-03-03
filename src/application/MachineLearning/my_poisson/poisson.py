@@ -63,6 +63,7 @@ class Poisson(MachineLearningAlgorithm):
 def predict(event_prob):
     p_max = 0
     label = None
+
     for event_outcome, prob in event_prob.items():
         if prob > p_max:
             p_max = prob

@@ -1,3 +1,4 @@
+import math
 import logging
 
 import src.application.Domain.Match as Match
@@ -113,7 +114,8 @@ class Team(object):
         goal_done = 0
         goal_received = 0
         num_matches_considered = 0
-        for match in matches:
+        n = len(matches)
+        for i, match in enumerate(matches):
             if not util.is_None(match.get_home_team()) \
                     and match.get_home_team().team_api_id == self.team_api_id:
                 num_matches_considered += 1
