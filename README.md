@@ -4,8 +4,7 @@
 
 This project is targetting on how to predict European league football match results based on the history data of teams,matches,bet-odds by using machine learning algorithms
 
-## Code Example
-code structure
+## Code Structure 
   
     ├── data
     │   ├── db
