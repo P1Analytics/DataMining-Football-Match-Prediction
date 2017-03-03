@@ -2,7 +2,7 @@
 
 ## Synopsis
 
-This project is targetting on how to predict a European league football match result based on the history data of teams,matches,bet-odds by using machine learning algorithms
+This project is targetting on how to predict European league football match results based on the history data of teams,matches,bet-odds by using machine learning algorithms
 
 ## Code Example
 
@@ -38,3 +38,4 @@ Aris Anagnostopoulos
 Ioannis Chatzigiannakis
 
 # Reference : 
+[A Comparison of Methods for Predicting Football Matches ,David B. Ekefre ](http://liacs.leidenuniv.nl/assets/Masterscripties/ICTiB/2015-2016/Ekefre-non-confidential.pdf)
