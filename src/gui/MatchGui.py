@@ -5,6 +5,7 @@ import src.application.Domain.Match as Match
 import src.application.Domain.League as League
 import src.util.util as util
 
+
 def run():
     GuiUtil.print_head("Matches")
     menu = {1:"Find by Team",2:"Find by League", 3:"Find by Date"}

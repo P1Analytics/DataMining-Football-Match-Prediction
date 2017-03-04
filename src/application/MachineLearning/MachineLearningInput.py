@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 
 def get_input_ids():
-    return [1, 2, 3, 4, 5]
+    return {1: "team form", 2: "team home away form", 3: "match statistics", 4: "Kekko input", 5: "Poisson inpunt"}
 
 def get_representations(id):
     if id == 1:

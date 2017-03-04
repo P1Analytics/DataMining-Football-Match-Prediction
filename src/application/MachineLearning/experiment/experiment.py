@@ -31,7 +31,7 @@ class Experiment(object):
         if self.type == 1:
             import src.application.MachineLearning.experiment.experiment_1 as exp_1
             if complete:
-                for ml_train_input_id in mli.get_input_ids():
+                for ml_train_input_id, ml_train_input_descr in mli.get_input_ids().items():
                     for ml_train_input_representation in mli.get_representations(ml_train_input_id):
                         exp_1.run_experiment_1(self, league, ml_train_input_id, ml_train_input_representation)
             else:

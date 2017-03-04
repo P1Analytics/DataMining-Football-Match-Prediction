@@ -88,4 +88,4 @@ def get_label(match):
 
 
 def get_representations():
-    return [1]
+    return []

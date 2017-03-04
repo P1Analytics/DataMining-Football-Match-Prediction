@@ -152,6 +152,8 @@ def read_by_api_id(player_api_id):
     :param player_api_id:
     :return:
     """
+    if util.is_None(player_api_id):
+        return None
     try:
         return Cache.get_element(player_api_id, "PLAYER_BY_API_ID")
     except KeyError:

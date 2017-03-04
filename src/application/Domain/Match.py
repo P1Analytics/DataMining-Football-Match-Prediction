@@ -4,19 +4,24 @@ import src.util.Cache as Cache
 
 import logging
 
+
 class Match(object):
     def __init__(self, id):
         self.id = id
 
     def __str__(self):
         to_string = "Match "
-        attributes = util.read_config_file("src/util/SQLLite.ini","Match")
+        attributes = util.read_config_file("src/util/SQLLite.ini", "Match")
         for attribute in attributes.keys():
             try:
-                to_string+=attribute+": "+str(self.__getattribute__(attribute))+", "
+                to_string += attribute + ": " + str(self.__getattribute__(attribute)) + ", "
             except AttributeError:
                 logging.debug("Match :: AttributeError ["+attribute+"]")
         return to_string
+
+    def get_league(self):
+        import src.application.Domain.League as League
+        return League.read_by_id(self.league_id)
 
     def get_winner(self):
         if self.home_team_goal > self.away_team_goal:
@@ -27,26 +32,27 @@ class Match(object):
             return None
 
     def get_home_team(self):
-        '''
+        """
         Return the home-team of this match
         :return:
-        '''
+        """
         import src.application.Domain.Team as Team
         return Team.read_by_team_api_id(self.home_team_api_id)
 
     def get_away_team(self):
-        '''
+        """
         Return the away-team of this match
         :return:
-        '''
+        """
         import src.application.Domain.Team as Team
         return Team.read_by_team_api_id(self.away_team_api_id)
 
     def get_shots(self, on=True):
-        '''
+        """
         Return the list of shotons of this match
+        :param on:
         :return:
-        '''
+        """
         import src.application.Domain.Shot as Shot
         return Shot.read_match_shot(self, on)
 
@@ -57,15 +63,15 @@ class Match(object):
         for i in range(1, 11):
             hp_i = hp+str(i)
             ap_i = ap+str(i)
-            if self.__getattribute__(hp_i)=='None' or self.__getattribute__(ap_i)=='None':
+            if self.__getattribute__(hp_i) == 'None' or self.__getattribute__(ap_i) == 'None':
                 return False
         return True
 
     def is_finished(self):
-        '''
+        """
         finished if and only if incidents of the match are managed
         :return:
-        '''
+        """
         if util.is_None(self.goal) and util.is_None(self.shoton) and util.is_None(self.shotoff) and util.is_None(self.foulcommit) and util.is_None(self.card) and util.is_None(self.cross) and util.is_None(self.corner) and util.is_None(self.possession):
             return False
         return True
@@ -97,10 +103,11 @@ class Match(object):
 
 
 def read_all(column_filter='*'):
-    '''
+    """
     Read all the matches
+    :param column_filter:
     :return:
-    '''
+    """
     match_list = []
     for p in SQLLite.read_all("Match", column_filter=column_filter):
         match = Match(p["id"])
@@ -111,18 +118,18 @@ def read_all(column_filter='*'):
 
 
 def read_by_match_api_id(match_api_id):
-    '''
+    """
     return the match by its api id
     :param match_api_id:
     :return:
-    '''
+    """
     try:
         return Cache.get_element(str(match_api_id), "MATCH_BY_API_ID")
     except KeyError:
         pass
 
     try:
-        sqllite_row = SQLLite.get_connection().select("Match", **{"match_api_id":str(match_api_id)})[0]
+        sqllite_row = SQLLite.get_connection().select("Match", **{"match_api_id": str(match_api_id)})[0]
     except IndexError:
         return None
     match = Match(sqllite_row["id"])
@@ -131,6 +138,7 @@ def read_by_match_api_id(match_api_id):
 
     Cache.add_element(str(match.match_api_id), match, "MATCH_BY_API_ID")
     return match
+
 
 def read_by_match_date(date_str):
     match_list = []
@@ -144,22 +152,22 @@ def read_by_match_date(date_str):
 
 
 def read_matches_by_league(league_id, season=None):
-    '''
+    """
     return matches played in the league_id, in a specified season if required
     :param league_id:
     :param season:
     :return:
-    '''
+    """
     match_list = []
     filter = {"league_id": league_id}
 
     if season:
-        filter["season"]=season
+        filter["season"] = season
     else:
         season = ""
 
     try:
-        return Cache.get_element(str(league_id)+"_"+season, "MATCH_BY_LEAGUE")
+        return Cache.get_element(str(league_id) + "_" + season, "MATCH_BY_LEAGUE")
     except KeyError:
         pass
 
@@ -172,33 +180,33 @@ def read_matches_by_league(league_id, season=None):
     Cache.add_element(str(league_id) + "_" + season, match_list, "MATCH_BY_LEAGUE")
     return match_list
 
+
 def read_matches_by_team(team_api_id, season=None):
-    '''
+    """
     Read matches from DB, of the team identified by team_api_id
     :param team_api_id:
     :param season:
     :return:
-    '''
-    matches_list = list()
+    """
     match_list = read_matches_by_home_team(team_api_id, season)
     match_list.extend(read_matches_by_away_team(team_api_id, season))
     return match_list
 
 
 def read_matches_by_home_team(team_api_id, season=None):
-    '''
+    """
     Read matches of the team identified by team_api_id, when it plays at HOME
     :param team_api_id:
     :param season:
     :return:
-    '''
+    """
     filter = {"home_team_api_id":team_api_id}
     if season:
-        filter["season"]=season
+        filter["season"] = season
     else:
         season = ""
     try:
-        return Cache.get_element(str(team_api_id)+"_"+season, "MATCH_HOME")
+        return Cache.get_element(str(team_api_id) + "_" + season, "MATCH_HOME")
     except KeyError:
         pass
 
@@ -212,22 +220,23 @@ def read_matches_by_home_team(team_api_id, season=None):
     Cache.add_element(str(team_api_id) + "_" + season, match_list, "MATCH_HOME")
     return match_list
 
+
 def read_matches_by_away_team(team_api_id, season=None):
-    '''
+    """
     Read matches of the team identified by team_api_id, when it plays AWAY
     :param team_api_id:
     :param season:
     :return:
-    '''
+    """
     match_list = []
-    filter = {"away_team_api_id":team_api_id}
+    filter = {"away_team_api_id": team_api_id}
     if season:
-        filter["season"]=season
+        filter["season"] = season
     else:
-        season=""
+        season = ""
 
     try:
-        return Cache.get_element(str(team_api_id)+"_"+season, "MATCH_AWAY")
+        return Cache.get_element(str(team_api_id) + "_" + season, "MATCH_AWAY")
     except KeyError:
         pass
 
@@ -237,7 +246,7 @@ def read_matches_by_away_team(team_api_id, season=None):
             match.__setattr__(attribute, value)
         match_list.append(match)
 
-    Cache.add_element(str(team_api_id)+"_"+season, match_list,"MATCH_AWAY")
+    Cache.add_element(str(team_api_id)+"_"+season, match_list, "MATCH_AWAY")
     return match_list
 
 
@@ -264,21 +273,21 @@ def read_by_player_api_id(player_api_id):
 
 
 def read_players_api_id_by_team_api_id(team_api_id, season=None):
-    '''
+    """
     return a list of player_api_id
     if season is set, consider only that list
     :param team_api_id:
     :param season:
     :return:
-    '''
+    """
     players_api_id = set()
     filter = {}
     if season:
-        filter["season"]=season
+        filter["season"] = season
     else:
-        season=""
+        season = ""
     try:
-        return Cache.get_element(str(team_api_id)+"_"+season, "MATCH_GET_PLAYERS_BY_TEAM_API_ID")
+        return Cache.get_element(str(team_api_id) + "_" + season, "MATCH_GET_PLAYERS_BY_TEAM_API_ID")
     except KeyError:
         pass
 

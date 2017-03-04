@@ -27,6 +27,13 @@ def print_info(label, user_input):
     print("[INFO: "+label+" --> "+str(user_input)+"]")
 
 
+def print_ans(label="", label_value=""):
+    print("[ANSWER of " + label + " --> " + str(label_value) + "]")
+
+
+def print_inst(label, instructions):
+    print("[INSTRUCTION: "+label+" --> "+instructions+"]")
+
 def show_list_answer(l, print_index=True, label="", label_value=""):
     print("[ANSWER of " + label + " --> " + str(label_value) + "]")
     if len(l) > 0:
@@ -43,7 +50,6 @@ def show_list_answer(l, print_index=True, label="", label_value=""):
 
 
 def print_indent_answer(i, answer_str, print_index):
-    print()
     answer_line_len = int(pad_len*3/4)
     answer_str_list = answer_str.split("\n")
 
