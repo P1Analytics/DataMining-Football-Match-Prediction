@@ -279,7 +279,7 @@ def read_matches_by_away_team(team_api_id, season=None):
     return match_list
 
 
-def read_by_player_api_id(player_api_id):
+def read_by_player_api_id(player_api_id, only_stages=True):
     try:
         return Cache.get_element(player_api_id, "MATCH_BY_PLAYER_API_ID")
     except KeyError:
@@ -295,6 +295,10 @@ def read_by_player_api_id(player_api_id):
         match = Match(sqllite_row["id"])
         for attribute, value in sqllite_row.items():
             match.__setattr__(attribute, value)
+
+        if only_stages and type(match.stage)!=int:
+            continue
+
         match_list.append(match)
 
     Cache.add_element(player_api_id, match_list, "MATCH_BY_PLAYER_API_ID")

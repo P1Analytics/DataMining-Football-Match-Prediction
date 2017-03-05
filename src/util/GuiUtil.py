@@ -61,7 +61,7 @@ def print_indent_answer(i, answer_str, print_index):
     for answer_str in answer_str_list[1:]:
         line = 0
         while len(answer_str) >= line * answer_line_len:
-            print("\t\t" + answer_str[line * answer_line_len: (line + 1) * answer_line_len+1])
+            print("\t\t" + answer_str[line * answer_line_len: (line + 1) * answer_line_len])
             line += 1
 
 

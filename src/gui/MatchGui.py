@@ -151,7 +151,6 @@ def get_formation(match, team, home=True):
 
     team_goal_done, team_goal_received, num_matches = team.get_goals_by_season_and_stage(util.get_current_season(), match.stage)
 
-
     for i, player in enumerate(team_lines):
         if not util.is_None(player):
 
