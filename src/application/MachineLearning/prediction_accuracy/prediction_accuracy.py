@@ -19,15 +19,36 @@ class TeamPredictionAccuracy(object):
         self.team = team
         self.n_succesfull_predicted_label = 0
         self.n_predicted_game = 0
+        self.result_played_games = []
 
-    def next_prediction(self, prediction, label):
+    def next_prediction(self, prediction, label, home = False):
         if prediction == label:
             self.n_succesfull_predicted_label += 1
-
         self.n_predicted_game += 1
 
+        # performance of a team during a season
+        if label == 1:
+            if home:
+                self.result_played_games.extend([1])
+            else:
+                self.result_played_games.extend([-1])
+        elif label == 0:
+                self.result_played_games.extend([0])
+        elif label == 2:
+            if home:
+                self.result_played_games.extend([-1])
+            else:
+                self.result_played_games.extend([1])
+
+
     def __str__(self):
-        return "<"+self.team+", "+str(self.n_succesfull_predicted_label)+"/"+str(self.n_predicted_game)+">"
+        #return "<"+self.team+", "+str(self.n_succesfull_predicted_label)+"/"+str(self.n_predicted_game)+">"
+        if self.n_predicted_game != 0:
+            print(self.team,self.result_played_games)
+            return "<" + self.team + ", " + str(float(self.n_succesfull_predicted_label)/float(self.n_predicted_game)) + ">"
+        else:
+            return "<"+self.team+", "+str(self.n_succesfull_predicted_label)+"/"+str(self.n_predicted_game)+">"
+
 
 
 class PredictionAccuracy(object):
@@ -191,14 +212,14 @@ class PredictionAccuracy(object):
             home_team_name = Match.read_by_match_id(match_id).get_home_team().team_short_name
             away_team_name = Match.read_by_match_id(match_id).get_away_team().team_short_name
             try:
-                self.accuracy_by_team_dic[home_team_name].next_prediction(predicted_label, label)
+                self.accuracy_by_team_dic[home_team_name].next_prediction(predicted_label, label,True)
             except KeyError:
                 self.accuracy_by_team_dic[home_team_name] = TeamPredictionAccuracy(home_team_name)
-                self.accuracy_by_team_dic[home_team_name].next_prediction(predicted_label, label)
+                self.accuracy_by_team_dic[home_team_name].next_prediction(predicted_label, label,True)
             try:
-                self.accuracy_by_team_dic[away_team_name].next_prediction(predicted_label, label)
+                self.accuracy_by_team_dic[away_team_name].next_prediction(predicted_label, label, False)
             except KeyError:
                 self.accuracy_by_team_dic[away_team_name] = TeamPredictionAccuracy(away_team_name)
-                self.accuracy_by_team_dic[away_team_name].next_prediction(predicted_label, label)
+                self.accuracy_by_team_dic[away_team_name].next_prediction(predicted_label, label,False)
 
         return accuracy/len(predicted_labels)

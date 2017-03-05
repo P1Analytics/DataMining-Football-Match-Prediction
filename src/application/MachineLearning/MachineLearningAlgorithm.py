@@ -43,6 +43,7 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
     :return:
     """
     data_size = len(datas[0][0])
+
     for data in datas[0]:
         if len(data) != data_size:
             raise Exception("Input data with different length")
@@ -60,7 +61,6 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
     for data in datas:
         train_datas.append(data[:split_size])
         test_datas.append(data[split_size:])
-
     return train_datas, test_datas
 
 
@@ -68,6 +68,7 @@ from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
 from src.application.MachineLearning.my_tensor_flow.SVM import SVM
 from src.application.MachineLearning.my_tensor_flow.KNNAlgorithm import KNNAlgorithm
 from src.application.MachineLearning.my_poisson.poisson import Poisson
+from src.application.MachineLearning.my_tensor_flow.MultiLayerPerceptron import MultiLayerPerceptron
 
 
 def get_machine_learning_algorithm(framework,
@@ -93,7 +94,6 @@ def get_machine_learning_algorithm(framework,
             train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])
         else:
             train_datas, test_datas = split_data(train_percentage, True, [data, data_label])
-
         train_data = np.asarray(train_datas[0])
         train_label = np.asarray(train_datas[1])
         test_data = np.asarray(test_datas[0])
@@ -104,7 +104,6 @@ def get_machine_learning_algorithm(framework,
         else:
             train_description = [""]*len(train_data)
             test_description = [""]*len(test_data)
-
     if framework == "Sklearn":
 
         return SklearnAlgorithm(method,
@@ -130,6 +129,15 @@ def get_machine_learning_algorithm(framework,
         elif method == "KNN":
 
             return KNNAlgorithm(train_data,
+                                train_label,
+                                test_data,
+                                test_label,
+                                train_description,
+                                test_description,
+                                **params)
+
+        elif method == "MultiLayer":
+            return MultiLayerPerceptron(train_data,
                                 train_label,
                                 test_data,
                                 test_label,

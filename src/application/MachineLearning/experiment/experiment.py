@@ -57,8 +57,8 @@ class Experiment(object):
         else:
             # test
             for season in league.get_seasons():
-                #if season != '2016/2017':
-                #    continue
+                if season != '2016/2017':
+                    continue
                 print("Elaborating season..", season)
                 params["season"] = season
                 pa = PredictionAccuracy(league, only_team_history=False, **params)

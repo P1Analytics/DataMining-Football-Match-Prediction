@@ -17,8 +17,9 @@ def do_test_1():
 
 def doTest():
     league = League.read_by_name("Italy", like=True)[0]
-    exp = Experiment(5)
-    params = {"ml_alg_method":"AdaBoostClassifier", "ml_alg_framework":"my_poisson", "ml_train_stages_to_train":20,
+
+    exp = Experiment(4)
+    params = {"ml_alg_method":"MultiLayer", "ml_alg_framework":"poisson", "ml_train_stages_to_train":20,
               "ml_train_input_id":5}
     exp.run(league, complete=True, **params)
 
