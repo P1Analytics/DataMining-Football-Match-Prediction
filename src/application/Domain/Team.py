@@ -447,11 +447,12 @@ def delete(team):
 def write_new_team(team_long_name, team_fifa_api_id, team_api_id=None, team_short_name=None):
     team_diz = dict()
     team_diz["team_long_name"] = team_long_name
-    team_diz["team_fifa_api_id"] = team_fifa_api_id
 
-    if team_api_id:
+    if not util.is_None(team_fifa_api_id):
+        team_diz["team_fifa_api_id"] = team_fifa_api_id
+    if not util.is_None(team_api_id):
         team_diz["team_api_id"] = team_api_id
-    if team_short_name:
+    if not util.is_None(team_short_name):
         team_diz["team_short_name"] = team_short_name
 
     SQLLite.get_connection().insert("Team", team_diz)

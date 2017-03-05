@@ -39,7 +39,6 @@ class Crawler(object):
             cl = CrawlerLeague(league_name, league_data_stage)
             if cl.is_in_a_managed_country() and len(league_name) > 3:
                 league = cl.get_league()
-
                 if util.is_None(league):
                     log.warning("Impossible to crawl this league [" + league_name + ", " + league_data_stage + "]")
                     continue
@@ -72,6 +71,13 @@ class Crawler(object):
 
 
 def start_crawling(go_back=False, stop_when=1000, starting_date_str=None):
+    """
+
+    :param go_back: if True, iterate day by day back-words
+    :param stop_when: number of day to be crawled
+    :param starting_date_str: starting date of the crawling
+    :return:
+    """
     c = Crawler()
 
     # looking for matches

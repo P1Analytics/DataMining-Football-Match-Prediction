@@ -24,7 +24,6 @@ class CrawlerLeague(object):
     def is_in_a_managed_country(self):
         """
         check if the league is correct
-        "http://football-data.mx-api.enetscores.com/page/xhr/standings/1%2F0%2F0%2F0%2F"+league_data_stage+"%2F0/"
         :return:
         """
         try:
@@ -35,26 +34,32 @@ class CrawlerLeague(object):
         self.soup = BeautifulSoup(page, "html.parser")
         country_name = str(self.soup.find('span', {'class': 'mx-country-dropdown-name'}).string).strip()
         countries = Country.read_by_name(country_name, like=True)
+
         if len(countries) == 0:
             # this country is not managed!!
             Cache.add_element(self.league_data_stage, False, "CRAWL_LEAGUE_MANAGED")
             return False
-        else:
-            if len(countries) == 1:
-                country = countries[0]
-                league_found = False
-                for league in country.get_leagues():
-                    if self.league_name in league.name:
-                        self.league = league
-                        league_found = True
-                if not league_found:
-                    self.league = self.get_league_on_page()
 
-            Cache.add_element(self.league_data_stage, self.league, "CRAWL_LEAGUE_PAGE")
-            Cache.add_element(self.league_data_stage, True, "CRAWL_LEAGUE_MANAGED")
-            return True
+        elif len(countries) == 1:
+            # country found
+            country = countries[0]
+            league_found = False
+            for league in country.get_leagues():
+                if self.league_name in league.name:
+                    self.league = league
+                    league_found = True
+            if not league_found:
+                self.league = self.get_league_on_page()
+
+        Cache.add_element(self.league_data_stage, self.league, "CRAWL_LEAGUE_PAGE")
+        Cache.add_element(self.league_data_stage, True, "CRAWL_LEAGUE_MANAGED")
+        return True
 
     def get_league_on_page(self):
+        """
+        get information of the league
+        :return:
+        """
         try:
             return Cache.get_element(self.league_data_stage, "CRAWL_LEAGUE_PAGE")
         except KeyError:
@@ -82,6 +87,10 @@ class CrawlerLeague(object):
         return league
 
     def get_league(self):
+        """
+        Return the DB-league managed in this web page
+        :return:
+        """
         try:
             return Cache.get_element(self.league_data_stage, "CRAWL_LEAGUE_PAGE")
         except KeyError:

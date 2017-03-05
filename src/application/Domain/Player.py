@@ -264,12 +264,17 @@ def read_by_team_api_id(team_api_id, season=None):
 
 def write_new_player(player_name, player_fifa_api_id, birthday, height, weight, player_api_id=None):
     print("Insering new player", player_name, player_api_id, player_fifa_api_id)
-    player_diz = { "player_name": player_name,
-                   "player_fifa_api_id": player_fifa_api_id,
-                   "birthday": birthday,
-                   "height": height,
-                   "weight": weight,
-                   }
+    player_diz = dict()
+
+    player_diz["player_name"]= player_name
+    if not util.is_None(player_fifa_api_id):
+        player_diz["player_fifa_api_id"] = player_fifa_api_id
+    if not util.is_None(birthday):
+        player_diz["birthday"] = birthday
+    if not util.is_None(height):
+        player_diz["height"] = height
+    if not util.is_None(weight):
+        player_diz["weight"] = weight
     if not util.is_None(player_api_id):
         player_diz["player_api_id"] = player_api_id
 

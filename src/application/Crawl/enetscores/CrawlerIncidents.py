@@ -2,7 +2,6 @@ import json
 import logging
 import requests
 
-
 log = logging.getLogger(__name__)
 
 
@@ -14,11 +13,17 @@ class CrawlerIncidents(object):
 
         incident_url = "http://json.mx-api.enetscores.com/live_data/actionzones/" + self.event + "/0?_=1486979583821"
         self.json_incident_match = json.loads(requests.get(incident_url).text)
-        log.debug("Instantiated, link ["+incident_url+"]")
+        log.debug("Instantiated, link [" + incident_url + "]")
 
     def get_incidents(self):
+        """
+        read the json string reguarding the incidents in a match
+        :return:
+        """
+        # read incidents only after it's finished
         if self.json_incident_match["s"] == "finished":
-            # get incidents
+
+            # incidents managed
             goal = "<goal>"
             shoton = "<shoton>"
             shotoff = "<shotoff>"
@@ -85,14 +90,22 @@ def elaborate_tag(incident):
 def get_string_by_dict(dic):
     dict_str = ""
     for k, v in dic.items():
+        # open tag
         dict_str += "<" + k + ">"
+
         if type(v) is dict:
+            # content is an element
             dict_str += get_string_by_dict(v)
+
         elif type(v) is list:
+            # content is a list of element
             for elem in v:
                 dict_str += "<value>"+str(elem)+"</value>"
         else:
+            # content is a value
             dict_str += str(v)
+
+        # close tag
         dict_str += "</" + k + ">"
 
     return dict_str

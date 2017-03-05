@@ -26,7 +26,7 @@ class CrawlerMatch(object):
 
     def parse_json(self, season):
         """
-
+        The match is a json string, comment information are not useful for our purposes.
         :param season:
         :return:
         """
@@ -76,16 +76,19 @@ class CrawlerMatch(object):
             except KeyError:
                 pass
         '''
+
+        # Goals of the match
         # n_home_goal_first_time = util.get_default(self.json_match["results"]["1"]["r"], "5", 0)
         n_home_goal = util.get_default(self.json_match["results"]["1"]["r"], "1", 0)
         # n_away_goal_first_time = util.get_default(self.json_match["results"]["2"]["r"], "5", 0)
         n_away_goal = util.get_default(self.json_match["results"]["2"]["r"], "1", 0)
 
+        # Represent a match to persist with a dictionary
         match_attributes = dict()
         match_attributes["country_id"] = self.league.country_id
         match_attributes["league_id"] = self.league.id
         match_attributes["season"] = season
-        match_attributes["stage"] = self.json_match["round"]  # should be our stage
+        match_attributes["stage"] = self.json_match["round"]  # stage of a match
         match_attributes["date"] = self.json_match["startdate"]
         match_attributes["match_api_id"] = self.json_match["eventfk"]
         match_attributes["home_team_api_id"] = self.json_match["homefk"]
@@ -97,17 +100,23 @@ class CrawlerMatch(object):
         home_team_name = check_team(self.json_match["homefk"])
         away_team_name = check_team(self.json_match["awayfk"])
 
-        # formations
+        # formations to be crawled if:
+        #   - the match is not stored in the DB
+        #   - teams formation are not stored in the DB
+        #   - match is not finished
         if not self.match or not self.match.are_teams_linedup() or not self.match.is_finished():
             lc = CrawlerLineup(self.match, match_attributes, self.event)
             lc.get_lineups()
 
-        # event incidents
+        # event incidents to be crawled if:
+        #   - the match is not stored in the DB
+        #   - some information are missing
         if not self.match or (self.match and not self.match.are_incidents_managed()):
             li = CrawlerIncidents(self.match, match_attributes, self.event)
             li.get_incidents()
 
         if not self.match:
+            # persist match
             Match.write_new_match(match_attributes)
         else:
             # update match
@@ -117,6 +126,12 @@ class CrawlerMatch(object):
 
 
 def check_team(team_api_id):
+    """
+    Check if the team is stored in the DB
+    If not --> crawl its web page and get information
+    :param team_api_id:
+    :return:
+    """
     team = Team.read_by_team_api_id(team_api_id)
     if not team:
         cm = CrawlerTeam(team_api_id)
