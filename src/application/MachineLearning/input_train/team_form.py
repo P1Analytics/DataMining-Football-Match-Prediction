@@ -1,5 +1,8 @@
 import numpy as np
+
+import src.util.MLUtil as ml_util
 from src.application.Exception.MLException import MLException
+
 
 def team_form(domain,
               representation,
@@ -12,8 +15,8 @@ def team_form(domain,
     matches_to_predict = []
     labels = []
     labels_to_predict = []
-    matches_names = []
-    matches_to_predict_names = []
+    matches_id = []
+    matches_to_predict_id = []
 
     training_matches = domain.get_training_matches(season, stage_to_predict, stages_to_train)
     for match in training_matches:
@@ -28,14 +31,8 @@ def team_form(domain,
                 continue
 
             matches.append(get_team_form(away_form, away_n, home_form, home_n, representation))
-            matches_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
-
-            if match.home_team_goal > match.away_team_goal:
-                labels.append(1)
-            elif match.home_team_goal < match.away_team_goal:
-                labels.append(2)
-            else:
-                labels.append(0)
+            matches_id.append(match.id)
+            labels.append(ml_util.get_label(match))
         except MLException:
             continue
 
@@ -47,17 +44,14 @@ def team_form(domain,
             home_form, home_n = home_team.get_points_by_train_matches(season, stage_to_predict, stages_to_train)
             away_form, away_n = away_team.get_points_by_train_matches(season, stage_to_predict, stages_to_train)
 
-            if match.home_team_goal > match.away_team_goal:
-                labels_to_predict.append(1)
-            elif match.home_team_goal < match.away_team_goal:
-                labels_to_predict.append(2)
-            else:
-                labels_to_predict.append(0)
+            if home_n == 0 or away_n == 0:
+                continue
+
+            matches_to_predict.append(get_team_form(away_form, away_n, home_form, home_n, representation))
+            matches_to_predict_id.append(match.id)
+            labels_to_predict.append(ml_util.get_label(match))
         except MLException:
             continue
-
-        matches_to_predict.append(get_team_form(away_form, away_n, home_form, home_n, representation))
-        matches_to_predict_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
 
     matches = np.asarray(matches)
     matches_to_predict = np.asarray(matches_to_predict)
@@ -67,7 +61,7 @@ def team_form(domain,
     if len(matches) == 0 or len(matches_to_predict) == 0:
         raise MLException(2)
 
-    return matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_predict
+    return matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict
 
 
 def get_representations():

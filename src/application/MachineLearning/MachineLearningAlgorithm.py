@@ -88,7 +88,6 @@ def get_machine_learning_algorithm(framework,
     :param params:
     :return:
     """
-    print("Getting mla")
     if framework != "my_poisson":
         if data_description:
             train_datas, test_datas = split_data(train_percentage, True, [data, data_label, data_description])

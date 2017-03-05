@@ -85,7 +85,8 @@ class Team(object):
         matches = self.get_training_matches(season, stage_to_predict, stages_to_train, home=home)
         points = 0
         for match in matches:
-            if match.get_home_team().team_api_id == self.team_api_id:
+            #if match.get_home_team().team_api_id == self.team_api_id:
+            if match.home_team_api_id == self.team_api_id:
                 if match.home_team_goal > match.away_team_goal:
                     points += 3
                 elif match.home_team_goal == match.away_team_goal:
@@ -299,7 +300,7 @@ class Team(object):
                                     if m.stage < stage_to_predict]
 
             stages_training = set([(m.stage, m.season) for m in training_matches])
-            while len(stages_training) < stages_to_train:
+            if len(stages_training) < stages_to_train:
                 # need more matches from the past season, considering the last matches
                 past_training_matches = self.get_training_matches(util.get_previous_season(season),
                                                                   0,
@@ -307,7 +308,7 @@ class Team(object):
                                                                   consider_last=True)
 
                 training_matches.extend(past_training_matches)
-                stages_training = set([(m.stage, m.season) for m in training_matches])
+                # stages_training = set([(m.stage, m.season) for m in training_matches])
 
             if len(training_matches) > stages_to_train:
                 # too matches in training --> remove too far

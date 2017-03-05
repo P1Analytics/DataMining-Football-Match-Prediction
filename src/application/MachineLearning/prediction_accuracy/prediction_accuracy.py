@@ -1,6 +1,7 @@
 import logging
 import time
 
+import src.application.Domain.Match as Match
 import src.application.MachineLearning.MachineLearningInput as MLInput
 import src.application.MachineLearning.MachineLearningAlgorithm as MachineLearningAlgorithm
 import src.util.util as util
@@ -95,9 +96,9 @@ class PredictionAccuracy(object):
                     try:
                         home_matches, \
                             home_labels, \
-                            home_matches_names, \
+                            home_matches_id, \
                             home_matches_to_predict, \
-                            home_matches_to_predict_names, \
+                            home_matches_to_predict_id, \
                             home_labels_to_predict = \
                             MLInput.get_input_to_train(self.ml_train_input_id,
                                                        home_team,
@@ -106,8 +107,8 @@ class PredictionAccuracy(object):
                                                        stages_to_train=self.ml_train_stages_to_train,
                                                        season=self.season)
 
-                        away_matches, away_labels, away_matches_names, away_matches_to_predict, \
-                            away_matches_to_predict_names, away_labels_to_preidct = \
+                        away_matches, away_labels, away_matches_id, away_matches_to_predict, \
+                            away_matches_to_predict_id, away_labels_to_preidct = \
                             MLInput.get_input_to_train(self.ml_train_input_id,
                                                        away_team,
                                                        self.representation,
@@ -117,9 +118,9 @@ class PredictionAccuracy(object):
 
                         self.matches = np.concatenate((home_matches, away_matches), axis=0)
                         self.labels = np.concatenate((home_labels, away_labels), axis=0)
-                        self.matches_names = home_matches_names.extend(away_matches_names)
+                        self.matches_id = home_matches_id.extend(away_matches_id)
                         self.matches_to_predict = home_matches_to_predict               # the same works with away
-                        self.matches_to_predict_names = home_matches_to_predict_names   # the same works with away
+                        self.matches_to_predict_id = home_matches_to_predict_id   # the same works with away
                         self.labels_to_predict = home_labels_to_predict                 # the same works with away
 
                         accuracy = self.train_predict(stage)
@@ -141,9 +142,9 @@ class PredictionAccuracy(object):
 
                     self.matches, \
                         self.labels, \
-                        self.matches_names, \
+                        self.matches_id, \
                         self.matches_to_predict, \
-                        self.matches_to_predict_names, \
+                        self.matches_to_predict_id, \
                         self.labels_to_predict = MLInput.get_input_to_train(self.ml_train_input_id,
                                                                             self.league,
                                                                             self.representation,
@@ -166,7 +167,7 @@ class PredictionAccuracy(object):
                                                                          self.ml_alg_method,
                                                                          self.matches,
                                                                          self.labels,
-                                                                         data_description=self.matches_names,
+                                                                         data_description=self.matches_id,
                                                                          train_percentage=1,
                                                                          **self.ml_alg_params)
         try:
@@ -178,17 +179,17 @@ class PredictionAccuracy(object):
         predicted_labels, probability_events = ml_alg.predict(self.matches_to_predict)
         accuracy = 0
         # print("***",stage,"***")
-        for predicted_label, prob, label, match_name in zip(predicted_labels,
+        for predicted_label, prob, label, match_id in zip(predicted_labels,
                                                             probability_events,
                                                             self.labels_to_predict,
-                                                            self.matches_to_predict_names):
+                                                            self.matches_to_predict_id):
 
             # print(match_name, predicted_label, "[",label,"]")
 
             if predicted_label == label:
                 accuracy += 1
-            home_team_name = match_name.split("vs")[0].strip()
-            away_team_name = match_name.split("vs")[1].strip()
+            home_team_name = Match.read_by_match_id(match_id).get_home_team().team_short_name
+            away_team_name = Match.read_by_match_id(match_id).get_away_team().team_short_name
             try:
                 self.accuracy_by_team_dic[home_team_name].next_prediction(predicted_label, label)
             except KeyError:

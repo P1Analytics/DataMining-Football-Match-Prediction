@@ -4,19 +4,19 @@ from src.application.Exception.MLException import MLException
 
 
 def kekko_input(domain,
-              representation,
-              stage_to_predict,         # number of next stage we want to predict
-              season,
-              stages_to_train=90,     # numebr of stages to consider
+                representation,
+                stage_to_predict,         # number of next stage we want to predict
+                season,
+                stages_to_train=90,     # numebr of stages to consider
                                         # --> it define the size of the train (EX: 38 * 10 train input)
-              ):
+                ):
 
     matches = []
     matches_to_predict = []
     labels = []
     labels_to_predict = []
-    matches_names = []
-    matches_to_predict_names = []
+    matches_id = []
+    matches_to_predict_id = []
 
     training_matches = domain.get_training_matches(season, stage_to_predict, stages_to_train)
 
@@ -37,7 +37,7 @@ def kekko_input(domain,
             match_as_array.extend(get_goals(away_team, match.stage, match.season, stages_to_train))
 
             matches.append(np.asarray(match_as_array))
-            matches_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
+            matches_id.append(match.id)
             labels.append(get_label(match))
 
         except MLException:
@@ -63,7 +63,7 @@ def kekko_input(domain,
             matches_to_predict.append(np.asarray(match_as_array))
 
             labels_to_predict.append(get_label(match))
-            matches_to_predict_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
+            matches_to_predict_id.append(match.id)
 
         except MLException:
             continue
@@ -76,7 +76,7 @@ def kekko_input(domain,
     if len(matches) == 0 or len(matches_to_predict) == 0:
         raise MLException(2)
 
-    return matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_predict
+    return matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict
 
 
 def get_label(match):

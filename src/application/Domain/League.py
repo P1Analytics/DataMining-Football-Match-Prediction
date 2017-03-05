@@ -144,7 +144,11 @@ class League(object):
         matches = Match.read_matches_by_league(self.id, season)
 
         if ordered:
-            matches = sorted(matches, key=lambda match: match.stage)
+            try:
+                matches = sorted(matches, key=lambda match: match.stage)
+            except TypeError as e:
+                print({m.stage for m in matches})
+                raise e
 
         if not util.is_None(finished) and finished:
             matches = [m for m in matches if m.is_finished()]
@@ -221,12 +225,13 @@ class League(object):
                 training_matches.extend(past_training_matches)
                 stages_training = set([(m.stage, m.season) for m in training_matches])
 
-            if len(training_matches) / 10 > stages_to_train:
+            n_matches_in_stage = int(len(self.get_teams_current_season())/2)
+            if len(training_matches) / n_matches_in_stage > stages_to_train:
                 # too matches in training --> remove too far
                 if consider_last:
-                    return training_matches[:stages_to_train * 10][::-1]
+                    return training_matches[:stages_to_train * n_matches_in_stage][::-1]
                 else:
-                    return training_matches[-stages_to_train * 10:]
+                    return training_matches[-stages_to_train * n_matches_in_stage:]
 
             return training_matches
 

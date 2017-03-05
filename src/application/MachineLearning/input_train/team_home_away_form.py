@@ -11,8 +11,8 @@ def team_home_away_form(league_or_team,
     matches_to_predict = []
     labels = []
     labels_to_predict = []
-    matches_names = []
-    matches_to_predict_names = []
+    matches_id = []
+    matches_to_predict_id = []
 
     training_matches = league_or_team.get_training_matches(season, stage_to_predict, stages_to_train)
 
@@ -27,7 +27,7 @@ def team_home_away_form(league_or_team,
                                                    stages_to_train,
                                                    match.stage,
                                                    representation))
-            matches_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
+            matches_id.append(match.id)
             labels.append(get_label(match))
         except MLException:
             continue
@@ -43,7 +43,7 @@ def team_home_away_form(league_or_team,
                                                               stages_to_train,
                                                               match.stage,
                                                               representation))
-            matches_to_predict_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
+            matches_to_predict_id.append(match.id)
             labels_to_predict.append(get_label(match))
         except MLException:
             continue
@@ -56,7 +56,7 @@ def team_home_away_form(league_or_team,
     if len(matches) == 0 or len(matches_to_predict) == 0 or len(set([x for x in labels]))==1:
         raise MLException(2)
 
-    return matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_predict
+    return matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict
 
 
 def get_label(match):

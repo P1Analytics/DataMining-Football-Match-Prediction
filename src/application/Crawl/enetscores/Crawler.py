@@ -19,13 +19,16 @@ class Crawler(object):
         print("Elaborating matches of the date:", date)
         matches_link = self.host_url_match + "/sport_events/1%2F"+date+"%2Fbasic_h2h%2F0%2F0/"
         log.debug("Looking for matches of date ["+date+"] at link ["+matches_link+"]")
-        page = requests.get(matches_link).text
+
+        try:
+            page = requests.get(matches_link).text
+        except Exception as e:
+            print(e)
         soup = BeautifulSoup(page, "html.parser")
 
         header_list = soup.find_all('div', {'class': 'mx-default-header mx-text-align-left mx-flexbox-container '})
         body_list = soup.find_all('div',
         {'class': 'mx-table mx-soccer mx-matches-table mx-group-by-stage mx-container mx-league mx-livescore-table'})
-
         for header, body in zip(header_list, body_list):
             # reading the league
             # Notice that the league is identified also with an attribute called "data-stage"
@@ -75,5 +78,6 @@ def start_crawling(go_back=False, stop_when=1000, starting_date_str=None):
     for i in range(stop_when):
         date = util.get_date(days_to_subtract=i, with_hours=False, starting_date_str=starting_date_str)
         c.look_for_matches(date)
+
         if not go_back:
             break

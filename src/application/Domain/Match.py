@@ -117,6 +117,31 @@ def read_all(column_filter='*'):
     return match_list
 
 
+def read_by_match_id(match_id):
+    """
+    return the match by its id
+    :param match_api_id:
+    :return:
+    """
+    try:
+        return Cache.get_element(str(match_id), "MATCH_BY_ID")
+    except KeyError:
+        pass
+
+    try:
+        sqllite_row = SQLLite.get_connection().select("Match", **{"id": str(match_id)})[0]
+    except IndexError:
+        return None
+    match = Match(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        match.__setattr__(attribute, value)
+
+
+    Cache.add_element(str(match.id), match, "MATCH_BY_ID")
+    Cache.add_element(str(match.match_api_id), match, "MATCH_BY_API_ID")
+    return match
+
+
 def read_by_match_api_id(match_api_id):
     """
     return the match by its api id
@@ -136,6 +161,7 @@ def read_by_match_api_id(match_api_id):
     for attribute, value in sqllite_row.items():
         match.__setattr__(attribute, value)
 
+    Cache.add_element(str(match.id), match, "MATCH_BY_ID")
     Cache.add_element(str(match.match_api_id), match, "MATCH_BY_API_ID")
     return match
 
@@ -151,7 +177,7 @@ def read_by_match_date(date_str):
     return match_list
 
 
-def read_matches_by_league(league_id, season=None):
+def read_matches_by_league(league_id, season=None, only_stages=True):
     """
     return matches played in the league_id, in a specified season if required
     :param league_id:
@@ -175,6 +201,9 @@ def read_matches_by_league(league_id, season=None):
         match = Match(sqllite_row["id"])
         for attribute, value in sqllite_row.items():
             match.__setattr__(attribute, value)
+
+        if only_stages and type(match.stage)!=int:
+            continue
         match_list.append(match)
 
     Cache.add_element(str(league_id) + "_" + season, match_list, "MATCH_BY_LEAGUE")

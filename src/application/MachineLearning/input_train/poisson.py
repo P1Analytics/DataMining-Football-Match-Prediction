@@ -15,8 +15,8 @@ def poisson_input(league_or_team,
     matches_to_predict = []
     labels = []
     labels_to_predict = []
-    matches_names = []
-    matches_to_predict_names = []
+    matches_id = []
+    matches_to_predict_id = []
 
     # set to be predicted
     for match in [m for m in league_or_team.get_matches(season=season) if m.stage == stage_to_predict]:
@@ -29,7 +29,7 @@ def poisson_input(league_or_team,
                                                                     match,
                                                                     season,
                                                                     stages_to_train)))
-            matches_to_predict_names.append(home_team.team_long_name + " vs " + away_team.team_long_name)
+            matches_to_predict_id.append(match.id)
             labels_to_predict.append(MLUtil.get_label(match))
         except MLException:
             continue
@@ -42,23 +42,23 @@ def poisson_input(league_or_team,
     labels = np.asarray(labels)
     labels_to_predict = np.asarray(labels_to_predict)
 
-    return matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_predict
+    return matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict
 
 
 def get_match_as_array(away_team, domain, home_team, match, season, stages_to_train):
     # get averages by domain
     avg_home_goal_done, avg_home_goal_rece, \
-    avg_away_goal_done, avg_away_goal_rece = get_average_goals(domain, season, match.stage, stages_to_train)
+        avg_away_goal_done, avg_away_goal_rece = get_average_goals(domain, season, match.stage, stages_to_train)
     # get strength of the team, compared to averges
     home_attack_strength, home_defense_strength = get_strength(avg_home_goal_done,
-                                                               avg_away_goal_rece,
+                                                               avg_home_goal_rece,
                                                                home_team,
                                                                season,
                                                                match.stage,
                                                                stages_to_train,
                                                                home=True)
     away_attack_strength, away_defense_strength = get_strength(avg_away_goal_done,
-                                                               avg_home_goal_rece,
+                                                               avg_away_goal_rece,
                                                                away_team,
                                                                season,
                                                                match.stage,
@@ -99,10 +99,7 @@ def get_strength(avg_goal_done, avg_goal_rece, team, season, stage, stages_to_tr
     """
     team_goal_done, team_goal_rece, n = team.get_goals_by_train_matches(season, stage, stages_to_train, home=home)
 
-    if home:
-        return (team_goal_done / n) / avg_goal_done, (team_goal_rece / n) / avg_goal_rece
-    else:
-        return (team_goal_done / n) / avg_goal_done, (team_goal_rece / n) / avg_goal_rece
+    return (team_goal_done / n) / avg_goal_done, (team_goal_rece / n) / avg_goal_rece
 
 
 def get_average_goals(league, season, stage, stages_to_train):

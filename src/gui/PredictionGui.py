@@ -6,10 +6,10 @@ import src.application.MachineLearning.MachineLearningInput as mli
 
 
 ml_alg_method = "SVM"
-ml_alg_framework = "Sklearn"
-ml_train_input_id = 1
+ml_alg_framework = "my_poisson"
+ml_train_input_id = 5
 ml_train_input_representation = 1
-ml_train_stages_to_train = 20
+ml_train_stages_to_train = 10
 
 
 def run():
@@ -102,18 +102,27 @@ def predict_by_date():
     if len(matches) == 0:
         GuiUtil.print_att("No match found in date", date)
     else:
+        prediction_by_league = dict()
         for match in matches:
             if not match.is_finished():
                 league = match.get_league()
                 season = match.season
                 stage = match.stage
                 try:
-                    predicted_labels, probability_events, matches_to_predict_names = predict(league, season, stage)
-                    for l,e,m in zip(predicted_labels, probability_events, matches_to_predict_names):
-                        print(m,l,e)
-                except Exception as e:
-                    print(e)
-
+                    prediction_by_league[league.id]
+                except KeyError:
+                    predicted_labels, probability_events, matches_to_predict_id = predict(league, season, stage)
+                    prediction_by_league[league.id] = dict()
+                    for id, prediction, probability in zip(matches_to_predict_id, predicted_labels, probability_events):
+                        prediction_by_league[league.id][id] = [prediction, probability]
+                try:
+                    prediction, probability = prediction_by_league[league.id][match.id]
+                    print(match.get_home_team().team_long_name,"vs",match.get_away_team().team_long_name)
+                    print("\t",prediction, probability)
+                except KeyError:
+                    print("Not found ")
+                    print(match.id, match.get_home_team().team_long_name, "vs", match.get_away_team().team_long_name)
+                    print(prediction_by_league[league.id])
 
 
 def predict(league, season, stage):
@@ -123,7 +132,7 @@ def predict(league, season, stage):
     global ml_train_input_representation
     global ml_train_stages_to_train
 
-    matches, labels, matches_names, matches_to_predict, matches_to_predict_names, labels_to_predict = \
+    matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict = \
         mli.get_input_to_train(ml_train_input_id,
                                league,
                                ml_train_input_representation,
@@ -135,12 +144,12 @@ def predict(league, season, stage):
                                               ml_alg_method,
                                               matches,
                                               labels,
-                                              matches_names,
+                                              matches_id,
                                               train_percentage=1,
                                               )
 
     ml_alg.train()
     predicted_labels, probability_events = ml_alg.predict(matches_to_predict)
-    return predicted_labels, probability_events, matches_to_predict_names
+    return predicted_labels, probability_events, matches_to_predict_id
 
-predict_by_date()
+if __name__ == "__main__": predict_by_date()
