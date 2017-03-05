@@ -18,7 +18,7 @@ def do_test_1():
 def doTest():
     league = League.read_by_name("Italy", like=True)[0]
 
-    exp = Experiment(4)
+    exp = Experiment(1)
     params = {"ml_alg_method":"MultiLayer", "ml_alg_framework":"poisson", "ml_train_stages_to_train":20,
               "ml_train_input_id":5}
     exp.run(league, complete=True, **params)
