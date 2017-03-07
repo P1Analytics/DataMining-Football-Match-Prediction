@@ -1,12 +1,11 @@
 import logging
 import requests
-from bs4 import BeautifulSoup
-
 import src.application.Domain.Team as Team
+from bs4 import BeautifulSoup
 from src.application.Crawl.sofifa.CrawlerTeam import CrawlerTeam
 
-
 log = logging.getLogger(__name__)
+
 
 class CrawlerLeague(object):
     def __init__(self, league, league_link, host_url="http://sofifa.com"):
@@ -15,6 +14,13 @@ class CrawlerLeague(object):
         self.league_link = league_link
 
     def look_for_teams(self, link, force_parsing=True):
+        """
+        Loof for teams of the league
+        :param link:
+        :param force_parsing:
+        :return:
+        """
+        # teams playing the current season
         current_teams = self.league.get_teams_current_season()
         teams_found = {}
         if len(current_teams) == 0 or force_parsing:
@@ -32,7 +38,10 @@ class CrawlerLeague(object):
         return teams_found
 
     def start_crawling(self):
-        # looking for teams
+        """
+        Start crawling the league
+        :return:
+        """
         link_teams_found = self.look_for_teams(self.league_link)
 
         for team_link, team_name in link_teams_found.items():
@@ -40,7 +49,6 @@ class CrawlerLeague(object):
             if len(teams)==0:
                 # no team found with this name
                 log.debug("No team found with the name [" + team_name + "]")
-
                 ct = CrawlerTeam(None, team_link)
                 ct.start_crawling()
             elif len(teams)==1:
@@ -49,4 +57,3 @@ class CrawlerLeague(object):
                 ct.start_crawling()
             else:
                 log.warning("More than one team with the same name ["+team_name+"]")
-

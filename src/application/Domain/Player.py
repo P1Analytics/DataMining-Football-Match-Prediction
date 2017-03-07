@@ -146,6 +146,35 @@ def read_all():
     return players
 
 
+def read_by_id(id):
+    """
+    Read a player by its id
+    :param id:
+    :return:
+    """
+    if util.is_None(id):
+        return None
+    try:
+        return Cache.get_element(id, "PLAYER_BY_ID")
+    except KeyError:
+        pass
+
+    filter = {"id": id}
+    try:
+        sqllite_row = SQLLite.get_connection().select("Player", **filter)[0]
+    except IndexError:
+        return None
+    player = Player(sqllite_row["id"])
+    for attribute, value in sqllite_row.items():
+        player.__setattr__(attribute, value)
+
+    Cache.add_element(player.player_fifa_api_id, player, "PLAYER_BY_FIFA_API_ID")
+    Cache.add_element(player.player_api_id, player, "PLAYER_BY_API_ID")
+    Cache.add_element(player.player_name, player, "PLAYER_BY_NAME")
+    Cache.add_element(player.id, player, "PLAYER_BY_ID")
+    return player
+
+
 def read_by_api_id(player_api_id):
     """
     Read a player by its api_id
@@ -171,6 +200,8 @@ def read_by_api_id(player_api_id):
     Cache.add_element(player.player_fifa_api_id, player, "PLAYER_BY_FIFA_API_ID")
     Cache.add_element(player.player_api_id, player, "PLAYER_BY_API_ID")
     Cache.add_element(player.player_name, player, "PLAYER_BY_NAME")
+    Cache.add_element(player.id, player, "PLAYER_BY_ID")
+
     return player
 
 
@@ -198,6 +229,8 @@ def read_by_fifa_api_id(player_fifa_api_id):
     Cache.add_element(player.player_fifa_api_id, player, "PLAYER_BY_FIFA_API_ID")
     Cache.add_element(player.player_api_id, player, "PLAYER_BY_API_ID")
     Cache.add_element(player.player_name, player, "PLAYER_BY_NAME")
+    Cache.add_element(player.id, player, "PLAYER_BY_ID")
+
     return player
 
 
@@ -284,3 +317,11 @@ def write_new_player(player_name, player_fifa_api_id, birthday, height, weight, 
 
 def update(player):
     SQLLite.get_connection().update("Player", player)
+
+    Cache.del_element(player.player_fifa_api_id, "PLAYER_BY_FIFA_API_ID")
+    Cache.del_element(player.player_api_id, "PLAYER_BY_API_ID")
+    Cache.del_element(player.player_name, "PLAYER_BY_NAME")
+    Cache.del_element(player.id, "PLAYER_BY_ID")
+
+    return read_by_id(player.id)
+

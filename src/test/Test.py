@@ -2,7 +2,7 @@ import src.application.Domain.League as League
 from src.application.MachineLearning.experiment.experiment import Experiment
 
 import src.util.util as util
-util.init_logger()
+util.init_logger(10)
 
 def do_test_1():
     league = League.read_by_name("Italy", like=True)[0]

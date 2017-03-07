@@ -14,11 +14,11 @@ project_directory = os.path.dirname(os.path.abspath(__file__))[0:-8]
 log = logging.getLogger(__name__)
 
 
-def init_logger():
-    Logger.setLevel(logging.getLogger(), 10)
+def init_logger(lvl):
+    #Logger.setLevel(logging.getLogger(), lvl)
     logging.basicConfig(filename=project_directory+"/data/log/logging.txt",
                         filemode="w",
-                        level=logging.DEBUG,
+                        level=lvl,
                         format="%(asctime)s - %(process)d - %(name)s - %(levelname)s - %(message)s")
 
     logging.getLogger("src.util.util").debug(msg="Initialization logger done")

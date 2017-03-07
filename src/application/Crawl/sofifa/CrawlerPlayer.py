@@ -1,14 +1,16 @@
 import calendar
 import logging
 import requests
+import src.util.util as util
+import src.application.Domain.Player as Player
 
 from bs4 import BeautifulSoup
 
-import src.application.Domain.Player as Player
-
 log = logging.getLogger(__name__)
+
+
 class CrawlerPlayer(object):
-    def __init__(self, player, player_link, host_url = "http://sofifa.com"):
+    def __init__(self, player, player_link, host_url="http://sofifa.com"):
         self.host_url = host_url
         self.player = player
         self.player_link = player_link
@@ -16,6 +18,7 @@ class CrawlerPlayer(object):
         page = ""
         retry = 1
         succeed_request = False
+
         while not succeed_request or retry > 5:
             try:
                 page = requests.get(self.player_link).text
@@ -35,11 +38,21 @@ class CrawlerPlayer(object):
             player_name, player_fifa_api_id, birthday, height, weight = self.look_for_base_data()
 
             # try to read the player by name
-            plabyers_by_name = Player.read_by_name(player_name, like=True)
-            if len(plabyers_by_name)==1:
-                print("Found a player without fifa api id but with name", plabyers_by_name[0])
-            self.player = Player.write_new_player(player_name, player_fifa_api_id, birthday, height, weight)
-            print("Player inserted:",self.player.player_name)
+            players = Player.read_by_name(player_name, like=True)
+
+            if len(players) == 0:
+                # No player found in the DB --> insert a new one
+                self.player = Player.write_new_player(player_name, player_fifa_api_id, birthday, height, weight)
+                print("Player inserted:", self.player.player_name)
+
+            elif len(players) == 1:
+                self.player = players[0]
+                self.check_player(player_name, player_fifa_api_id, birthday, height, weight)
+                self.player = Player.update(self.player)
+
+            else:
+                # too many players found with this name
+                log.warning("Too many players found with the same name ["+player_name+"]")
 
         # looking for player atrtbiutes
         try:
@@ -47,18 +60,52 @@ class CrawlerPlayer(object):
             self.player.save_player_attributes(attributes_found)
         except IndexError:
             log.debug("Error during parsing of ["+self.player_link+"]")
-            for i, ul in enumerate(self.soup.find_all('ul', {"class": "pl"})):
-                print("*****", i, self.player_link, "*****")
-                print(ul.prettify())
-            exit(-1)
+
+    def check_player(self, player_name, player_fifa_api_id, birthday, height, weight):
+        """
+        This method can be called if and only if self.player is set
+        It aims to check every attribute of the player that may be not set!
+        :param player_name:
+        :param player_fifa_api_id:
+        :param birthday:
+        :param height:
+        :param weight:
+        :return:
+        """
+
+        # check player_name
+        if util.is_None(self.player.player_name):
+            self.player.player_name = player_name
+        elif player_name not in self.player.player_name:
+            self.player.player_name = self.player.player_name + "|" + player_name
+
+        # check player_fifa_api_id
+        if util.is_None(self.player.player_fifa_api_id):
+            self.player.player_fifa_api_id = player_fifa_api_id
+
+        # check birthday
+        if util.is_None(self.player.birthday):
+            self.player.birthday = birthday
+
+        # check height
+        if util.is_None(self.player.height):
+            self.player.height = height
+
+        # check weight
+        if util.is_None(self.player.weight):
+            self.player.weight = weight
 
     def look_for_player_attributes(self):
+        """
+
+        :return:
+        """
         log.debug("Start looking for player attributes ["+self.player_link+"]")
         attributes_found = {}
 
         # OVA, POT (Overall rating, Potential)
         div_stats = self.soup.find('div', {"class": "stats"})
-        attributes_found["overall_rating"]=str(div_stats.find_all("td")[0].span.string)
+        attributes_found["overall_rating"] = str(div_stats.find_all("td")[0].span.string)
         attributes_found["potential"] = str(div_stats.find_all("td")[1].span.string)
 
         # preferred_foot, attacking_work_rate, defensive_work_rate
@@ -84,7 +131,6 @@ class CrawlerPlayer(object):
         attributes_found["short_passing"] = li_ul_attacking[3].span.get_text()
         attributes_found["volleys"] = li_ul_attacking[4].span.get_text()
 
-
         # skill
         index_statistics += 1
         li_ul_skill = ul_pl[index_statistics].find_all('li')
@@ -94,7 +140,6 @@ class CrawlerPlayer(object):
         attributes_found["long_passing"] = li_ul_skill[3].span.get_text()
         attributes_found["ball_control"] = li_ul_skill[4].span.get_text()
 
-
         # Movement
         index_statistics += 1
         li_ul_movement = ul_pl[index_statistics].find_all('li')
@@ -103,7 +148,6 @@ class CrawlerPlayer(object):
         attributes_found["agility"] = li_ul_movement[2].span.get_text()
         attributes_found["reactions"] = li_ul_movement[3].span.get_text()
         attributes_found["balance"] = li_ul_movement[4].span.get_text()
-
 
         # Power
         index_statistics += 1
@@ -122,8 +166,7 @@ class CrawlerPlayer(object):
         attributes_found["positioning"] = li_ul_mentality[2].span.get_text()
         attributes_found["vision"] = li_ul_mentality[3].span.get_text()
         attributes_found["penalties"] = li_ul_mentality[4].span.get_text()
-        #attributes_found["Composure"] = li_ul_mentality[5].span.get_text()         TODO add this field in the DB
-
+        # attributes_found["Composure"] = li_ul_mentality[5].span.get_text()         TODO add this field in the DB
 
         # Defending
         index_statistics += 1
@@ -131,7 +174,6 @@ class CrawlerPlayer(object):
         attributes_found["marking"] = li_ul_defending[0].span.get_text()
         attributes_found["standing_tackle"] = li_ul_defending[1].span.get_text()
         attributes_found["sliding_tackle"] = li_ul_defending[2].span.get_text()
-
 
         # Goalkeeping
         index_statistics += 1
@@ -145,42 +187,56 @@ class CrawlerPlayer(object):
         return attributes_found
 
     def look_for_base_data(self):
+        """
+        look for name, fifa api id, birthday, height and weight
+        :return:
+        """
         div = self.soup.find('div', {"class": "info"})
 
         # name and fifa api id
-        h1 = div.h1
-        data_string = str(h1.string)
+        data_string = str(div.h1.string)
         player_long_name = data_string[0:data_string.index("(")].strip()
-        player_fifa_api_id = data_string[data_string.index("(") + 1:-1].split(" ")[1]
+        player_fifa_api_id = data_string[data_string.index("(") + 1: -1].split(" ")[1]
 
         # birthday height and weight
-        meta_text = str(div.find('div', {"class":"meta"}).get_text())
+        meta_text = str(div.find('div', {"class": "meta"}).get_text())
         row_birthday = meta_text[meta_text.index("(")+1:meta_text.index(")")]
         birthday = get_db_birthday_date(row_birthday)
 
         height = meta_text[meta_text.index(")"):].split(" ")[1]
         height = get_db_height(height)
 
-        weight = meta_text[meta_text.index(")"):].split(" ")[2][:-1]
+        weight = meta_text[meta_text.index(")"):].split(" ")[2][: -1]
         weight = get_db_weight(weight)
 
         return player_long_name, int(player_fifa_api_id), birthday+" 00:00:00", height, weight
 
 
 def get_db_birthday_date(birthday_text):
+    """
+    convert string to db date
+    :param birthday_text:
+    :return:
+    """
     month_str = birthday_text.split(" ")[0]
 
     day = int(birthday_text.split(" ")[1][:-1])
-    month = {v: k for k,v in enumerate(calendar.month_abbr)}[month_str]
+    month = {v: k for k, v in enumerate(calendar.month_abbr)}[month_str]
 
     year = birthday_text.split(" ")[2]
     return year+"-"+'{0:02d}'.format(month)+"-"+'{0:02d}'.format(day)
 
 
 def get_db_height(height_text):
+    """
+    convert inch to cm
+    :param height_text:
+    :return:
+    """
     height = -1
     if height_text.endswith("cm"):
         height = float(height_text[:-2])
+
     elif height_text.endswith("\""):
         # convert "piedi" --> "cm"
         height = float(height_text[0])*30.48
@@ -188,16 +244,19 @@ def get_db_height(height_text):
 
     return height
 
+
 def get_db_weight(weight_text):
+    """
+    convert Kg to lbs
+    :param weight_text:
+    :return:
+    """
     weight = -1
     if weight_text.endswith("kg"):
         # convert kg to lbs
         weight = int(float(weight_text[:-2])*2.20462)
+
     elif weight_text.endswith("lbs"):
         weight = weight_text
 
     return weight
-
-
-
-

@@ -13,16 +13,28 @@ import src.application.Crawl.Crawl as Crawl
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Score Prediction Application')
+    # --no-crawl
     parser.add_argument('--no-crawl', dest='do_crawl', action='store_false',
                         help='do not crawl on the start up of the application')
     parser.set_defaults(do_crawl=True)
+
+    # --no-index
     parser.add_argument('--no-index', dest='do_index', action='store_false',
                         help='do not index on the start up of the application')
     parser.set_defaults(do_index=True)
+
+    # -d
+    parser.add_argument('-v', dest='debug', action='store_true',
+                        help='turn debug on')
+    parser.set_defaults(debug=False)
     args = parser.parse_args()
 
-    util.init_logger()
     SQLLite.init_database()
+
+    if args.debug:
+        util.init_logger(10)
+    else:
+        util.init_logger(20)
 
     if args.do_index:
         util.indexing()
