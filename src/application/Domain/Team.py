@@ -358,7 +358,7 @@ def read_by_team_api_id(team_api_id):
         team.__setattr__(attribute, value)
 
     Cache.add_element(team.id, team, "TEAM_BY_ID")
-    Cache.add_element(team_api_id, team, "TEAM_BY_API_ID")
+    Cache.add_element(team.team_api_id, team, "TEAM_BY_API_ID")
     Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
     Cache.add_element(team.team_fifa_api_id, team, "TEAM_BY_FIFA_API_ID")
     return team
@@ -412,7 +412,7 @@ def read_by_id(id):
         team.__setattr__(attribute, value)
 
     Cache.add_element(team.id, team, "TEAM_BY_ID")
-    Cache.add_element(team.id, team, "TEAM_BY_API_ID")
+    Cache.add_element(team.team_api_id, team, "TEAM_BY_API_ID")
     Cache.add_element(team.team_long_name, team, "TEAM_BY_LONG_NAME")
     Cache.add_element(team.team_fifa_api_id, team, "TEAM_BY_FIFA_API_ID")
     return team
@@ -441,6 +441,9 @@ def read_by_name(team_long_name, like=False):
 
 
 def delete(team):
+    Cache.del_element(team.team_api_id, "TEAM_BY_API_ID")
+    Cache.del_element(team.team_long_name, "TEAM_BY_LONG_NAME")
+    Cache.del_element(team.team_fifa_api_id, "TEAM_BY_FIFA_API_ID")
     SQLLite.get_connection().delete("Team", team)
 
 
@@ -456,14 +459,22 @@ def write_new_team(team_long_name, team_fifa_api_id, team_api_id=None, team_shor
         team_diz["team_short_name"] = team_short_name
 
     SQLLite.get_connection().insert("Team", team_diz)
-    return read_by_team_fifa_api_id(team_fifa_api_id)
+    if not util.is_None(team_fifa_api_id):
+        return read_by_team_fifa_api_id(team_fifa_api_id)
+    elif not util.is_None(team_api_id):
+        return read_by_team_api_id(team_api_id)
+    else:
+        return None
 
 
 def update(team):
     SQLLite.get_connection().update("Team", team)
+    Cache.del_element(team.id, "TEAM_BY_ID")
     Cache.del_element(team.team_api_id, "TEAM_BY_API_ID")
     Cache.del_element(team.team_long_name, "TEAM_BY_LONG_NAME")
     Cache.del_element(team.team_fifa_api_id, "TEAM_BY_FIFA_API_ID")
+
+    return read_by_id(team.id)
 
 
 def merge(team1, team2):
