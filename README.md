@@ -131,8 +131,14 @@ This project is targetting on how to predict European league football match resu
             ├── __init__.py
             ├── __pycache__
             └── util.py
-
-
+    
+   User interactive interface 
+   
+   Crawl the website information
+   
+   Collect data for teams, players,leageues,matches and bet-odds
+   
+   Use the different algorithm for calculating the predictions
 
 Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
 
