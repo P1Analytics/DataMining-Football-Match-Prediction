@@ -35,18 +35,22 @@ class SVM(MachineLearningAlgorithm):
         for i,label in enumerate(self.test_label):
             if label != 1:
                 self.test_label[i] = -1
-
-        self.data_points = np.concatenate((self.train_data,self.test_data),axis = 0)
-        self.data_labels = np.concatenate((self.train_label,self.test_label),axis = 0)
+        print((self.train_data).size,self.test_data.size)
+        if len(self.test_data)>0:
+            self.data_points = np.concatenate((self.train_data, self.test_data), axis=0)
+            self.data_labels = np.concatenate((self.train_label, self.test_label), axis=0)
+        else:
+            self.data_points = self.train_data
+            self.data_labels = self.train_label
 
         self.num_features = len(self.train_data[0])
         self.batch_size = util.get_default(params, "batch_size", len(self.train_data))
         self.number_step = util.get_default(params, "number_step", 5000)
         self.kernel = util.get_default(params, "kernel", "linear")
-        print("SVM")
-        print("Num_features:",self.num_features)
-        print("Batch_size:", self.batch_size)
-        print("Number_step:", self.number_step)
+        # print("SVM")
+        # print("Num_features:",self.num_features)
+        # print("Batch_size:", self.batch_size)
+        # print("Number_step:", self.number_step)
         self.x = tf.placeholder(tf.float32, [None, self.num_features])
         self.y = tf.placeholder(tf.float32, [None, 1])
 
