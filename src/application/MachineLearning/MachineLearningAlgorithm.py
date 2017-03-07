@@ -1,6 +1,5 @@
 import random
 import numpy as np
-from sklearn.decomposition import PCA
 
 
 class MachineLearningAlgorithm(object):
@@ -161,8 +160,39 @@ def get_machine_learning_algorithm(framework,
 
 
 def get_frameworks():
-    return ["Sklearn", "MyPoisson"]
+    return ["Sklearn", "my_poisson"]
 
 
 def get_methods():
     return ["SVM", "KNN", "RandomForest", "AdaBoostClassifier"]
+
+
+def get_methods_by_framework(framework):
+    if framework == "Sklearn":
+        return ["SVM", "KNN", "RandomForest", "AdaBoostClassifier"]
+
+    elif framework == "my_poisson":
+        return []
+
+    return []
+
+
+def get_inputs_by_framework(framework):
+    if framework == "Sklearn":
+        return [1,2,3,4,5]
+
+    elif framework == "my_poisson":
+        return [5]
+
+    return []
+
+
+def get_inputs_by_input(ml_train_input_id):
+
+    if ml_train_input_id == 1 or ml_train_input_id == 2:
+        return [1, 2, 3, 4]
+
+    elif ml_train_input_id == 3 or ml_train_input_id == 4 or ml_train_input_id == 5:
+        return []
+
+    return []

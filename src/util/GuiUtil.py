@@ -34,6 +34,7 @@ def print_ans(label="", label_value=""):
 def print_inst(label, instructions):
     print("[INSTRUCTION: "+label+" --> "+instructions+"]")
 
+
 def show_list_answer(l, print_index=True, label="", label_value=""):
     print("[ANSWER of " + label + " --> " + str(label_value) + "]")
     if len(l) > 0:

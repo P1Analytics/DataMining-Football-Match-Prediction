@@ -48,7 +48,6 @@ def write_new_bet_event(match_event_id, event_name, bet_values):
     #j = json.loads(l)
     #print(j, type(j))
 
-
     SQLLite.get_connection().insert("Bet_Event", {'match_event_id':match_event_id,
                                                   'event_name':event_name,
                                                   'bet_value':bet_values_str,
