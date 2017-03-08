@@ -293,7 +293,7 @@ class Team(object):
 
     def get_training_matches(self, season, stage_to_predict, stages_to_train, consider_last=False, home=None):
         """
-        Return a list of matches to be trained by the machine learnign algorithms
+        Return a list of matches to be trained by the machine learning algorithms
         :param season:
         :param stage_to_predict: it's the stage we want to predict, or 0 in a recursive call when matches of the past
                                  season are needed
@@ -304,7 +304,7 @@ class Team(object):
         """
         if util.is_None(stages_to_train):
             # stages to train not defined --> return only stage of this season
-            training_matches = [m for m in self.get_matches(season=season, ordered=True, home=home)
+            training_matches = [m for m in self.get_matches(season=season, ordered=True, home=home, finished=True)
                                 if m.stage < stage_to_predict]
             if len(training_matches) == 0 and stage_to_predict == 1:
                 raise MLException(0)
@@ -315,14 +315,14 @@ class Team(object):
             # stages to train is defined --> return number of stages_to_train matches, also regarding past season
             if consider_last:
                 # consider last matches
-                training_matches = [m for m in self.get_matches(season=season, ordered=True, home=home)]
+                training_matches = [m for m in self.get_matches(season=season, ordered=True, finished=True, home=home)]
                 training_matches = training_matches[::-1]
 
                 if len(training_matches) == 0 and season < '2006/2007':
                     raise MLException(1)
             else:
-                training_matches = [m for m in self.get_matches(season=season, ordered=True, home=home)
-                                    if m.stage < stage_to_predict]
+                training_matches = [m for m in self.get_matches(season=season, ordered=True, finished=True, home=home)
+                                    if not util.is_None(m.stage) and m.stage < stage_to_predict]
 
             stages_training = set([(m.stage, m.season) for m in training_matches])
             if len(stages_training) < stages_to_train:

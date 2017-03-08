@@ -197,17 +197,17 @@ class League(object):
         """
         if util.is_None(stages_to_train):
             # stages to train not defined --> return only stage of this season
-            return [m for m in self.get_matches(season=season, ordered=True)
+            return [m for m in self.get_matches(season=season, ordered=True, finished=True)
                     if m.stage < stage_to_predict]
         else:
             # stages to train is defined --> return all the matches played it those number of stages
             #   EX: stage_to_predict = 7, n_match_1_stage = 10 --> return 70 matches
             if consider_last:
                 # start to consider matches of previous seasons --> take them in the reverse order
-                training_matches = [m for m in self.get_matches(season=season, ordered=True)]
+                training_matches = [m for m in self.get_matches(season=season, ordered=True, finished=True)]
                 training_matches = training_matches[::-1]
             else:
-                training_matches = [m for m in self.get_matches(season=season, ordered=True)
+                training_matches = [m for m in self.get_matches(season=season, ordered=True, finished=True)
                                     if m.stage < stage_to_predict]
 
             if len(training_matches) == 0 and season < '2006/2007':

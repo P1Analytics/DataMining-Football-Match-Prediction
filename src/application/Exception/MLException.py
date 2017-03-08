@@ -1,8 +1,3 @@
-'''
-code : meaning
-0: no match to train
-'''
-
 code_meaning = {
     0: "No match for league to train",
     1: "No match for team to train",

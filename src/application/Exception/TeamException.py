@@ -1,7 +1,10 @@
-'''
+"""
 code : meaning
-0: no team api id
-'''
+
+    - 0: no team api id
+"""
+
+
 class TeamException(Exception):
 
     def __init__(self, code):

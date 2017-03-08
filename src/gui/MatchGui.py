@@ -96,6 +96,7 @@ def get_printable_matches(matches):
         printable_matches.append(get_printable_match(m))
     return printable_matches
 
+
 def get_printable_match(match, show_event_link = False):
     league = League.read_by_id(match.league_id)
     match_str = league.name+" - Stage: "+str(match.stage) + " - "+match.date + "\n"
@@ -120,7 +121,7 @@ def get_printable_match(match, show_event_link = False):
     match_str += " " + str(match.away_team_goal)
 
     if not match.is_finished():
-        match_str += " (TO BE CRAWLED)"
+        match_str += "\n* TO BE CRAWLED *"
 
     # team formation home
     match_str += get_formation(match, home_team, home=True)
