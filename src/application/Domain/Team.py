@@ -215,12 +215,13 @@ class Team(object):
         for match in self.get_matches(season=season, ordered=True):
             if not util.is_None(stage) and match.stage >= stage:
                 return cnt
-            soup = BeautifulSoup(match.goal, "html.parser")
-            for value in soup.find_all('value'):
-                team = value.find('team')
-                if team and int(str(team.string).strip()) == self.team_api_id:
-                    if not util.is_None(value.find('player2')):
-                        cnt += 1
+            if not util.is_None(match.goal):
+                soup = BeautifulSoup(match.goal, "html.parser")
+                for value in soup.find_all('value'):
+                    team = value.find('team')
+                    if team and int(str(team.string).strip()) == self.team_api_id:
+                        if not util.is_None(value.find('player2')):
+                            cnt += 1
         return cnt
 
     def get_shots_by_train_matches(self, season, stage_to_predict, stages_to_train, on=True, home=None):

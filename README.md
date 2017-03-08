@@ -147,8 +147,34 @@ Show what the library does as concisely as possible, developers should be able t
 A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
 
 ## Installation
+###TODO
 
-Provide code examples and explanations of how to get the project.
+./ScorePredictionRep/src/main.py [--no-crawl] [--no-index] [-v]
+
+--no-crawl :  for not crawling the website and update the SQLLite 
+
+--no-index :  for indexing the Italy league 
+
+-v         :  for the debug 
+
+
+    Browse the application to discover different data
+        - 1 : Players
+        - 2 : Matches
+        - 3 : Leagues
+        - 4 : Countries
+        - 5 : Teams
+        - 6 : Crawling
+        - 7 : Prediction
+        - 8 : Bet odds
+    Select an item: 1
+    [INFO: Opening --> Players]
+    
+    Players menu:
+        - 1 : Find by Name
+        - 2 : Find by Team
+        - gb : Go back
+
 
 ## API Reference
 
