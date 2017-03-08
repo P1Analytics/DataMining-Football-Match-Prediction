@@ -34,11 +34,11 @@ class Match(object):
         :return:
         """
         if self.home_team_goal > self.away_team_goal:
-            return self.get_home_team()
+            return 1, self.get_home_team()
         elif self.home_team_goal < self.away_team_goal:
-            return self.get_away_team()
+            return 2, self.get_away_team()
         else:
-            return None
+            return 0, None
 
     def get_home_team(self):
         """

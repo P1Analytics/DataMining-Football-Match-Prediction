@@ -6,6 +6,8 @@ import src.util.SQLLite as SQLLite
 import src.application.Domain.Match as Match
 from src.application.Exception.MLException import MLException
 
+log = logging.getLogger(__name__)
+
 
 class League(object):
     def __init__(self, id):
@@ -18,7 +20,7 @@ class League(object):
             try:
                 to_string += attribute + ": " + str(self.__getattribute__(attribute)) + ", "
             except AttributeError:
-                logging.debug("League :: AttributeError ["+attribute+"]")
+                logging.debug("League :: AttributeError [" + attribute + "]")
         return to_string
 
     def get_ranking(self, season, home=None):
@@ -37,7 +39,7 @@ class League(object):
         teams = self.get_teams(season=season)
         ranking = {team.id: 0 for team in teams}
         for m in matches:
-            winner = m.get_winner()
+            result, winner = m.get_winner()
             if not util.is_None(winner):
                 ranking[winner.id] += 3
             else:
@@ -66,72 +68,54 @@ class League(object):
         ranking = {team.id: 0 for team in teams}
         num_matches = {team.id: 0 for team in teams}
         for m in matches:
-            winner = m.get_winner()
-            if util.is_None(home):
-                try:
-                    num_matches[m.get_home_team().id] += 1
-                except KeyError:
-                    num_matches[m.get_home_team().id] = 1
-                try:
-                    num_matches[m.get_away_team().id] += 1
-                except KeyError:
-                    num_matches[m.get_away_team().id] = 1
-                # total ranking
-                if not util.is_None(winner):
-                    try:
-                        ranking[winner.id] += 3
-                    except KeyError:
-                        ranking[winner.id] = 3
-
+            try:
+                result, winner = m.get_winner()
+                if result == 0:
+                    winner_id = None
                 else:
-                    try:
-                        ranking[m.get_home_team().id] += 1
-                    except KeyError:
-                        ranking[m.get_home_team().id] = 1
-                    try:
-                        ranking[m.get_away_team().id] += 1
-                    except KeyError:
-                        ranking[m.get_away_team().id] = 1
+                    winner_id = winner.id
+
+                home_id = m.get_home_team().id
+                away_id = m.get_away_team().id
+            except AttributeError:
+                continue
+
+            if util.is_None(home):
+                # total ranking
+                util.increase_dict_entry(home_id, num_matches)
+                util.increase_dict_entry(away_id, num_matches)
+
+                if result != 0:
+                    util.increase_dict_entry(winner_id, ranking, 3)
+                else:
+                    util.increase_dict_entry(home_id, ranking, 1)
+                    util.increase_dict_entry(away_id, ranking, 1)
 
             elif home:
                 # home ranking
-                try:
-                    num_matches[m.get_home_team().id] += 1
-                except KeyError:
-                    num_matches[m.get_home_team().id] = 1
-                if not util.is_None(winner) and winner.id==m.get_home_team().id:
-                    try:
-                        ranking[winner.id] += 3
-                    except KeyError:
-                        ranking[winner.id] = 3
-                else:
-                    try:
-                        ranking[m.get_home_team().id] += 1
-                    except KeyError:
-                        ranking[m.get_home_team().id] = 1
+                util.increase_dict_entry(home_id, num_matches)
+                if result == 1:
+                    util.increase_dict_entry(winner_id, ranking, 3)
+                elif result == 0:
+                    util.increase_dict_entry(home_id, ranking, 1)
+
             else:
                 # away ranking
-                try:
-                    num_matches[m.get_away_team().id] += 1
-                except KeyError:
-                    num_matches[m.get_away_team().id] = 1
-                if not util.is_None(winner) and winner.id==m.get_away_team().id:
-                    try:
-                        ranking[winner.id] += 3
-                    except KeyError:
-                        ranking[winner.id] = 3
-                else:
-                    try:
-                        ranking[m.get_away_team().id] += 1
-                    except KeyError:
-                        ranking[m.get_away_team().id] = 1
+                util.increase_dict_entry(away_id, num_matches)
+                if result == 2:
+                    util.increase_dict_entry(winner_id, ranking, 3)
+                elif result == 0:
+                    util.increase_dict_entry(away_id, ranking, 1)
 
+        # divide the overall point by the number of matches done
         norm_ranking = dict()
         for team_id, points in ranking.items():
             if num_matches[team_id] > 0:
                 norm_ranking[team_id] = points / num_matches[team_id]
             else:
                 norm_ranking[team_id] = 0
+
+        # order the normalized rank
         ranking_ret = []
         for team, p in sorted(norm_ranking.items(), key=operator.itemgetter(1))[::-1]:
             ranking_ret.append((p, Team.read_by_id(team)))
@@ -139,30 +123,40 @@ class League(object):
         return ranking_ret
 
     def get_seasons(self):
-        '''
+        """
         Return the stored seasons of this league
         :return:
-        '''
+        """
         try:
             return Cache.get_element(self.id, "SEASONS_BY_LEAGUE")
         except KeyError:
             pass
         seasons = []
-        query = "SELECT distinct(season) FROM Match WHERE league_id='"+str(self.id)+"'"
+        query = "SELECT distinct(season) FROM Match WHERE league_id='" + str(self.id) + "'"
         for sqllite_row in SQLLite.get_connection().execute_select(query):
             seasons.append(sqllite_row[0])
 
         Cache.add_element(self.id, seasons, "SEASONS_BY_LEAGUE")
         return seasons
 
-    def get_matches(self,season=None, ordered = True, date=None, finished=None, stage=None):
+    def get_matches(self, season=None, ordered=True, date=None, finished=None, stage=None):
+        """
+        return the matches belonging to this league
+        :param season:
+        :param ordered:
+        :param date:
+        :param finished:
+        :param stage:
+        :return:
+        """
         matches = Match.read_matches_by_league(self.id, season)
 
         if ordered:
             try:
                 matches = sorted(matches, key=lambda match: match.stage)
             except TypeError as e:
-                print({m.stage for m in matches})
+                log.error("Impossible to order match of the league [" + str(self.id) + "], of the season ["
+                          + season + "] by stage")
                 raise e
 
         if not util.is_None(finished) and finished:
@@ -177,47 +171,37 @@ class League(object):
         return matches
 
     def get_teams(self, season=None):
-        '''
-        Retrun teams of a league, can be filtered by season
+        """
+        Return teams of a league, can be filtered by season
         :param season:
         :return:
-        '''
+        """
         import src.application.Domain.Team as Team
-
-        if not season:
-            season = ""
-
-        try:
-            return Cache.get_element(str(self.id)+"_"+season, "TEAMS_BY_LEAGUE")
-        except KeyError:
-            pass
-
-        teams_api_id = []
-        query = "SELECT distinct(home_team_api_id) FROM Match WHERE league_id='" + str(self.id) + "'"
-        if season != "":
-            query += " AND season='"+season+"'"
-        for sqllite_row in SQLLite.get_connection().execute_select(query):
-            teams_api_id.append(sqllite_row[0])
-
-        teams = []
-        for team_api_id in teams_api_id:
-            team = Team.read_by_team_api_id(team_api_id=team_api_id)
-            if not util.is_None(team):
-                teams.append(team)
-
-        Cache.add_element(str(self.id)+"_"+season, teams, "TEAMS_BY_LEAGUE")
-        return teams
+        return Team.read_teams_by_league(self, season)
 
     def get_teams_current_season(self):
+        """
+        Return the teams of this league playing the current season
+        :return:
+        """
         return self.get_teams(util.get_current_season())
 
     def get_training_matches(self, season, stage_to_predict, stages_to_train, consider_last=False):
+        """
+        Return the training matches needed by the machine learning algorithm
+        :param season:
+        :param stage_to_predict:
+        :param stages_to_train:
+        :param consider_last:
+        :return:
+        """
         if util.is_None(stages_to_train):
             # stages to train not defined --> return only stage of this season
             return [m for m in self.get_matches(season=season, ordered=True)
                     if m.stage < stage_to_predict]
         else:
-            # stages to train is defined --> return number this number of stages, also for past season
+            # stages to train is defined --> return all the matches played it those number of stages
+            #   EX: stage_to_predict = 7, n_match_1_stage = 10 --> return 70 matches
             if consider_last:
                 # start to consider matches of previous seasons --> take them in the reverse order
                 training_matches = [m for m in self.get_matches(season=season, ordered=True)]
@@ -230,15 +214,13 @@ class League(object):
                 raise MLException(0)
 
             stages_training = set([(m.stage, m.season) for m in training_matches])
-            while len(stages_training) < stages_to_train:
+            if len(stages_training) < stages_to_train:
                 # need more matches from the past season, considering the last matches
                 past_training_matches = self.get_training_matches(util.get_previous_season(season),
-                                                                0,
-                                                                stages_to_train - len(stages_training),
-                                                                consider_last=True)
-
+                                                                  0,
+                                                                  stages_to_train - len(stages_training),
+                                                                  consider_last=True)
                 training_matches.extend(past_training_matches)
-                stages_training = set([(m.stage, m.season) for m in training_matches])
 
             n_matches_in_stage = int(len(self.get_teams_current_season())/2)
             if len(training_matches) / n_matches_in_stage > stages_to_train:
@@ -251,16 +233,22 @@ class League(object):
             return training_matches
 
     def add_name(self, new_league_name):
+        """
+        Add the input name to this league
+        :param new_league_name:
+        :return:
+        """
         names = self.name+"|"+new_league_name
         update = "UPDATE League set name = '"+names+"' where id='"+str(self.id)+"'"
         SQLLite.get_connection().execute_update(update)
 
 
 def read_all():
-    '''
+    """
     Return all the leagues
     :return:
-    '''
+    """
+
     league_list = []
     for p in SQLLite.read_all("League"):
         league = League(p["id"])
@@ -269,12 +257,13 @@ def read_all():
         league_list.append(league)
     return league_list
 
+
 def read_by_country(country_id):
-    '''
+    """
     Return the league in the country identified by country_id
     :param country_id:
     :return:
-    '''
+    """
     sqllite_rows = SQLLite.get_connection().select("League", **{"country_id": country_id})
 
     league_list = []
@@ -287,13 +276,13 @@ def read_by_country(country_id):
 
 
 def read_by_id(id):
-    '''
-    Return the league in the country identified by country_id
-    :param country_id:
+    """
+    Return the league with this id
+    :param id:
     :return:
-    '''
+    """
     try:
-        return Cache.get_element(id,"LEAGUE_BY_ID")
+        return Cache.get_element(id, "LEAGUE_BY_ID")
     except KeyError:
         pass
 
@@ -301,16 +290,20 @@ def read_by_id(id):
     league = League(sqllite_row["id"])
     for attribute, value in sqllite_row.items():
         league.__setattr__(attribute, value)
+
     Cache.add_element(league.id, league, "LEAGUE_BY_ID")
     Cache.add_element(league.country_id, league, "LEAGUE_BY_COUNTRY")
+
     return league
 
+
 def read_by_name(name, like=False):
-    '''
-    Return the league with this name
-    :param country_id:
+    """
+    Return the list of leagues with this name
+    :param name:
+    :param like:
     :return:
-    '''
+    """
     if like:
         sqllite_row = SQLLite.get_connection().select_like("League", **{"name": name})
     else:
@@ -326,14 +319,18 @@ def read_by_name(name, like=False):
     return leagues
 
 
+'''
 def add_names(league_names):
+    """
+
+    :param league_names:
+    :return:
+    """
     for league_id, name in league_names.items():
         league = read_by_id(league_id)
         if name not in league.name:
             league.add_name(name)
 
-
-'''
 # Example for league to be updated
 leauge_to_update = {1:"Belgian Jupiler Pro League",
 1729:"English Premier League",

@@ -8,8 +8,8 @@ import src.application.MachineLearning.MachineLearningInput as mli
 log = logging.getLogger(__name__)
 
 ml_alg_method = "SVM"
-ml_alg_framework = "my_poisson"
-ml_train_input_id = 5
+ml_alg_framework = "Sklearn"
+ml_train_input_id = 4
 ml_train_input_representation = 1
 ml_train_stages_to_train = 10
 
@@ -191,10 +191,13 @@ def predict_by_date():
                     GuiUtil.print_indent_answer(pi, prediction_str, True)
                     pi += 1
                 except KeyError:
-                    log.warning("Not possible to predict ["+match.id, match.get_home_team().team_long_name, "vs", match.get_away_team().team_long_name+"]")
+                    log.warning("Not possible to predict [" + str(match.id) + ": "
+                                + match.get_home_team().team_long_name + "vs"
+                                + match.get_away_team().team_long_name + "]")
 
         if pi == 1:
             GuiUtil.print_ans("Matches to predict", "NOT FOUND")
+
 
 def get_printable_prediction(match, prediction, probability):
     out_prediction = ""
@@ -232,5 +235,5 @@ def predict(league, season, stage):
     return predicted_labels, probability_events, matches_to_predict_id
 
 if __name__ == "__main__":
-    set_predictor()
+    #set_predictor()
     predict_by_date()

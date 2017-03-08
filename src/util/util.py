@@ -174,3 +174,10 @@ def print_dict(my_dict, indent):
         for k, v in my_dict.items():
             print(h+"-", k)
             print_dict(v, indent+1)
+
+
+def increase_dict_entry(key, dictionary, value=1):
+    try:
+        dictionary[key] += value
+    except KeyError:
+        dictionary[key] = value

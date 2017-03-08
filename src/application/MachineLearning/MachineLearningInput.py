@@ -22,6 +22,7 @@ def get_representations(id):
     else:
         return []
 
+
 def get_input_to_train(id, domain, representation, stage, stages_to_train, season):
     if id == 1:
         log.debug("team form")

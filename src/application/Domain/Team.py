@@ -37,10 +37,11 @@ class Team(object):
         trend = ""
         for match in matches[-n:]:
 
-            if util.is_None(match.get_winner()):
+            result, winner = match.get_winner()
+            if util.is_None(winner):
                 trend = "X " + trend
 
-            elif match.get_winner().team_api_id == self.team_api_id:
+            elif winner.team_api_id == self.team_api_id:
                 trend = "V "+trend
 
             else:
@@ -362,6 +363,39 @@ def read_all():
             team.__setattr__(attribute, value)
         team_list.append(team)
     return team_list
+
+
+def read_teams_by_league(league, season=None):
+    """
+    return the teams playing in a league, within a season as optional parameter
+    :param league:
+    :param season:
+    :return:
+    """
+    if not season:
+        season = ""
+
+    try:
+        return Cache.get_element(str(league.id) + "_" + season, "TEAMS_BY_LEAGUE")
+    except KeyError:
+        pass
+
+    teams_api_id = []
+    query = "SELECT distinct(home_team_api_id) FROM Match WHERE league_id='" + str(league.id) + "'"
+    if season != "":
+        query += " AND season='" + season + "'"
+    for sqllite_row in SQLLite.get_connection().execute_select(query):
+        teams_api_id.append(sqllite_row[0])
+
+    teams = []
+    for team_api_id in teams_api_id:
+        if not util.is_None(team_api_id):
+            team = read_by_team_api_id(team_api_id=team_api_id)
+            if not util.is_None(team):
+                teams.append(team)
+
+    Cache.add_element(str(league.id) + "_" + season, teams, "TEAMS_BY_LEAGUE")
+    return teams
 
 
 def read_by_team_api_id(team_api_id):
