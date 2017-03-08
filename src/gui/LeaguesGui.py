@@ -79,7 +79,8 @@ def get_league_str(league):
     league_str = get_ramking_str(ranking)
 
     # home rankig
-    ''' TODO HOME RANKING
+    # TODO HOME RANKING
+    '''
     league_str += "\nHome Ranking:"
     ranking = league.get_ranking(util.get_current_season(), home=True)
     league_str = get_ramking_str(ranking)

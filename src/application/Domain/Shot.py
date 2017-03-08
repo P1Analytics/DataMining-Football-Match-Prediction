@@ -1,8 +1,8 @@
 import logging
-from bs4 import BeautifulSoup
-
 import src.util.util as util
 import src.util.Cache as Cache
+from bs4 import BeautifulSoup
+
 
 class Shot(object):
     def __init__(self):
@@ -10,16 +10,22 @@ class Shot(object):
 
     def __str__(self):
         to_string = "Shot "
-        attributes = util.read_config_file("src/util/SQLLite.ini","Shoton")
+        attributes = util.read_config_file("src/util/SQLLite.ini", "Shoton")
         for attribute in attributes.keys():
             try:
-                to_string+=attribute+": "+str(self.__getattribute__(attribute))+", "
+                to_string += attribute + ": " + str(self.__getattribute__(attribute)) + ", "
             except AttributeError:
                 logging.debug("Match :: AttributeError ["+attribute+"]")
         return to_string
 
 
 def read_match_shot(match, on=True):
+    """
+    Return the list of shots (either on or off) of the match
+    :param match:
+    :param on:
+    :return:
+    """
     if on:
         on_off = "ON"
     else:

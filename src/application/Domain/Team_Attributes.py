@@ -1,10 +1,10 @@
+import logging
 import src.util.SQLLite as SQLLite
 import src.util.util as util
 import src.util.Cache as Cache
 
-import logging
-
 log = logging.getLogger(__name__)
+
 
 class Team_Attributes(object):
     def __init__(self, id):
@@ -12,19 +12,20 @@ class Team_Attributes(object):
 
     def __str__(self):
         to_string = "Team_Attributes "
-        attributes = util.read_config_file("src/util/SQLLite.ini","Team_Attributes")
+        attributes = util.read_config_file("src/util/SQLLite.ini", "Team_Attributes")
         for attribute in attributes.keys():
             try:
-                to_string+=attribute+": "+str(self.__getattribute__(attribute))+", "
+                to_string += attribute+": " + str(self.__getattribute__(attribute)) + ", "
             except AttributeError:
-                log.debug("Team_Attributes :: AttributeError ["+attribute+"]")
+                log.debug("Team_Attributes :: AttributeError [" + attribute + "]")
         return to_string
 
+
 def read_all():
-    '''
+    """
     Read all the team_attributes
     :return:
-    '''
+    """
     team_attributes_list = []
     for p in SQLLite.read_all("Team_Attributes"):
         team_attributes = Team_Attributes(p["id"])
@@ -35,11 +36,11 @@ def read_all():
 
 
 def read_by_team_fifa_api_id(team_fifa_api_id):
-    '''
+    """
 
-    :param team_api_id:
+    :param team_fifa_api_id:
     :return:
-    '''
+    """
     try:
         return Cache.get_element(team_fifa_api_id, "TEAM_ATTRIBUTES")
     except KeyError:
@@ -54,15 +55,20 @@ def read_by_team_fifa_api_id(team_fifa_api_id):
     Cache.add_element(team_fifa_api_id, team_attributes_list, "TEAM_ATTRIBUTES")
     return team_attributes_list
 
-def write_team_attributes(team, team_attributes, force=False, date=util.get_today_date()+" 00:00:00"):
-    log.debug("write_team_attributes of team_fifa_api_id = ["+str(team.team_fifa_api_id)+"]")
 
-    team_attributes["team_fifa_api_id"]=team.team_fifa_api_id
-    team_attributes["team_api_id"]=team.team_api_id
-    team_attributes["date"]=date
+def write_team_attributes(team, team_attributes, date=util.get_today_date()+" 00:00:00"):
+    """
+    Persist the team attributes of the team
+    :param team:
+    :param team_attributes:
+    :param date:
+    :return:
+    """
+    log.debug("write_team_attributes of team_fifa_api_id = [" + str(team.team_fifa_api_id) + "]")
+
+    team_attributes["team_fifa_api_id"] = team.team_fifa_api_id
+    team_attributes["team_api_id"] = team.team_api_id
+    team_attributes["date"] = date
 
     SQLLite.get_connection().insert("Team_Attributes", team_attributes)
     Cache.del_element(team.team_fifa_api_id, "TEAM_ATTRIBUTES")
-
-
-

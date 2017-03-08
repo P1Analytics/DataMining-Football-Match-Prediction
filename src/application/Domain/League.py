@@ -1,11 +1,9 @@
-import src.application.Domain.Match as Match
+import logging
+import operator
 import src.util.util as util
 import src.util.Cache as Cache
 import src.util.SQLLite as SQLLite
-
-import logging
-import operator
-
+import src.application.Domain.Match as Match
 from src.application.Exception.MLException import MLException
 
 
@@ -15,18 +13,27 @@ class League(object):
 
     def __str__(self):
         to_string = "League "
-        attributes = util.read_config_file("src/util/SQLLite.ini","League")
+        attributes = util.read_config_file("src/util/SQLLite.ini", "League")
         for attribute in attributes.keys():
             try:
-                to_string+=attribute+": "+str(self.__getattribute__(attribute))+", "
+                to_string += attribute + ": " + str(self.__getattribute__(attribute)) + ", "
             except AttributeError:
                 logging.debug("League :: AttributeError ["+attribute+"]")
         return to_string
 
-    def get_ranking(self, season, stage=None, home=None):
+    def get_ranking(self, season, home=None):
+        """
+        Return the position of the teams in this league
+        Return a list of pair <Points, Team>, ordered py descending points
+        :param season:
+        :param stage:
+        :param home:
+        :return:
+        """
+
         import src.application.Domain.Team as Team
 
-        matches = self.get_matches(season=season, finished=True, stage=stage)
+        matches = self.get_matches(season=season, finished=True)
         teams = self.get_teams(season=season)
         ranking = {team.id: 0 for team in teams}
         for m in matches:
@@ -44,6 +51,14 @@ class League(object):
         return ranking_ret
 
     def get_training_ranking(self, season, stage_to_predict, stages_to_train, home=None):
+        """
+
+        :param season:
+        :param stage_to_predict:
+        :param stages_to_train:
+        :param home:
+        :return:
+        """
         import src.application.Domain.Team as Team
 
         matches = self.get_training_matches(season, stage_to_predict, stages_to_train)
@@ -309,6 +324,7 @@ def read_by_name(name, like=False):
         leagues.append(league)
 
     return leagues
+
 
 def add_names(league_names):
     for league_id, name in league_names.items():

@@ -1,8 +1,9 @@
+import logging
 import src.util.SQLLite as SQLLite
 import src.util.util as util
 import src.util.Cache as Cache
 
-import logging
+log = logging.getLogger(__name__)
 
 
 class Match(object):
@@ -16,14 +17,22 @@ class Match(object):
             try:
                 to_string += attribute + ": " + str(self.__getattribute__(attribute)) + ", "
             except AttributeError:
-                logging.debug("Match :: AttributeError ["+attribute+"]")
+                log.debug("Match :: AttributeError ["+attribute+"]")
         return to_string
 
     def get_league(self):
+        """
+        Return the league of this match
+        :return:
+        """
         import src.application.Domain.League as League
         return League.read_by_id(self.league_id)
 
     def get_winner(self):
+        """
+        Return the team winner of this match, or None if it has ended up with a Draw
+        :return:
+        """
         if self.home_team_goal > self.away_team_goal:
             return self.get_home_team()
         elif self.home_team_goal < self.away_team_goal:
@@ -49,7 +58,7 @@ class Match(object):
 
     def get_shots(self, on=True):
         """
-        Return the list of shotons of this match
+        Return the list of shot (on/off) of this match
         :param on:
         :return:
         """
@@ -57,6 +66,10 @@ class Match(object):
         return Shot.read_match_shot(self, on)
 
     def are_teams_linedup(self,):
+        """
+        Return TRUE if all the eleven players of both the teams are set
+        :return:
+        """
         hp = "home_player_"
         ap = "away_player_"
 
@@ -72,16 +85,38 @@ class Match(object):
         finished if and only if incidents of the match are managed
         :return:
         """
-        if util.is_None(self.goal) and util.is_None(self.shoton) and util.is_None(self.shotoff) and util.is_None(self.foulcommit) and util.is_None(self.card) and util.is_None(self.cross) and util.is_None(self.corner) and util.is_None(self.possession):
+        if util.is_None(self.goal) \
+                and util.is_None(self.shoton) \
+                and util.is_None(self.shotoff) \
+                and util.is_None(self.foulcommit) \
+                and util.is_None(self.card) \
+                and util.is_None(self.cross) \
+                and util.is_None(self.corner) \
+                and util.is_None(self.possession):
             return False
         return True
 
     def are_incidents_managed(self):
-        if util.is_None(self.goal) or util.is_None(self.shoton) or util.is_None(self.shotoff) or util.is_None(self.foulcommit) or util.is_None(self.card) or util.is_None(self.cross) or util.is_None(self.corner) or util.is_None(self.possession):
+        """
+        Return TURE if and only if all the incidents are managed
+        :return:
+        """
+        if util.is_None(self.goal) \
+                or util.is_None(self.shoton) \
+                or util.is_None(self.shotoff) \
+                or util.is_None(self.foulcommit) \
+                or util.is_None(self.card) \
+                or util.is_None(self.cross) \
+                or util.is_None(self.corner) \
+                or util.is_None(self.possession):
             return False
         return True
 
     def get_home_team_lines_up(self):
+        """
+        Return the home team list of players, playing this match
+        :return:
+        """
         import src.application.Domain.Player as Player
         attribute = 'home_player_'
         players = []
@@ -92,6 +127,10 @@ class Match(object):
         return players
 
     def get_away_team_lines_up(self):
+        """
+        Return the away team list of players, playing this match
+        :return:
+        """
         import src.application.Domain.Player as Player
         attribute = 'away_player_'
         players = []
@@ -120,7 +159,7 @@ def read_all(column_filter='*'):
 def read_by_match_id(match_id):
     """
     return the match by its id
-    :param match_api_id:
+    :param match_id:
     :return:
     """
     try:
@@ -135,7 +174,6 @@ def read_by_match_id(match_id):
     match = Match(sqllite_row["id"])
     for attribute, value in sqllite_row.items():
         match.__setattr__(attribute, value)
-
 
     Cache.add_element(str(match.id), match, "MATCH_BY_ID")
     Cache.add_element(str(match.match_api_id), match, "MATCH_BY_API_ID")
@@ -167,6 +205,11 @@ def read_by_match_api_id(match_api_id):
 
 
 def read_by_match_date(date_str):
+    """
+    Return all the matches played in the input-date
+    :param date_str:
+    :return:
+    """
     match_list = []
     sqllite_rows = SQLLite.get_connection().select_like("Match", **{"date": str(date_str)})
     for p in sqllite_rows:
@@ -180,8 +223,10 @@ def read_by_match_date(date_str):
 def read_matches_by_league(league_id, season=None, only_stages=True):
     """
     return matches played in the league_id, in a specified season if required
+    Only stages allow to filter-out dirty data
     :param league_id:
     :param season:
+    :param only_stages:
     :return:
     """
     match_list = []
@@ -280,6 +325,12 @@ def read_matches_by_away_team(team_api_id, season=None):
 
 
 def read_by_player_api_id(player_api_id, only_stages=True):
+    """
+    Read the matches played by the input-player
+    :param player_api_id:
+    :param only_stages:
+    :return:
+    """
     try:
         return Cache.get_element(player_api_id, "MATCH_BY_PLAYER_API_ID")
     except KeyError:
@@ -296,7 +347,7 @@ def read_by_player_api_id(player_api_id, only_stages=True):
         for attribute, value in sqllite_row.items():
             match.__setattr__(attribute, value)
 
-        if only_stages and type(match.stage)!=int:
+        if only_stages and type(match.stage) != int:
             continue
 
         match_list.append(match)
@@ -344,17 +395,28 @@ def read_players_api_id_by_team_api_id(team_api_id, season=None):
                                                                               "away_player_9, away_player_10, "
                                                                               "away_player_11", **filter):
         for away_player_i, player_api_id in sqllite_row.items():
-            if player_api_id:
+            if not util.is_None(player_api_id):
                 players_api_id.add(player_api_id)
     Cache.add_element(str(team_api_id)+"_"+season, players_api_id, "MATCH_GET_PLAYERS_BY_TEAM_API_ID")
     return players_api_id
 
 
 def write_new_match(match_attributes):
+    """
+    Write new match (represented as a dictionary in input) in the DB
+    :param match_attributes:
+    :return:
+    """
     SQLLite.get_connection().insert("Match", match_attributes)
 
 
 def update_match(match, match_attributes):
+    """
+    Update the match
+    :param match:
+    :param match_attributes:
+    :return:
+    """
     for attribute, value in match_attributes.items():
         match.__setattr__(attribute, value)
     SQLLite.get_connection().update("Match", match)

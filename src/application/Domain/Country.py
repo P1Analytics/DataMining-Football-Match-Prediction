@@ -1,6 +1,6 @@
 import src.util.SQLLite as SQLLite
-import src.util.Cache as Cache
 import src.application.Domain.League as League
+
 
 class Country(object):
     def __init__(self, id):
@@ -10,18 +10,19 @@ class Country(object):
         return "Country <id: "+str(self.id)+", name: "+self.name+">"
 
     def get_leagues(self):
-        '''
+        """
         Return the league of this country
         :return:
-        '''
+        """
         return League.read_by_country(self.id)
 
 
 def read_all(column_filter='*'):
-    '''
-    Reads all tuple in the database
+    """
+    Reads all countries from the DB
+    :param column_filter:
     :return:
-    '''
+    """
     countries = []
     for c in SQLLite.read_all("Country", column_filter):
         country = Country(c["id"])
@@ -30,12 +31,14 @@ def read_all(column_filter='*'):
         countries.append(country)
     return countries
 
-def read_by_name(name, like=False):
-    '''
 
+def read_by_name(name, like=False):
+    """
+    read a country by its name
     :param name:
+    :param like:
     :return:
-    '''
+    """
     if like:
         sqllite_rows = SQLLite.get_connection().select_like("Country", **{"name": name})
     else:
@@ -49,4 +52,3 @@ def read_by_name(name, like=False):
         countries.append(country)
 
     return countries
-
