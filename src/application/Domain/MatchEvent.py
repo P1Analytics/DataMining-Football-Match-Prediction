@@ -14,7 +14,7 @@ class MatchEvent(object):
         """
         return Bet_Event.read_by_match_event_id_and_event_name(self.id)
 
-    def get_last_bet_values(self, event_name):
+    def get_last_bet_values(self, event_name=None):
         """
         return the last bet_value of the input event name, of this match event
         :param event_name:
@@ -22,9 +22,17 @@ class MatchEvent(object):
         """
         bet_events = Bet_Event.read_by_match_event_id_and_event_name(self.id, event_name)
         bet_events = sorted(bet_events, key=lambda bet_event: bet_event.date)
-        if len(bet_events) == 0:
-            return None
-        return bet_events[-1]
+
+        bet_events_dict = dict()
+        for bet_event in bet_events:
+            try:
+                if bet_events_dict[bet_event.event_name].date < bet_event.date:
+                    bet_events_dict[event_name] = bet_event
+            except KeyError:
+                bet_events_dict[bet_event.event_name] = bet_event
+
+
+        return bet_events_dict
 
     def __str__(self):
         return "MatchEvent <id: "+str(self.id)+", match_id: "+str(self.match_id)+">"

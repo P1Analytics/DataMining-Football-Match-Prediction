@@ -85,6 +85,11 @@ class Match(object):
         finished if and only if incidents of the match are managed
         :return:
         """
+        is_scored_goals = self.home_team_goal > 0 or self.away_team_goal > 0
+        if (is_scored_goals and util.compare_time_to_now(self.date, 1)) \
+                or (not is_scored_goals and util.compare_time_to_now(self.date, 100)):
+            return True
+
         if util.is_None(self.goal) \
                 and util.is_None(self.shoton) \
                 and util.is_None(self.shotoff) \
@@ -139,6 +144,10 @@ class Match(object):
             players.append(player)
 
         return players
+
+    def get_match_event(self):
+        import src.application.Domain.MatchEvent as MatchEvent
+        return MatchEvent.read_by_match_id(self.id)
 
 
 def read_all(column_filter='*'):
@@ -204,14 +213,22 @@ def read_by_match_api_id(match_api_id):
     return match
 
 
-def read_by_match_date(date_str):
+def read_by_match_date(date_str, order_by_date=False):
     """
     Return all the matches played in the input-date
     :param date_str:
     :return:
     """
+
+    if order_by_date:
+        columns_order = "DATE"
+    else:
+        columns_order = None
+
     match_list = []
-    sqllite_rows = SQLLite.get_connection().select_like("Match", **{"date": str(date_str)})
+    sqllite_rows = SQLLite.get_connection().select_like("Match",
+                                                        columns_order=columns_order,
+                                                        **{"date": str(date_str)})
     for p in sqllite_rows:
         match = Match(p["id"])
         for attribute, value in p.items():

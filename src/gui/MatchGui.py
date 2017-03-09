@@ -142,8 +142,8 @@ def get_formation(match, team, home=True):
     formation_str += get_team_trend_str(match, team)
 
     # get Goals
-    formation_str += "\n"+get_team_goals_str(match, team)
-    formation_str += "\n" + get_team_goals_str(match, team, n=5)
+    formation_str += get_team_goals_str(match, team)
+    formation_str += get_team_goals_str(match, team, n=5)
 
     if home:
         team_lines = match.get_home_team_lines_up()
@@ -198,7 +198,10 @@ def get_team_goals_str(match, team, n=None):
         else:
             team_goal_str = "(total)\t" + team_goal_str
 
-    return team_goal_str
+    if team_goal_str != "":
+        return "\n"+team_goal_str
+
+    return ""
 
 
 def get_team_trend_str(match, team):
@@ -214,3 +217,6 @@ def get_team_trend_str(match, team):
         trend_str += "\t\tAT: " + away_trend
 
     return trend_str
+
+if __name__ == "__main__":
+    search_by_date()

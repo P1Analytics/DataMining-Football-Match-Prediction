@@ -31,8 +31,10 @@ class Team(object):
         :param home:
         :return:
         """
-
-        matches = self.get_training_matches(season, stage, n, home=home)
+        try:
+            matches = self.get_training_matches(season, stage, n, home=home)
+        except MLException:
+            return ""
 
         trend = ""
         for match in matches[-n:]:

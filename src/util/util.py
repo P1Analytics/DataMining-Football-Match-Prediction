@@ -101,10 +101,10 @@ def is_today(date_str):
 
 def compare_time_to_now(iso_time_string, days_to_subtract=0):
     """
-    TRUE if input_time < (current_time-days)
+    TRUE if input_time < (current_time - day_to_subtract)
             EX: input_time = 2017-01-01
                 current_time = 2017-02-08
-                days = 30   ret TRUE --> 30 day are passed
+                days_to_subtract = 30   ret TRUE --> 30 day are passed
     :param iso_time_string:
     :param days_to_subtract:
     :return:

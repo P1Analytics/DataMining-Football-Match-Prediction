@@ -10,6 +10,9 @@ class BetEvent(object):
     def __str__(self):
         return "BetEvent <"+str(self.match_event_id)+", "+self.event_name+", "+self.date+", "+self.bet_value+">"
 
+    def get_bet_odds(self):
+        return json.loads(self.bet_value)
+
 
 def read_by_match_event_id_and_event_name(match_event_id, event_name=None):
     '''

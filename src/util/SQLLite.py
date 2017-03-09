@@ -94,7 +94,7 @@ class SQLiteConnection(object):
         log.debug("Rows found: "+str(len(row_results)))
         return row_results
 
-    def select_like(self, table_name, column_filter='*', **id):
+    def select_like(self, table_name, column_filter='*', columns_order=None, **id):
         id_condition = ""
         if len(id) > 0:
             id_condition = "WHERE "
@@ -108,8 +108,14 @@ class SQLiteConnection(object):
         else:
             column_names = column_filter.split(",")
 
+        if util.is_None(columns_order):
+            order_by = ""
+        else:
+            order_by = " ORDER BY "+columns_order
+
+
         row_results = []
-        select_like = "SELECT "+column_filter+" FROM "+table_name+" "+id_condition+";"
+        select_like = "SELECT "+column_filter+" FROM "+table_name+" "+id_condition+order_by+";"
         log.debug("Select like ["+select_like+"]")
         for sqllite_row in self.cursor.execute(select_like):
             if sqllite_row is None:

@@ -7,11 +7,11 @@ import src.application.MachineLearning.MachineLearningInput as mli
 
 log = logging.getLogger(__name__)
 
+ml_alg_framework = "my_poisson"
 ml_alg_method = "SVM"
-ml_alg_framework = "Sklearn"
-ml_train_input_id = 4
+ml_train_input_id = 5
 ml_train_input_representation = 1
-ml_train_stages_to_train = 10
+ml_train_stages_to_train = 30
 
 
 def run():
@@ -233,7 +233,3 @@ def predict(league, season, stage):
     ml_alg.train()
     predicted_labels, probability_events = ml_alg.predict(matches_to_predict)
     return predicted_labels, probability_events, matches_to_predict_id
-
-if __name__ == "__main__":
-    #set_predictor()
-    predict_by_date()
