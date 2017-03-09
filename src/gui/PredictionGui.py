@@ -2,6 +2,7 @@ import logging
 import src.util.GuiUtil as GuiUtil
 
 import src.application.Domain.Match as Match
+import src.application.Exception.MLException as MLException
 import src.application.MachineLearning.MachineLearningAlgorithm as mla
 import src.application.MachineLearning.MachineLearningInput as mli
 
@@ -11,7 +12,7 @@ ml_alg_framework = "my_poisson"
 ml_alg_method = "SVM"
 ml_train_input_id = 5
 ml_train_input_representation = 1
-ml_train_stages_to_train = 30
+ml_train_stages_to_train = 20
 
 
 def run():
@@ -214,22 +215,25 @@ def predict(league, season, stage):
     global ml_train_input_representation
     global ml_train_stages_to_train
 
-    matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict = \
-        mli.get_input_to_train(ml_train_input_id,
-                               league,
-                               ml_train_input_representation,
-                               stage,
-                               ml_train_stages_to_train,
-                               season)
+    try:
+        matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict = \
+            mli.get_input_to_train(ml_train_input_id,
+                                   league,
+                                   ml_train_input_representation,
+                                   stage,
+                                   ml_train_stages_to_train,
+                                   season)
 
-    ml_alg = mla.get_machine_learning_algorithm(ml_alg_framework,
-                                                ml_alg_method,
-                                                matches,
-                                                labels,
-                                                matches_id,
-                                                train_percentage=1,
-                                                )
+        ml_alg = mla.get_machine_learning_algorithm(ml_alg_framework,
+                                                    ml_alg_method,
+                                                    matches,
+                                                    labels,
+                                                    matches_id,
+                                                    train_percentage=1,
+                                                    )
 
-    ml_alg.train()
-    predicted_labels, probability_events = ml_alg.predict(matches_to_predict)
-    return predicted_labels, probability_events, matches_to_predict_id
+        ml_alg.train()
+        predicted_labels, probability_events = ml_alg.predict(matches_to_predict)
+        return predicted_labels, probability_events, matches_to_predict_id
+    except:
+        return [],[],[]

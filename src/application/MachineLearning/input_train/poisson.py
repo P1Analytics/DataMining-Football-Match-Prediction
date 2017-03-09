@@ -4,31 +4,31 @@ import src.util.MLUtil as MLUtil
 from src.application.Exception.MLException import MLException
 
 
-def poisson_input(league_or_team,
+def poisson_input(league,
                   representation,
                   stage_to_predict,       # number of next stage we want to predict
                   season,
-                  stages_to_train=90,     # number of stages to consider
+                  stages_to_train=15,     # number of stages to consider
                                           # --> it define the size of the train (EX: 38 * 10 train input)
                   ):
-    matches = []
-    matches_to_predict = []
-    labels = []
-    labels_to_predict = []
-    matches_id = []
-    matches_to_predict_id = []
+    """
+
+    :param league:
+    :param representation:
+    :param stage_to_predict:
+    :param season:
+    :param stages_to_train:
+    :return:
+    """
+    # init of important variables
+    matches, matches_to_predict = [], []
+    labels, labels_to_predict = [], []
+    matches_id, matches_to_predict_id = [], []
 
     # set to be predicted
-    for match in [m for m in league_or_team.get_matches(season=season) if m.stage == stage_to_predict]:
-        home_team = match.get_home_team()
-        away_team = match.get_away_team()
+    for match in [m for m in league.get_matches(season=season) if m.stage == stage_to_predict]:
         try:
-            matches_to_predict.append(np.asarray(get_match_as_array(away_team,
-                                                                    league_or_team,
-                                                                    home_team,
-                                                                    match,
-                                                                    season,
-                                                                    stages_to_train)))
+            matches_to_predict.append(np.asarray(get_match_as_array(league, match, stages_to_train)))
             matches_to_predict_id.append(match.id)
             labels_to_predict.append(MLUtil.get_label(match))
         except MLException:
@@ -45,25 +45,18 @@ def poisson_input(league_or_team,
     return matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict
 
 
-def get_match_as_array(away_team, domain, home_team, match, season, stages_to_train):
+def get_match_as_array(league, match, stages_to_train):
+
     # get averages by domain
     avg_home_goal_done, avg_home_goal_rece, \
-        avg_away_goal_done, avg_away_goal_rece = get_average_goals(domain, season, match.stage, stages_to_train)
+        avg_away_goal_done, avg_away_goal_rece = get_average_goals(league, match.season, match.stage, stages_to_train)
+
     # get strength of the team, compared to averges
-    home_attack_strength, home_defense_strength = get_strength(avg_home_goal_done,
-                                                               avg_home_goal_rece,
-                                                               home_team,
-                                                               season,
-                                                               match.stage,
-                                                               stages_to_train,
-                                                               home=True)
-    away_attack_strength, away_defense_strength = get_strength(avg_away_goal_done,
-                                                               avg_away_goal_rece,
-                                                               away_team,
-                                                               season,
-                                                               match.stage,
-                                                               stages_to_train,
-                                                               home=False)
+    home_attack_strength, home_defense_strength = \
+        get_strength(avg_home_goal_done, avg_home_goal_rece, match, stages_to_train, home=True)
+    away_attack_strength, away_defense_strength = \
+        get_strength(avg_away_goal_done, avg_away_goal_rece, match, stages_to_train, home=False)
+
     # get expected number of goals two teams will score
     home_exp_goals = get_goal_expectancy(home_attack_strength, away_defense_strength, avg_home_goal_done)
     away_exp_goals = get_goal_expectancy(away_attack_strength, home_defense_strength, avg_away_goal_done)
@@ -80,10 +73,10 @@ def get_goal_expectancy(t1_attack_strength, t2_defense_strength, average_t1_goal
     :param average_t1_goals:
     :return:
     """
-    return t1_attack_strength*t2_defense_strength*average_t1_goals
+    return t1_attack_strength * t2_defense_strength * average_t1_goals
 
 
-def get_strength(avg_goal_done, avg_goal_rece, team, season, stage, stages_to_train, home=True):
+def get_strength(avg_goal_done, avg_goal_rece, match, stages_to_train, home=True):
     """
     return the attack strength and the defence strength of a team,
     computed by comparing its characteristic against the average
@@ -97,7 +90,14 @@ def get_strength(avg_goal_done, avg_goal_rece, team, season, stage, stages_to_tr
     :param home:
     :return:
     """
-    team_goal_done, team_goal_rece, n = team.get_goals_by_train_matches(season, stage, stages_to_train, home=home)
+
+    if home:
+        team = match.get_home_team()
+    else:
+        team = match.get_away_team()
+
+
+    team_goal_done, team_goal_rece, n = team.get_goals_by_train_matches(match.season, match.stage, stages_to_train, home=home)
 
     return (team_goal_done / n) / avg_goal_done, (team_goal_rece / n) / avg_goal_rece
 
@@ -115,7 +115,7 @@ def get_average_goals(league, season, stage, stages_to_train):
     """
     matches = league.get_training_matches(season, stage, stages_to_train)
     home_goal_done = 0          # equals to away_goal_receive
-    home_goal_rece = 0      # equals to away_goal_done
+    home_goal_rece = 0          # equals to away_goal_done
     n = len(matches)
     for match in matches:
         home_goal_done += match.home_team_goal

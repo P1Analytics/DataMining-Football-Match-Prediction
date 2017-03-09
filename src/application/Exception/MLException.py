@@ -3,7 +3,8 @@ code_meaning = {
     1: "No match for team to train",
     2: "No enough data for training or predicting",
     3: "Error during training",
-    4: "No machine learning algorithm found"
+    4: "No machine learning algorithm found",
+    5: "Bad Representation"
 }
 
 

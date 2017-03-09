@@ -1,5 +1,5 @@
 import numpy as np
-
+import src.util.MLUtil as MLUtil
 from src.application.Exception.MLException import MLException
 
 
@@ -38,7 +38,7 @@ def kekko_input(domain,
 
             matches.append(np.asarray(match_as_array))
             matches_id.append(match.id)
-            labels.append(get_label(match))
+            labels.append(MLUtil.get_label(match))
 
         except MLException:
             continue
@@ -62,7 +62,7 @@ def kekko_input(domain,
 
             matches_to_predict.append(np.asarray(match_as_array))
 
-            labels_to_predict.append(get_label(match))
+            labels_to_predict.append(MLUtil.get_label(match))
             matches_to_predict_id.append(match.id)
 
         except MLException:
@@ -77,15 +77,6 @@ def kekko_input(domain,
         raise MLException(2)
 
     return matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict
-
-
-def get_label(match):
-    if match.home_team_goal > match.away_team_goal:
-        return 1
-    elif match.home_team_goal < match.away_team_goal:
-        return 2
-    else:
-        return 0
 
 
 def get_goals(team, match_stage, match_season, stages_to_train):
@@ -110,22 +101,18 @@ def get_trend(team, match_stage, match_season):
 
 def transform_tren(trend_str):
     trend_list = []
-    point = 0
     for t in trend_str.split():
         if t == 'V':
             # win
             trend_list.append(1)
-            point += 3
         elif t == 'P':
             # lost
             trend_list.append(2)
         elif t == 'X':
             # draw
             trend_list.append(0)
-            point += 1
 
     return trend_list
-    #return [point]
 
 
 def get_classifica(league, team, season, stage_to_predict, stages_to_train):

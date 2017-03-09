@@ -42,7 +42,7 @@ def print_bet_odds(date):
         pi += 1
 
     if pi == 1:
-        GuiUtil.print_ans("No match found", date)
+        GuiUtil.print_att("No match found", date)
 
 
 def get_bet_event_out(bet_event):
@@ -66,5 +66,3 @@ def get_match_event_out(match):
         match_event_str += get_bet_event_out(bet_event)
 
     return match_event_str
-
-#print_bet_odds("2017-03-10")
