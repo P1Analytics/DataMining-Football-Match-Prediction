@@ -30,10 +30,13 @@ class CrawlerEvent(object):
         :return:
         """
         last_bet_value = self.match_event.get_last_bet_values(self.event_name)
-        if last_bet_value and util.is_today(last_bet_value.date.split(" ")[0]):
-            # do not crawl bet odds, today they've been already crawled
-            log.debug("No need to crawl ["+self.event_name+"] " + self.event_link)
-            return
+        try:
+            if last_bet_value[self.event_name] and util.is_today(last_bet_value[self.event_name].date.split(" ")[0]):
+                # do not crawl bet odds, today they've been already crawled
+                log.debug("No need to crawl [" + self.event_name + "] " + self.event_link)
+                return
+        except KeyError:
+            pass
 
         try:
             if self.event_name == 'Match Result':

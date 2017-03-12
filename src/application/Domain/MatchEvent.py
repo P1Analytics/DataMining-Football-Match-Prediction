@@ -31,7 +31,6 @@ class MatchEvent(object):
             except KeyError:
                 bet_events_dict[bet_event.event_name] = bet_event
 
-
         return bet_events_dict
 
     def __str__(self):

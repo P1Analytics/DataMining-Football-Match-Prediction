@@ -220,7 +220,10 @@ class SQLiteConnection(object):
         update = "UPDATE "+table_name+" SET "
 
         for column in column_names:
-            update += column+"='"+str(object.__getattribute__(column)).replace("'", "''")+"',"
+            value = str(object.__getattribute__(column)).replace("'", "''")
+            if util.is_None(value):
+                continue
+            update += column+"='"+value+"',"
 
         update = update[:-1]
 
