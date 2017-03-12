@@ -60,6 +60,10 @@ def get_match_event_out(match):
     match_event_str += "\n"+"["+match.date+"]"
 
     match_event = match.get_match_event()
+    if util.is_None(match_event):
+        match_event_str += "\nNo bet-odds found"
+        return match_event_str
+
     bet_events_dict = match_event.get_last_bet_values()
 
     for bet_event_name, bet_event in bet_events_dict.items():
