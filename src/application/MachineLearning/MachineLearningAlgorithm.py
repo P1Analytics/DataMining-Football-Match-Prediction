@@ -164,12 +164,12 @@ def get_frameworks():
 
 
 def get_methods():
-    return ["SVM", "KNN", "RandomForest", "AdaBoostClassifier"]
+    return ["SVM", "KNN", "RandomForest"]
 
 
 def get_methods_by_framework(framework):
     if framework == "Sklearn":
-        return ["SVM", "KNN", "RandomForest", "AdaBoostClassifier"]
+        return ["SVM", "KNN", "RandomForest"]
 
     elif framework == "my_poisson":
         return []

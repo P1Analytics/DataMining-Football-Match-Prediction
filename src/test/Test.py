@@ -1,5 +1,7 @@
 import src.application.Domain.League as League
 from src.application.MachineLearning.experiment.experiment import Experiment
+import src.application.MachineLearning.MachineLearningAlgorithm as mla
+import src.application.MachineLearning.MachineLearningInput as mli
 
 import src.util.util as util
 util.init_logger(10)
@@ -18,10 +20,17 @@ def do_test_1():
 def doTest():
     league = League.read_by_name("Italy", like=True)[0]
 
-    exp = Experiment(1)
-    params = {"ml_alg_method":"MultiLayer", "ml_alg_framework":"poisson", "ml_train_stages_to_train":20,
-              "ml_train_input_id":5}
-    exp.run(league, complete=True, **params)
+    for i,desc in mli.get_input_ids().items():
+
+        if len(mli.get_representations(i)) == 0:
+            params = {"ml_train_input_id": i}
+            exp = Experiment(2)
+            exp.run(league, complete=True, **params)
+
+        for r in mli.get_representations(i):
+            params = {"ml_train_input_id": i, "ml_train_input_representation": r}
+            exp = Experiment(2)
+            exp.run(league, complete=True, **params)
 
 
 doTest()

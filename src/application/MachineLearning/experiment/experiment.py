@@ -14,7 +14,7 @@ warnings.warn = warn
 experiments = {
     0: "check accuracy of each stage by seasons",
     1: "Find best window size by match representation and ml algorithm",
-    2: "Find team accuracy by representation and window size",
+    2: "Compare mla testing different window sizes",
     3: "Find best ML alg, by window size and match representation"
 }
 
@@ -42,6 +42,10 @@ class Experiment(object):
                 exp_1.run_experiment_1(self, league, ml_train_input_id, ml_train_input_representation, **params)
 
         elif self.type == 2:
+            import src.application.MachineLearning.experiment.experiment_2 as exp_2
+            ml_train_input_id = util.get_default(params, "ml_train_input_id", 1)
+            ml_train_input_representation = util.get_default(params, "ml_train_input_representation", 1)
+            exp_2.run_experiment_2(self, league, ml_train_input_id, ml_train_input_representation)
             pass
 
         elif self.type == 3:
