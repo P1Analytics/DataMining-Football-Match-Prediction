@@ -84,7 +84,7 @@ def run_experiment_2(exp, league, ml_train_input_id, ml_train_input_representati
                     # framework can be used in different manner (ex. SKlearn)
                     #   --> test every algorithm available (SVM, Knn,..)
 
-                    if m == "SVM" or m == "KNN" or m == "RandomForest":
+                    if m == "KNN" or m == "RandomForest":
                         # TODO remove the condition whic correspond to the test we want to perform
                         # SImone: SVM
                         # Nana: Forest

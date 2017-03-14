@@ -40,3 +40,5 @@ class CrawlerLeague(object):
                     break
                 except requests.exceptions.ReadTimeout:
                     n_try += 1
+                except requests.exceptions.ConnectionError:
+                    n_try += 1

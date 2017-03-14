@@ -1,6 +1,7 @@
 import os
 import warnings
 import src.util.util as util
+import src.application.MachineLearning.MachineLearningAlgorithm as mla
 import src.application.MachineLearning.MachineLearningInput as mli
 from src.application.MachineLearning.prediction_accuracy.prediction_accuracy import PredictionAccuracy
 from src.application.MachineLearning.experiment.experiment_plot import PlotExperiment
@@ -12,7 +13,7 @@ warnings.warn = warn
 
 
 experiments = {
-    0: "check accuracy of each stage by seasons",
+    0: "Simulate bet",
     1: "Find best window size by match representation and ml algorithm",
     2: "Compare mla testing different window sizes",
     3: "Find best ML alg, by window size and match representation"
@@ -28,7 +29,10 @@ class Experiment(object):
         os.makedirs(self.experiment_dir,exist_ok=True)
 
     def run(self, league, complete=True, **params):
-        if self.type == 1:
+        if self.type == 0:
+            import src.application.MachineLearning.experiment.experiment_0 as exp_0
+            exp_0.run_experiment_0(self, league)
+        elif self.type == 1:
             import src.application.MachineLearning.experiment.experiment_1 as exp_1
             if complete:
                 for ml_train_input_id, ml_train_input_descr in mli.get_input_ids().items():
