@@ -51,14 +51,17 @@ def run_experiment_2(exp, league, ml_train_input_id, ml_train_input_representati
     params["ml_train_input_id"] = ml_train_input_id
     params["ml_train_input_representation"] = ml_train_input_representation
 
-    ml_train_stages_to_train = [9,11,19,35,71,105,141,175,211,245,281]
+    #ml_train_stages_to_train = [9,11,19,35,71,105,141,175,211,245,281]
+    # shrink windows
+    ml_train_stages_to_train = [9, 11, 19, 35, 71, 105, 141]
 
     plot_entries = {w:entry(w) for w in ml_train_stages_to_train}
 
     for n_matches in ml_train_stages_to_train:
         params["ml_train_stages_to_train"] = n_matches
 
-        for season in league.get_seasons():
+        for season in league.get_seasons()[-3:]:
+            # only consider last two season
             if season == util.get_current_season():
                 break
 
@@ -81,7 +84,7 @@ def run_experiment_2(exp, league, ml_train_input_id, ml_train_input_representati
                     # framework can be used in different manner (ex. SKlearn)
                     #   --> test every algorithm available (SVM, Knn,..)
 
-                    if m=="SVM" or m == "KNN" or m == "RandomForest":
+                    if m == "SVM" or m == "KNN" or m == "RandomForest":
                         # TODO remove the condition whic correspond to the test we want to perform
                         # SImone: SVM
                         # Nana: Forest
