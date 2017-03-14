@@ -25,7 +25,7 @@ class Experiment(object):
         self.id = util.get_id_by_time()+"_"+str(self.type)
 
         self.experiment_dir = util.get_project_directory()+"data/experiments/"+self.id
-        os.makedirs(self.experiment_dir)
+        os.makedirs(self.experiment_dir,exist_ok=True)
 
     def run(self, league, complete=True, **params):
         if self.type == 1:
