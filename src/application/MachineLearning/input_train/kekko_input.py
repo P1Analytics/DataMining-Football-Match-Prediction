@@ -7,7 +7,7 @@ def kekko_input(domain,
                 representation,
                 stage_to_predict,         # number of next stage we want to predict
                 season,
-                stages_to_train=90,     # numebr of stages to consider
+                stages_to_train=5,     # numebr of stages to consider
                                         # --> it define the size of the train (EX: 38 * 10 train input)
                 ):
 
