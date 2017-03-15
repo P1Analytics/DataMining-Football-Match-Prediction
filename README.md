@@ -4,171 +4,69 @@
 
 This project is targetting on how to predict European league football match results based on the history data of teams,matches,bet-odds by using machine learning algorithms
 
-## Code Structure 
-  
-    ├── data
-    │   ├── db
-    │   │   └── database.sqlite
-    │   ├── experiments
-    │   ├── log
-    │   │   ├── crawl_log.txt
-    │   │   └── logging.txt
-    │   │ 
-    └── src
-        ├── __init__.py
-        ├── __pycache__
-        ├── application
-        │   ├── Crawl
-        │   │   ├── Crawl.py
-        │   │   ├── __init__.py
-        │   │   ├── __pycache__
-        │   │   ├── enetscores
-        │   │   │   ├── CrawlMatch.py
-        │   │   │   ├── Crawler.py
-        │   │   │   ├── CrawlerIncidents.py
-        │   │   │   ├── CrawlerLeague.py
-        │   │   │   ├── CrawlerLineup.py
-        │   │   │   ├── CrawlerTeam.py
-        │   │   │   ├── __init__.py
-        │   │   │   └── __pycache__
-        │   │   ├── football_data
-        │   │   │   ├── Crawler.py
-        │   │   │   ├── CrawlerEvent.py
-        │   │   │   ├── CrawlerLeague.py
-        │   │   │   ├── CrawlerMatch.py
-        │   │   │   ├── __init__.py
-        │   │   │   └── __pycache__
-        │   │   └── sofifa
-        │   │       ├── Crawler.py
-        │   │       ├── CrawlerLeague.py
-        │   │       ├── CrawlerPlayer.py
-        │   │       ├── CrawlerTeam.py
-        │   │       ├── __init__.py
-        │   │       └── __pycache__
-        │   ├── Domain
-        │   │   ├── Bet_Event.py
-        │   │   ├── Country.py
-        │   │   ├── Event.py
-        │   │   ├── League.py
-        │   │   ├── Match.py
-        │   │   ├── MatchEvent.py
-        │   │   ├── Player.py
-        │   │   ├── Player_Attributes.py
-        │   │   ├── Shot.py
-        │   │   ├── Team.py
-        │   │   ├── Team_Attributes.py
-        │   │   ├── __init__.py
-        │   │   └── __pycache__
-        │   ├── Exception
-        │   │   ├── CrawlException.py
-        │   │   ├── MLException.py
-        │   │   ├── TeamException.py
-        │   │   ├── __init__.py
-        │   │   └── __pycache__
-        │   ├── MachineLearning
-        │   │   ├── MachineLearningAlgorithm.py
-        │   │   ├── MachineLearningInput.py
-        │   │   ├── Plot_graph.py
-        │   │   ├── __init__.py
-        │   │   ├── __pycache__
-        │   │   ├── experiment
-        │   │   │   ├── __init__.py
-        │   │   │   ├── __pycache__
-        │   │   │   ├── experiment.py
-        │   │   │   ├── experiment_1.py
-        │   │   │   ├── experiment_2.py
-        │   │   │   ├── experiment_3.py
-        │   │   │   └── experiment_plot.py
-        │   │   ├── input_train
-        │   │   │   ├── __init__.py
-        │   │   │   ├── __pycache__
-        │   │   │   ├── kekko_input.py
-        │   │   │   ├── match_statistics.py
-        │   │   │   ├── poisson.py
-        │   │   │   ├── team_form.py
-        │   │   │   └── team_home_away_form.py
-        │   │   ├── my_poisson
-        │   │   │   ├── __init__.py
-        │   │   │   ├── __pycache__
-        │   │   │   └── poisson.py
-        │   │   ├── my_sklearn
-        │   │   │   ├── Sklearn.py
-        │   │   │   ├── __init__.py
-        │   │   │   └── __pycache__
-        │   │   ├── my_tensor_flow
-        │   │   │   ├── KNNAlgorithm.py
-        │   │   │   ├── MultiLayerPerceptron.py
-        │   │   │   ├── MulticlassSVM.py
-        │   │   │   ├── SVM.py
-        │   │   │   ├── __init__.py
-        │   │   │   └── __pycache__
-        │   │   └── prediction_accuracy
-        │   │       ├── __init__.py
-        │   │       ├── __pycache__
-        │   │       └── prediction_accuracy.py
-        │   ├── __init__.py
-        │   └── __pycache__
-        ├── gui
-        │   ├── BetOddsGui.py
-        │   ├── CountryGui.py
-        │   ├── CrawlGui.py
-        │   ├── LeaguesGui.py
-        │   ├── MainGui.py
-        │   ├── MatchGui.py
-        │   ├── PlayerGui.py
-        │   ├── PredictionGui.py
-        │   ├── TeamGui.py
-        │   ├── __init__.py
-        │   └── __pycache__
-        ├── main.py
-        ├── test
-        │   ├── TensorFlow.py
-        │   ├── Test.py
-        │   └── __init__.py
-        └── util
-            ├── CSV_Reader.py
-            ├── Cache.py
-            ├── GuiUtil.py
-            ├── MLUtil.py
-            ├── SQLLite.ini
-            ├── SQLLite.py
-            ├── __init__.py
-            ├── __pycache__
-            └── util.py
-    
-    
-   User interactive interface 
-   
-   Crawl the website information
-   
-   Collect data for teams, players,leageues,matches and bet-odds
-   
-   Use the different algorithm for calculating the predictions
-
-Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
+## Code  
 ### src
-    application
-        Crawl:Crawl the website information,Collect data for teams, players,leageues,matches and bet-odds
-        Domain:Dedicated methods for different types of data
-        Exception:Customized the exceptions for this application
-        MachineLearning:Use the different algorithm for calculating the predictions
+#### application 
+>Code for crawling the data , pre-process and algorithms
+
+    Crawl:
+        First the most important part for this project is :
+        Code for crawling the website information,Collect data for teams, players,leageues,matches and bet-odds
+            enetscores
+                crawling from http://football-data.mx-api.enetscores.com
+            football_data
+                crawling from http://www.odds.football-data.co.uk
+            sofifa
+                crawling from http://sofifa.com
+    Domain:
+        Code for Dedicated methods for different types of data
+            
+    Exception:
+        Code for Customizing the exceptions for this application
+    MachineLearning:
+        Another most important part for this project is :
+        Code for using the different algorithm for calculating the predictions
+            experiments
+            input_train
+            my_possion
+            my_sklearn
+            prediction_accuracy
     
 ### gui
+>Code for User interactive interface
 ### test
+>Test code for without GUI part ,only focus on algorithm and input data 
 ### util
-### main.py
-#### Usage
+>Code for all the common functions
+### main.py 
+>Entry for the whole application.
 
+#### Usage demostration for main.py
+#####./ScorePredictionRep/src/main.py [--no-crawl] [--no-index] [-v]
 
-./ScorePredictionRep/src/main.py [--no-crawl] [--no-index] [-v]
+--no-crawl :  for not crawling the website and update the SQLLite
 
---no-crawl :  for not crawling the website and update the SQLLite 
+--no-index :  for indexing the Italy league
 
---no-index :  for indexing the Italy league 
+--v         :  for the debug 
 
--v         :  for the debug 
-
-
+    python ./ScorePredictionRep/src/main.py
+    > Initialization DB
+    > Indexing...
+         ...finished in 181.01 seconds
+    > Init crawling: started
+    ****************************************************************************************************
+    *********************************** ScorePrediction application ***********************************
+    ****************************************************************************************************
+    Browse the application to discover different data
+        - 1 : Players
+        - 2 : Matches
+        - 3 : Leagues
+        - 4 : Countries
+        - 5 : Teams
+        - 6 : Crawling
+        - 7 : Prediction
+        - 8 : Bet odds
     Browse the application to discover different data
         - 1 : Players
         - 2 : Matches
@@ -328,6 +226,7 @@ Show what the library does as concisely as possible, developers should be able t
             2	(60.0%)
     ****************************************************************************************************
 
+
 ## Motivation
 
 A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
@@ -359,11 +258,11 @@ The representations of the Team Forms are:
 4. **Representation 4 (r4)**: This represents the discretized values of r3. This representation will be discretized by equal frequency into three bins.
 
 #### ALgorithms: 
-K-NearestNeighbourhood
+[K-NearestNeighbourhood](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm)
 
 SVM-MultiClassifier
 
-RandomForest 
+[RandomForest](https://en.wikipedia.org/wiki/Random_forest)
 
 Possion
 
@@ -388,5 +287,150 @@ Aris Anagnostopoulos
 
 Ioannis Chatzigiannakis
 
-# Reference : 
-[A Comparison of Methods for Predicting Football Matches ,David B. Ekefre ](http://liacs.leidenuniv.nl/assets/Masterscripties/ICTiB/2015-2016/Ekefre-non-confidential.pdf)
+# Reference of papers: 
+[A Comparison of Methods for Predicting Football Matches, David B. Ekefre ](http://liacs.leidenuniv.nl/assets/Masterscripties/ICTiB/2015-2016/Ekefre-non-confidential.pdf)
+
+[Predicting Soccer Match Results in the English Premier League, Ben Ulmer,Matthew Fernandez](http://cs229.stanford.edu/proj2014/Ben%20Ulmer,%20Matt%20Fernandez,%20Predicting%20Soccer%20Results%20in%20the%20English%20Premier%20League.pdf)
+# Refence of code structure:
+## Code Structure 
+  
+    ├── data
+    │   ├── db
+    │   │   └── database.sqlite
+    │   ├── experiments
+    │   ├── log
+    │   │   ├── crawl_log.txt
+    │   │   └── logging.txt
+    │   │ 
+    └── src
+        ├── __init__.py
+        ├── __pycache__
+        ├── application
+        │   ├── Crawl
+        │   │   ├── Crawl.py
+        │   │   ├── __init__.py
+        │   │   ├── __pycache__
+        │   │   ├── enetscores
+        │   │   │   ├── CrawlMatch.py
+        │   │   │   ├── Crawler.py
+        │   │   │   ├── CrawlerIncidents.py
+        │   │   │   ├── CrawlerLeague.py
+        │   │   │   ├── CrawlerLineup.py
+        │   │   │   ├── CrawlerTeam.py
+        │   │   │   ├── __init__.py
+        │   │   │   └── __pycache__
+        │   │   ├── football_data
+        │   │   │   ├── Crawler.py
+        │   │   │   ├── CrawlerEvent.py
+        │   │   │   ├── CrawlerLeague.py
+        │   │   │   ├── CrawlerMatch.py
+        │   │   │   ├── __init__.py
+        │   │   │   └── __pycache__
+        │   │   └── sofifa
+        │   │       ├── Crawler.py
+        │   │       ├── CrawlerLeague.py
+        │   │       ├── CrawlerPlayer.py
+        │   │       ├── CrawlerTeam.py
+        │   │       ├── __init__.py
+        │   │       └── __pycache__
+        │   ├── Domain
+        │   │   ├── Bet_Event.py
+        │   │   ├── Country.py
+        │   │   ├── Event.py
+        │   │   ├── League.py
+        │   │   ├── Match.py
+        │   │   ├── MatchEvent.py
+        │   │   ├── Player.py
+        │   │   ├── Player_Attributes.py
+        │   │   ├── Shot.py
+        │   │   ├── Team.py
+        │   │   ├── Team_Attributes.py
+        │   │   ├── __init__.py
+        │   │   └── __pycache__
+        │   ├── Exception
+        │   │   ├── CrawlException.py
+        │   │   ├── MLException.py
+        │   │   ├── TeamException.py
+        │   │   ├── __init__.py
+        │   │   └── __pycache__
+        │   ├── MachineLearning
+        │   │   ├── MachineLearningAlgorithm.py
+        │   │   ├── MachineLearningInput.py
+        │   │   ├── Plot_graph.py
+        │   │   ├── __init__.py
+        │   │   ├── __pycache__
+        │   │   ├── experiment
+        │   │   │   ├── __init__.py
+        │   │   │   ├── __pycache__
+        │   │   │   ├── experiment.py
+        │   │   │   ├── experiment_1.py
+        │   │   │   ├── experiment_2.py
+        │   │   │   ├── experiment_3.py
+        │   │   │   └── experiment_plot.py
+        │   │   ├── input_train
+        │   │   │   ├── __init__.py
+        │   │   │   ├── __pycache__
+        │   │   │   ├── kekko_input.py
+        │   │   │   ├── match_statistics.py
+        │   │   │   ├── poisson.py
+        │   │   │   ├── team_form.py
+        │   │   │   └── team_home_away_form.py
+        │   │   ├── my_poisson
+        │   │   │   ├── __init__.py
+        │   │   │   ├── __pycache__
+        │   │   │   └── poisson.py
+        │   │   ├── my_sklearn
+        │   │   │   ├── Sklearn.py
+        │   │   │   ├── __init__.py
+        │   │   │   └── __pycache__
+        │   │   ├── my_tensor_flow
+        │   │   │   ├── KNNAlgorithm.py
+        │   │   │   ├── MultiLayerPerceptron.py
+        │   │   │   ├── MulticlassSVM.py
+        │   │   │   ├── SVM.py
+        │   │   │   ├── __init__.py
+        │   │   │   └── __pycache__
+        │   │   └── prediction_accuracy
+        │   │       ├── __init__.py
+        │   │       ├── __pycache__
+        │   │       └── prediction_accuracy.py
+        │   ├── __init__.py
+        │   └── __pycache__
+        ├── gui
+        │   ├── BetOddsGui.py
+        │   ├── CountryGui.py
+        │   ├── CrawlGui.py
+        │   ├── LeaguesGui.py
+        │   ├── MainGui.py
+        │   ├── MatchGui.py
+        │   ├── PlayerGui.py
+        │   ├── PredictionGui.py
+        │   ├── TeamGui.py
+        │   ├── __init__.py
+        │   └── __pycache__
+        ├── main.py
+        ├── test
+        │   ├── TensorFlow.py
+        │   ├── Test.py
+        │   └── __init__.py
+        └── util
+            ├── CSV_Reader.py
+            ├── Cache.py
+            ├── GuiUtil.py
+            ├── MLUtil.py
+            ├── SQLLite.ini
+            ├── SQLLite.py
+            ├── __init__.py
+            ├── __pycache__
+            └── util.py
+    
+    
+   User interactive interface 
+   
+   Crawl the website information
+   
+   Collect data for teams, players,leageues,matches and bet-odds
+   
+   Use the different algorithm for calculating the predictions
+
+Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
