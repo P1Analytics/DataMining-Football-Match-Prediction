@@ -10,9 +10,6 @@ This project is targetting on how to predict European league football match resu
     │   ├── db
     │   │   └── database.sqlite
     │   ├── experiments
-    │   │   ├── 20170303103119_4
-    │   │   ├── 20170303120918_1
-    │   │   └── 20170303121756_1
     │   ├── log
     │   │   ├── crawl_log.txt
     │   │   └── logging.txt
@@ -24,6 +21,7 @@ This project is targetting on how to predict European league football match resu
         │   ├── Crawl
         │   │   ├── Crawl.py
         │   │   ├── __init__.py
+        │   │   ├── __pycache__
         │   │   ├── enetscores
         │   │   │   ├── CrawlMatch.py
         │   │   │   ├── Crawler.py
@@ -31,19 +29,22 @@ This project is targetting on how to predict European league football match resu
         │   │   │   ├── CrawlerLeague.py
         │   │   │   ├── CrawlerLineup.py
         │   │   │   ├── CrawlerTeam.py
-        │   │   │   └── __init__.py
+        │   │   │   ├── __init__.py
+        │   │   │   └── __pycache__
         │   │   ├── football_data
         │   │   │   ├── Crawler.py
         │   │   │   ├── CrawlerEvent.py
         │   │   │   ├── CrawlerLeague.py
         │   │   │   ├── CrawlerMatch.py
-        │   │   │   └── __init__.py
+        │   │   │   ├── __init__.py
+        │   │   │   └── __pycache__
         │   │   └── sofifa
         │   │       ├── Crawler.py
         │   │       ├── CrawlerLeague.py
         │   │       ├── CrawlerPlayer.py
         │   │       ├── CrawlerTeam.py
-        │   │       └── __init__.py
+        │   │       ├── __init__.py
+        │   │       └── __pycache__
         │   ├── Domain
         │   │   ├── Bet_Event.py
         │   │   ├── Country.py
@@ -75,6 +76,7 @@ This project is targetting on how to predict European league football match resu
         │   │   │   ├── __pycache__
         │   │   │   ├── experiment.py
         │   │   │   ├── experiment_1.py
+        │   │   │   ├── experiment_2.py
         │   │   │   ├── experiment_3.py
         │   │   │   └── experiment_plot.py
         │   │   ├── input_train
@@ -95,6 +97,7 @@ This project is targetting on how to predict European league football match resu
         │   │   │   └── __pycache__
         │   │   ├── my_tensor_flow
         │   │   │   ├── KNNAlgorithm.py
+        │   │   │   ├── MultiLayerPerceptron.py
         │   │   │   ├── MulticlassSVM.py
         │   │   │   ├── SVM.py
         │   │   │   ├── __init__.py
@@ -115,7 +118,8 @@ This project is targetting on how to predict European league football match resu
         │   ├── PlayerGui.py
         │   ├── PredictionGui.py
         │   ├── TeamGui.py
-        │   └── __init__.py
+        │   ├── __init__.py
+        │   └── __pycache__
         ├── main.py
         ├── test
         │   ├── TensorFlow.py
@@ -132,6 +136,7 @@ This project is targetting on how to predict European league football match resu
             ├── __pycache__
             └── util.py
     
+    
    User interactive interface 
    
    Crawl the website information
@@ -141,13 +146,19 @@ This project is targetting on how to predict European league football match resu
    Use the different algorithm for calculating the predictions
 
 Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
+### src
+    application
+        Crawl:Crawl the website information,Collect data for teams, players,leageues,matches and bet-odds
+        Domain:Dedicated methods for different types of data
+        Exception:Customized the exceptions for this application
+        MachineLearning:Use the different algorithm for calculating the predictions
+    
+### gui
+### test
+### util
+### main.py
+#### Usage
 
-## Motivation
-
-A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
-
-## Installation
-###TODO
 
 ./ScorePredictionRep/src/main.py [--no-crawl] [--no-index] [-v]
 
@@ -174,24 +185,204 @@ A short description of the motivation behind the creation and maintenance of the
         - 1 : Find by Name
         - 2 : Find by Team
         - gb : Go back
+    
+    Select an item: 1
+    [INFO: Machine Learning Framework --> 1]
+    [INFO: Machine Learning Algorithm --> 2]
+    [INFO: Machine Learning Input --> 1]
+    [INFO: Machine Learning Input representation --> 2]
+    [INFO: Machine Learning Training Size --> 20]
+    [INFO: Setting --> predictor]
+    [ANSWER of List --> Frameworks (String)]
+        1) Sklearn
+        2) my_poisson
+    [ANSWER of List --> Algorithms (String)]
+        1) SVM
+        2) KNN
+        3) RandomForest
+    [ANSWER of List --> Machine learning input (Id)]
+        1) team form
+            Representations: [1, 2, 3, 4]
+        2) team home away form
+            Representations: [1, 2, 3, 4]
+        3) match statistics
+            Representations: []
+        4) Kekko input
+            Representations: []
+        5) Poisson inpunt
+            Representations: []
+    [INSTRUCTION: list of parameter --> framework(str) algorithm(str) input(int) representation(int) training(int)]
+    [INSTRUCTION: Use . for --> default]
+    
+    Type your representation: Sklearn KNN 1 2 20
+    ****************************************************************************************************
+    Predictions Menu:
+        - 1 : Set Current Predictor
+        - 2 : Show Current Predictor
+        - 3 : Check setting current predictor
+        - 4 : Predict matches by date
+        - gb : Go back
+    
+    Select an item: 2
+    [INFO: Show --> Current Predictor]
+    [INFO: Machine Learning Framework --> Sklearn]
+    [INFO: Machine Learning Algorithm --> KNN]
+    [INFO: Machine Learning Input --> 1]
+    [INFO: Machine Learning Input representation --> 2]
+    [INFO: Machine Learning Training Size --> 20]
+    ****************************************************************************************************
+    Predictions Menu:
+        - 1 : Set Current Predictor
+        - 2 : Show Current Predictor
+        - 3 : Check setting current predictor
+        - 4 : Predict matches by date
+        - gb : Go back
+    
+    Select an item: 4
+    [INFO: Predict matches by --> date]
+    Insert a date (YYYY-MM-DD) or an integer (the day passed from today --> 0 is today): -4
+    [ANSWER of Prediction by date --> 2017-03-18]
+        1) SD Eibar vs RCD Espanyol
+            1	(57.14%)
+        2) Aberdeen vs Heart of Midlothian|Hearts
+            1	(100.0%)
+        3) West Bromwich Albion vs Arsenal
+            1	(58.06%)
+        4) VfL Wolfsburg vs SV Darmstadt 98
+            1	(44.44%)
+        5) 1. FC Köln vs Hertha BSC Berlin
+            1	(66.67%)
+        6) FC Augsburg vs SC Freiburg
+            1	(66.67%)
+        7) SV Werder Bremen vs RB Leipzig
+            2	(55.56%)
+        8) TSG 1899 Hoffenheim vs Bayer 04 Leverkusen
+            1	(66.67%)
+        9) Piast Gliwice vs Arka Gdynia
+            2	(66.67%)
+        10) Crystal Palace vs Watford
+            2	(45.16%)
+        11) Everton vs Hull City
+            1	(58.06%)
+        12) Stoke City vs Chelsea
+            1	(38.71%)
+        13) Sunderland vs Burnley
+            2	(45.16%)
+        14) West Ham United vs Leicester City
+            1	(58.06%)
+        15) Inverness Caledonian Thistle vs Ross County FC
+            0	(40.0%)
+        16) Kilmarnock vs Partick Thistle F.C.
+            1	(80.0%)
+        17) Motherwell vs St. Johnstone FC|St Johnstone
+            1	(60.0%)
+        18) Rangers vs Hamilton Academical FC
+            1	(60.0%)
+        19) Athletic Club de Bilbao|Athletic Bilbao vs Real Madrid CF
+            2	(47.62%)
+        20) FC Nantes vs OGC Nice
+            2	(71.43%)
+        21) CF Os Belenenses vs SC Braga|Sporting de Braga
+            1	(60.0%)
+        22) Moreirense FC vs Tondela
+            0	(33.33%)
+        23) FC Luzern vs FC Sion
+            1	(46.15%)
+        24) Torino vs Inter|Internazionale
+            2	(41.94%)
+        25) Zagłębie Lubin|Zaglebie Lubin vs Ruch Chorzów|Ruch Chorzow
+            1	(58.06%)
+        26) Alaves|Deportivo Alaves vs Real Sociedad
+            2	(47.62%)
+        27) Bournemouth|AFC Bournemouth vs Swansea City
+            2	(45.16%)
+        28) Eintracht Frankfurt vs Hamburger SV
+            1	(66.67%)
+        29) FC Groningen vs Willem II
+            1	(48.39%)
+        30) Sporting CP vs CD Nacional|Nacional da Madeira
+            1	(66.67%)
+        31) N.E.C.|NEC vs FC Utrecht
+            1	(48.39%)
+        32) PSV|PSV Eindhoven vs Vitesse
+            1	(74.19%)
+        33) AS Nancy-Lorraine vs FC Lorient
+            1	(66.67%)
+        34) Girondins de Bordeaux vs Montpellier Hérault SC|Montpellier HSC
+            0	(38.1%)
+        35) Toulouse FC vs Stade Rennais FC
+            1	(38.1%)
+        36) Angers SCO vs En Avant de Guingamp|En Avant Guingamp
+            0	(38.1%)
+        37) FC Basel vs Grasshopper Club Zürich
+            1	(84.62%)
+        38) Pogoń Szczecin|Pogon Szczecin vs Jagiellonia Białystok|Jagiellonia Bialystok
+            1	(58.06%)
+        39) Real Betis Balompié vs CA Osasuna
+            1	(52.38%)
+        40) Milan|AC Milan vs Genoa
+            1	(61.29%)
+        41) Sparta Rotterdam vs Heracles Almelo
+            1	(41.94%)
+        42) FC Paços de Ferreira vs SL Benfica
+            2	(60.0%)
+    ****************************************************************************************************
+
+## Motivation
+
+A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
+
 
 
 ## API Reference
 
-Depending on the size of the project, if it is small and simple enough the reference docs can be added to the README. For medium size to larger projects it is important to at least provide a link to where the API reference docs live.
+[Scikit-learn](http://scikit-learn.org/stable/modules/classes.html)
 
-## Tests
+## Tests Plan 
+###Test Set
+####Input :
+**Team Form**: combination of points gathered by the teams 
 
-Describe and show how to run the tests with code examples.
+**Team Home Away Form**: combination of points gathered by the teams, considering matches played at home and away. 
+
+**Match Statistics**: combination of previous match statistics performed by teams. 
+
+**Kekko input**: features an human uses to gather information before placing a bet. 
+
+**Poisson input**: home strength and away strength (average goal a team will score)
+
+#### Data representation :
+The representations of the Team Forms are:
+1. **Representation 1 (r1)**: This represents the numeric values of the team forms, normalized to interval [0,3].
+2. **Representation 2 (r2)**: This represents the discretized value of the team forms. We had reason to believe that the classifiers do not distinguish between values well enough while using r1, so we discretized r1 
+3. **Representation 3 (r3)**: This represents the subtracted value between the home team form and away team form. This subtracted value is normalized to the interval [-3,3]; a negative value means away team superiority and a positive value means home team superiority while zero means an equal advantage.
+4. **Representation 4 (r4)**: This represents the discretized values of r3. This representation will be discretized by equal frequency into three bins.
+
+#### ALgorithms: 
+K-NearestNeighbourhood
+
+SVM-MultiClassifier
+
+RandomForest 
+
+Possion
+
+#### Test Window Size
+{9,11,25,.... }
+
+### Test 
+
+
+
 
 ## Contributors
-Simone Caldaro : caldaro.1324152@studenti.uniroma1.it
+[Simone Caldaro](caldaro.1324152@studenti.uniroma1.it)
 
-Leonardo Martini : martini.1722989@studenti.uniroma1.it 
+[Leonardo Martini](martini.1722989@studenti.uniroma1.it) 
 
-Na Zhu : nana.zhu@hotmail.com
+[Na Zhu](zhu.1706409@studenti.uniroma1.it)
 
-Instructors:  
+## Instructors:  
 
 Aris Anagnostopoulos
 
