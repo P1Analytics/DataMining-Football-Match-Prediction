@@ -1,5 +1,6 @@
 import logging
 import src.util.GuiUtil as GuiUtil
+import src.util.util as util
 
 import src.application.Domain.Match as Match
 import src.application.Exception.MLException as MLException
@@ -164,7 +165,8 @@ def check_setting_current_predictor():
 def predict_by_date():
     if check_setting_current_predictor() == -1:
         return
-    date = GuiUtil.input_date_or_day_passed()
+    #date = GuiUtil.input_date_or_day_passed()
+    date = "2017-03-17"
     matches = Match.read_by_match_date(date)
     matches = sorted(matches, key=lambda match: match.date)
 
@@ -202,8 +204,16 @@ def predict_by_date():
 
 def get_printable_prediction(match, prediction, probability):
     out_prediction = ""
-    out_prediction += match.get_home_team().team_long_name+" vs "+ match.get_away_team().team_long_name
-    out_prediction += "\n"+str(prediction)+"\t("+str(round(probability*100,2))+"%)"
+    out_prediction += match.get_home_team().team_long_name+" vs " + match.get_away_team().team_long_name
+    out_prediction += "\n"+str(prediction)+"\t("+str(round(probability*100, 2))+"%):"
+
+    match_event = match.get_match_event()
+    bet_event = match_event.get_last_bet_values(event_name="Match Result")["Match Result"]
+    if not util.is_None(bet_event):
+        bookmaker_bet_odd = bet_event.get_bet_odds_by_bet(prediction)
+        out_prediction += "\t"+str(bookmaker_bet_odd)+"\t("+str(round(100/bookmaker_bet_odd, 2))+"%)"
+        out_prediction += "\nBet odds > "+str(1/probability)
+    out_prediction += ""
 
     return out_prediction
 
@@ -237,3 +247,5 @@ def predict(league, season, stage):
         return predicted_labels, probability_events, matches_to_predict_id
     except:
         return [],[],[]
+
+predict_by_date()

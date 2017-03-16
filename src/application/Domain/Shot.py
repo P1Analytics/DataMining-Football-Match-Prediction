@@ -1,6 +1,7 @@
 import logging
 import src.util.util as util
 import src.util.Cache as Cache
+from src.application.Exception.MLException import MLException
 from bs4 import BeautifulSoup
 
 
@@ -35,10 +36,13 @@ def read_match_shot(match, on=True):
     except KeyError:
         pass
 
-    if on:
-        bs = BeautifulSoup(match.shoton, "html.parser")
-    else:
-        bs = BeautifulSoup(match.shotoff, "html.parser")
+    try:
+        if on:
+            bs = BeautifulSoup(match.shoton, "html.parser")
+        else:
+            bs = BeautifulSoup(match.shotoff, "html.parser")
+    except TypeError:
+        raise MLException(2)
 
     shot_list = []
     for value in bs.contents[0].children:

@@ -1,7 +1,10 @@
 import json
-
+import logging
 import src.util.SQLLite as SQLLite
 import src.util.util as util
+
+log = logging.getLogger(__name__)
+
 
 class BetEvent(object):
     def __init__(self, id):
@@ -9,6 +12,13 @@ class BetEvent(object):
 
     def __str__(self):
         return "BetEvent <"+str(self.match_event_id)+", "+self.event_name+", "+self.date+", "+self.bet_value+">"
+
+    def get_bet_odds_by_bet(self, bet):
+        try:
+            return json.loads(self.bet_value)[str(bet)]
+        except KeyError:
+            log.error("bet ["+str(bet)+"] not found ["+self.event_name+"]")
+            print("bet ["+str(bet)+"] not found ["+self.event_name+"]")
 
     def get_bet_odds(self):
         return json.loads(self.bet_value)
