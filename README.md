@@ -48,7 +48,7 @@ This project is targetting on how to predict European league football match resu
 
 --no-index :  for indexing the Italy league
 
---v         :  for the debug 
+--v        :  for the debug 
 
     python ./ScorePredictionRep/src/main.py
     > Initialization DB
@@ -232,14 +232,13 @@ This project is targetting on how to predict European league football match resu
 A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
 
 
-
 ## API Reference
 
 [Scikit-learn](http://scikit-learn.org/stable/modules/classes.html)
 
 ## Tests Plan 
 ###Test Set
-####Input :
+####Input
 **Team Form**: combination of points gathered by the teams 
 
 **Team Home Away Form**: combination of points gathered by the teams, considering matches played at home and away. 
@@ -260,18 +259,16 @@ The representations of the Team Forms are:
 #### ALgorithms: 
 [K-NearestNeighbourhood](https://en.wikipedia.org/wiki/K-nearest_neighbors_algorithm)
 
-SVM-MultiClassifier
+[SVM-MultiClassifier](https://en.wikipedia.org/wiki/Support_vector_machine)
 
 [RandomForest](https://en.wikipedia.org/wiki/Random_forest)
 
-Possion
+[Possion](https://en.wikipedia.org/wiki/Poisson_distribution)
 
 #### Test Window Size
-{9,11,25,.... }
+[ 9, 11, 19, 35, 71, 105, 141]
 
-### Test 
-
-
+### Test
 
 
 ## Contributors
@@ -287,13 +284,14 @@ Aris Anagnostopoulos
 
 Ioannis Chatzigiannakis
 
-# Reference of papers: 
+# Reference
+## Papers
 [A Comparison of Methods for Predicting Football Matches, David B. Ekefre ](http://liacs.leidenuniv.nl/assets/Masterscripties/ICTiB/2015-2016/Ekefre-non-confidential.pdf)
 
 [Predicting Soccer Match Results in the English Premier League, Ben Ulmer,Matthew Fernandez](http://cs229.stanford.edu/proj2014/Ben%20Ulmer,%20Matt%20Fernandez,%20Predicting%20Soccer%20Results%20in%20the%20English%20Premier%20League.pdf)
-# Refence of code structure:
+
 ## Code Structure 
-  
+
     ├── data
     │   ├── db
     │   │   └── database.sqlite
