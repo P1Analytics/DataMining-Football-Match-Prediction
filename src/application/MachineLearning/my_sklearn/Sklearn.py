@@ -109,7 +109,7 @@ def get_KNeighborsClassifier(train_data, train_label):
 
 
 def get_RandomForestClassifier(train_data, train_label):
-    parameter = {}
+    parameter = {'n_estimators':[5,10,15],'max_features':['auto','sqrt','log2'],'min_samples_split':[0.1,0.25,0.4,0.5]}
     clf = GridSearchCV(RandomForestClassifier(), parameter)
     clf.fit(train_data, train_label)
 
