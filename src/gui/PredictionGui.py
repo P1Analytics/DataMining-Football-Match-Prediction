@@ -165,8 +165,7 @@ def check_setting_current_predictor():
 def predict_by_date():
     if check_setting_current_predictor() == -1:
         return
-    #date = GuiUtil.input_date_or_day_passed()
-    date = "2017-03-17"
+    date = GuiUtil.input_date_or_day_passed()
     matches = Match.read_by_match_date(date)
     matches = sorted(matches, key=lambda match: match.date)
 
@@ -212,7 +211,7 @@ def get_printable_prediction(match, prediction, probability):
     if not util.is_None(bet_event):
         bookmaker_bet_odd = bet_event.get_bet_odds_by_bet(prediction)
         out_prediction += "\t"+str(bookmaker_bet_odd)+"\t("+str(round(100/bookmaker_bet_odd, 2))+"%)"
-        out_prediction += "\nBet odds > "+str(1/probability)
+        out_prediction += "\nBet > "+str(probability > 1/bookmaker_bet_odd)
     out_prediction += ""
 
     return out_prediction
@@ -247,5 +246,3 @@ def predict(league, season, stage):
         return predicted_labels, probability_events, matches_to_predict_id
     except:
         return [],[],[]
-
-predict_by_date()

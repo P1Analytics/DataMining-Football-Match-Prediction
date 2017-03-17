@@ -139,6 +139,19 @@ class League(object):
         Cache.add_element(self.id, seasons, "SEASONS_BY_LEAGUE")
         return seasons
 
+    def get_stages_by_season(self, season):
+
+        ar = 2      # home and away, in general every team plays one game at home, and one away
+        if self.id == 19694:
+            # scottish premier league --> 12 teams --> 33 matches
+            ar = 3
+        if self.id == 24558:
+            # Swiss Super League --> 10 teams --> 36 matches
+            ar = 4
+
+        n_teams = len(self.get_teams(season))
+        return (n_teams-1) * ar
+
     def get_matches(self, season=None, ordered=True, date=None, finished=None, stage=None):
         """
         return the matches belonging to this league
@@ -346,3 +359,8 @@ leauge_to_update = {1:"Belgian Jupiler Pro League",
 
 add_names(leauge_to_update)
 '''
+
+for l in read_all():
+    print(l)
+    print(l.get_stages_by_season(util.get_current_season()))
+    print()
