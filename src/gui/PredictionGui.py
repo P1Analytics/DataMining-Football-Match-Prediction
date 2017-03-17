@@ -10,7 +10,7 @@ import src.application.MachineLearning.prediction_accuracy.Predictor as Predicto
 
 log = logging.getLogger(__name__)
 
-ml_alg_framework = "Sklearn"
+ml_alg_framework = "my_poisson"
 ml_alg_method = "SVM"
 ml_train_input_id = 5
 ml_train_input_representation = 1
@@ -223,5 +223,3 @@ def get_printable_prediction(match, prediction, probability):
     out_prediction += ""
 
     return out_prediction
-
-predict_by_date()

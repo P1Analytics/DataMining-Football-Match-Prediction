@@ -96,6 +96,9 @@ def get_strength(avg_goal_done, avg_goal_rece, match, stages_to_train, home=True
     else:
         team = match.get_away_team()
 
+    #points, n = team.get_points_by_train_matches(match.season, match.stage, stages_to_train, home=home)
+    #alpha = 1 + points / (9 * n)
+    #print(team.team_long_name, alpha)
 
     team_goal_done, team_goal_rece, n = team.get_goals_by_train_matches(match.season, match.stage, stages_to_train, home=home)
 
