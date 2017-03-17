@@ -56,7 +56,6 @@ class Poisson(MachineLearningAlgorithm):
             predicted_labels.append(predicted_label)
             probability_events.append(prob)
 
-
         return predicted_labels, probability_events
 
 

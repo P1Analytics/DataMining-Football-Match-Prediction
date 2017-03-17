@@ -359,8 +359,3 @@ leauge_to_update = {1:"Belgian Jupiler Pro League",
 
 add_names(leauge_to_update)
 '''
-
-for l in read_all():
-    print(l)
-    print(l.get_stages_by_season(util.get_current_season()))
-    print()

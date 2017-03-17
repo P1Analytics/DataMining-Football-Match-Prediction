@@ -6,10 +6,11 @@ import src.application.Domain.Match as Match
 import src.application.Exception.MLException as MLException
 import src.application.MachineLearning.MachineLearningAlgorithm as mla
 import src.application.MachineLearning.MachineLearningInput as mli
+import src.application.MachineLearning.prediction_accuracy.Predictor as Predictor
 
 log = logging.getLogger(__name__)
 
-ml_alg_framework = "my_poisson"
+ml_alg_framework = "Sklearn"
 ml_alg_method = "SVM"
 ml_train_input_id = 5
 ml_train_input_representation = 1
@@ -163,6 +164,12 @@ def check_setting_current_predictor():
 
 
 def predict_by_date():
+    global ml_alg_method
+    global ml_alg_framework
+    global ml_train_input_id
+    global ml_train_input_representation
+    global ml_train_stages_to_train
+
     if check_setting_current_predictor() == -1:
         return
     date = GuiUtil.input_date_or_day_passed()
@@ -173,25 +180,26 @@ def predict_by_date():
         GuiUtil.print_att("No match found in date", date)
     else:
         GuiUtil.print_ans("Prediction by date", date)
-        prediction_by_league = dict()
         pi = 1
         for match in matches:
             if not match.is_finished():
                 league = match.get_league()
                 season = match.season
                 stage = match.stage
+
+                predictor = Predictor.get_predictor(ml_alg_framework,
+                       ml_alg_method,
+                       ml_train_input_id,
+                       ml_train_input_representation,
+                       ml_train_stages_to_train)
+                prediction_by_league = predictor.predict(league, season, stage)
+
                 try:
-                    prediction_by_league[league.id]
-                except KeyError:
-                    predicted_labels, probability_events, matches_to_predict_id = predict(league, season, stage)
-                    prediction_by_league[league.id] = dict()
-                    for id, prediction, probability in zip(matches_to_predict_id, predicted_labels, probability_events):
-                        prediction_by_league[league.id][id] = [prediction, probability]
-                try:
-                    prediction, probability = prediction_by_league[league.id][match.id]
+                    prediction, probability = prediction_by_league[match.id]
                     prediction_str = get_printable_prediction(match, prediction, probability)
                     GuiUtil.print_indent_answer(pi, prediction_str, True)
                     pi += 1
+
                 except KeyError:
                     log.warning("Not possible to predict [" + str(match.id) + ": "
                                 + match.get_home_team().team_long_name + "vs"
@@ -216,33 +224,4 @@ def get_printable_prediction(match, prediction, probability):
 
     return out_prediction
 
-
-def predict(league, season, stage):
-    global ml_alg_method
-    global ml_alg_framework
-    global ml_train_input_id
-    global ml_train_input_representation
-    global ml_train_stages_to_train
-
-    try:
-        matches, labels, matches_id, matches_to_predict, matches_to_predict_id, labels_to_predict = \
-            mli.get_input_to_train(ml_train_input_id,
-                                   league,
-                                   ml_train_input_representation,
-                                   stage,
-                                   ml_train_stages_to_train,
-                                   season)
-
-        ml_alg = mla.get_machine_learning_algorithm(ml_alg_framework,
-                                                    ml_alg_method,
-                                                    matches,
-                                                    labels,
-                                                    matches_id,
-                                                    train_percentage=1,
-                                                    )
-
-        ml_alg.train()
-        predicted_labels, probability_events = ml_alg.predict(matches_to_predict)
-        return predicted_labels, probability_events, matches_to_predict_id
-    except:
-        return [],[],[]
+predict_by_date()

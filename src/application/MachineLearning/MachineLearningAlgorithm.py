@@ -179,7 +179,7 @@ def get_methods_by_framework(framework):
 
 def get_inputs_by_framework(framework):
     if framework == "Sklearn":
-        return [1,2,3,4,5]
+        return [1,2,3,4]
 
     elif framework == "my_poisson":
         return [5]
