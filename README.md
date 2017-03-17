@@ -2,15 +2,23 @@
 
 ## Synopsis
 
-This project is targetting on how to predict European league football match results based on the history data of teams,matches,bet-odds by using machine learning algorithms
+This project is targeting on how to predict European league football match results based on the history data of teams,matches,bet-odds by using machine learning algorithms
+
+## Motivation
+
+**Impliments the theory learned from data mining lecture** 
+
+**Kidding me,that's it?**
+
+**Yes,WE WILL BE RICH!! It is ALL ABOUT MONEY and football(like I really care)**
 
 ## Code  
 ### src
 #### application 
 >Code for crawling the data , pre-process and algorithms
 
-    Crawl:
-        First the most important part for this project is :
+    Crawl:  
+        One of the most important part for this project is collecting data from different websites and formalize
         Code for crawling the website information,Collect data for teams, players,leageues,matches and bet-odds
             enetscores
                 crawling from http://football-data.mx-api.enetscores.com
@@ -33,22 +41,22 @@ This project is targetting on how to predict European league football match resu
             prediction_accuracy
     
 ### gui
->Code for User interactive interface
+>Code for User interactive interface, implements easy instruction for customized the input parameters 
 ### test
->Test code for without GUI part ,only focus on algorithm and input data 
+>Test code for without GUI part ,calling /src/application/MachineLearning/experiments to test different combinations of inputs and algorithms
 ### util
 >Code for all the common functions
 ### main.py 
 >Entry for the whole application.
 
-#### Usage demostration for main.py
-#####./ScorePredictionRep/src/main.py [--no-crawl] [--no-index] [-v]
+#### Demostration for main.py
+#####./ScorePredictionRep/src/main.py --no-crawl --no-index -v
 
 --no-crawl :  for not crawling the website and update the SQLLite
 
 --no-index :  for indexing the Italy league
 
---v        :  for the debug 
+-v        :  for the debug 
 
     python ./ScorePredictionRep/src/main.py
     > Initialization DB
@@ -227,9 +235,6 @@ This project is targetting on how to predict European league football match resu
     ****************************************************************************************************
 
 
-## Motivation
-
-A short description of the motivation behind the creation and maintenance of the project. This should explain **why** the project exists.
 
 
 ## API Reference
@@ -239,6 +244,7 @@ A short description of the motivation behind the creation and maintenance of the
 ## Tests Plan 
 ###Test Set
 ####Input
+
 **Team Form**: combination of points gathered by the teams 
 
 **Team Home Away Form**: combination of points gathered by the teams, considering matches played at home and away. 
@@ -272,11 +278,11 @@ The representations of the Team Forms are:
 
 
 ## Contributors
-[Simone Caldaro](caldaro.1324152@studenti.uniroma1.it)
+Simone Caldaro caldaro.1324152@studenti.uniroma1.it
 
-[Leonardo Martini](martini.1722989@studenti.uniroma1.it) 
+Leonardo Martini martini.1722989@studenti.uniroma1.it 
 
-[Na Zhu](zhu.1706409@studenti.uniroma1.it)
+Na Zhu zhu.1706409@studenti.uniroma1.it
 
 ## Instructors:  
 
@@ -290,6 +296,8 @@ Ioannis Chatzigiannakis
 
 [Predicting Soccer Match Results in the English Premier League, Ben Ulmer,Matthew Fernandez](http://cs229.stanford.edu/proj2014/Ben%20Ulmer,%20Matt%20Fernandez,%20Predicting%20Soccer%20Results%20in%20the%20English%20Premier%20League.pdf)
 
+[Predicting Match Outcomes in the English Premier League:Which Will Be the Final Rank?, Francisco Louzada, Adriano K. Suzuki1 and Luis E. B. Salasar](www.jds-online.com/file_download/447/2.JDS-1157-3.pdf)("About poisson")
+[Football Prediction Model: Poisson Distribution](https://www.sbo.net/strategy/football-prediction-model-poisson-distribution/)
 ## Code Structure 
 
     ├── data
