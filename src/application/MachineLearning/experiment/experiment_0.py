@@ -21,13 +21,13 @@ class stage_bet(object):
             if len(self.matches) == 0:
                 self.invest += 1
                 self.profit += profit
-                self.matches = [(prob, profit)]
+                self.matches = [(prob, bet_odd)]
 
-            elif prob * profit > self.matches[0][0] * self.matches[0][1]:
+            elif prob * bet_odd > self.matches[0][0] * self.matches[0][1]:
                 self.profit = self.profit - self.matches[0][1] + profit
-                self.matches = [(prob, profit)]
+                self.matches = [(prob, bet_odd)]
 
-        elif self.type_evaluation == 6:
+        if self.type_evaluation == 6:
             if bet_odd < 1.26:
                 if len(self.matches) == 0:
                     self.invest += 1
@@ -78,23 +78,24 @@ def run_experiment_0(exp, league, type_evaluation, **params):
                     continue
 
                 predicted_label = pair[0]
+                if predicted_label == 1:
+                    bet_odd = match.B365H
+                elif predicted_label == 0:
+                    bet_odd = match.B365D
+                else:
+                    bet_odd = match.B365A
                 prob = pair[1]
                 label = MLUtil.get_label(match)
                 m_accuracy, m_invest, m_profit = evaluate_bet(predictor, type_evaluation, label, match, predicted_label, prob)
-                if type_evaluation == 5 and m_invest == 1:
-                    current_stage_bet.add_bet(prob, m_profit)
 
-                if type_evaluation == 6:
-                    if predicted_label == 1:
-                        bet_odd = match.B365H
-                    elif predicted_label == 0:
-                        bet_odd = match.B365D
-                    else:
-                        bet_odd = match.B365A
+                if type_evaluation == 5:
+                    if m_invest == 1:
+                        current_stage_bet.add_bet(prob, m_profit, bet_odd)
+
+                elif type_evaluation == 6:
                     current_stage_bet.add_bet(prob, m_profit, bet_odd)
 
-                else:
-                    if m_invest == 1:
+                elif m_invest == 1:
                         current_stage_bet.add_bet(prob, m_profit)
 
             profit += current_stage_bet.get_profit()
@@ -191,6 +192,11 @@ def evaluate_bet(predictor, type_evaluation, label, match, predicted_label, prob
         if (predicted_label == 1 and (match.B365H > 1.8 or match.B365H < 1.6)) \
                 or (predicted_label == 0 and (match.B365D > 1.8 or match.B365D < 1.6)) \
                 or (predicted_label == 2 and (match.B365A > 1.8 or match.B365A < 1.6)):
+            return 0, 0, 0
+
+        if (predicted_label == 1 and prob < 1 / match.B365H) \
+                or (predicted_label == 0 and prob < 1 / match.B365D) \
+                or (predicted_label == 2 and prob < 1 / match.B365A):
             return 0, 0, 0
 
         profit = 0
