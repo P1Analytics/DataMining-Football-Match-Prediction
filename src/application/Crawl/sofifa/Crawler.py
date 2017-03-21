@@ -7,7 +7,7 @@ from src.application.Crawl.sofifa.CrawlerLeague import CrawlerLeague
 log = logging.getLogger(__name__)
 
 
-class Crawler(object):
+class rCrawler(object):
     def __init__(self, host_url_league="http://sofifa.com"):
         self.host_url_league = host_url_league
 

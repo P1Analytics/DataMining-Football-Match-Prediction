@@ -55,7 +55,9 @@ def run_experiment_0(exp, league, type_evaluation, **params):
 
     predictor = Predictor.get_predictor()
 
-    for season in league.get_seasons()[6:]:
+    for season in league.get_seasons():
+        if season != "2015/2016":
+            continue
 
         invest = 0
         profit = 0

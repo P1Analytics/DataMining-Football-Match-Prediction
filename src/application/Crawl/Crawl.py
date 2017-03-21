@@ -44,6 +44,8 @@ def start_threads():
         CrawlerPlayers.start_crawling()
     except KeyboardInterrupt:
         pass
+    except UnboundLocalError:
+        print("no connection")
 
 
 def run_init_crawl():
