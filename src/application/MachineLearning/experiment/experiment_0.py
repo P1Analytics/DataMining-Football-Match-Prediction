@@ -82,19 +82,19 @@ def evaluate_bet(predictor, type_evaluation, label, match, predicted_label, prob
 
         best_predicted_teams = predictor.get_best_team_predicted(match.get_league(), match.season, match.stage)
 
-        if (predicted_label == 1 and prob < 1/match.B365H) \
-            or (predicted_label == 0 and prob < 1 / match.B365D) \
-                or (predicted_label == 2 and prob < 1 / match.B365A):
-            return 0, 0, 0
+        if match.home_team_api_id in [t.team_api_id for t in best_predicted_teams]  \
+                or match.away_team_api_id in [t.team_api_id for t in best_predicted_teams]:
 
-        profit = 0
-        accuracy = 0
-        if label == predicted_label:
-            accuracy = 1
-            if label == 1:
-                profit = match.B365H
-            elif label == 0:
-                profit = match.B365D
-            else:
-                profit = match.B365A
-        return accuracy, 1, profit
+            profit = 0
+            accuracy = 0
+            if label == predicted_label:
+                accuracy = 1
+                if label == 1:
+                    profit = match.B365H
+                elif label == 0:
+                    profit = match.B365D
+                else:
+                    profit = match.B365A
+            return accuracy, 1, profit
+        else:
+            return 0, 0, 0
