@@ -51,9 +51,10 @@ def run_experiment_2(exp, league, ml_train_input_id, ml_train_input_representati
     params["ml_train_input_id"] = ml_train_input_id
     params["ml_train_input_representation"] = ml_train_input_representation
 
-    #ml_train_stages_to_train = [9,11,19,35,71,105,141,175,211,245,281]
+    # ml_train_stages_to_train = [9,11,19,35,71,105,141,175,211,245,281]
     # shrink windows
-    ml_train_stages_to_train = [9, 11, 19, 35, 71, 105, 141]
+    #ml_train_stages_to_train = [9, 11, 19, 35, 71, 105, 141]
+    ml_train_stages_to_train = [19, 35, 71, 105, 141]
 
     plot_entries = {w:entry(w) for w in ml_train_stages_to_train}
 
@@ -84,7 +85,7 @@ def run_experiment_2(exp, league, ml_train_input_id, ml_train_input_representati
                     # framework can be used in different manner (ex. SKlearn)
                     #   --> test every algorithm available (SVM, Knn,..)
 
-                    if m == "SVM" or m == "KNN" : #or m == "RandomForest":
+                    if m == "KNN" or m == "RandomForest":
                         # TODO remove the condition whic correspond to the test we want to perform
                         # SImone: SVM
                         # Nana: Forest
@@ -100,7 +101,6 @@ def run_experiment_2(exp, league, ml_train_input_id, ml_train_input_representati
 
                     print(plot_entries[n_matches])
 
-
             report = open(exp.experiment_dir+"/report_"+str(ml_train_input_id)+"_"
                           +str(ml_train_input_representation)+".txt", "w")
             report.write("Input id:\t"+str(ml_train_input_id)+"\n")
@@ -111,6 +111,3 @@ def run_experiment_2(exp, league, ml_train_input_id, ml_train_input_representati
                 report.write(plot_entries[w].__str__()+"\n")
 
             report.close()
-
-
-

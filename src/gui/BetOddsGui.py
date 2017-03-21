@@ -1,7 +1,7 @@
 import src.util.util as util
 import src.util.GuiUtil as GuiUtil
 import src.application.Domain.Match as Match
-import src.application.Domain.MatchEvent as MatchEvent
+import src.application.MachineLearning.prediction_accuracy.Predictor as Predictor
 
 def run():
     GuiUtil.print_head("Bet odds")
@@ -45,15 +45,18 @@ def print_bet_odds(date):
         GuiUtil.print_att("No match found", date)
 
 
-def get_bet_event_out(bet_event):
+def get_bet_event_out(bet_event, prediction=None):
     bet_event_str = "\n\n\t-" + bet_event.event_name+":"
     for bet_name, bet_odds in bet_event.get_bet_odds().items():
         bet_event_str += "\n\t| "+bet_name+":\t"+str(bet_odds)
+        if prediction and bet_name == str(prediction):
+            bet_event_str += "\t[*]"
 
     return bet_event_str
 
 
 def get_match_event_out(match):
+    predictor = Predictor.get_current_predictor()
     match_event_str = ""
 
     match_event_str += match.get_home_team().team_long_name + " vs " + match.get_away_team().team_long_name
@@ -67,6 +70,15 @@ def get_match_event_out(match):
     bet_events_dict = match_event.get_last_bet_values()
 
     for bet_event_name, bet_event in bet_events_dict.items():
-        match_event_str += get_bet_event_out(bet_event)
+        prediction = None
+        if bet_event_name == "Match Result":
+            try:
+                prediction = predictor.predictions[match.get_league().id][match.id][0]
+            except KeyError:
+                pass
+
+        match_event_str += get_bet_event_out(bet_event, prediction)
+
+
 
     return match_event_str

@@ -1,12 +1,11 @@
 import src.util.util as util
-import src.application.MachineLearning.experiment.experiment as experiment
-from src.application.MachineLearning.prediction_accuracy.prediction_accuracy import PredictionAccuracy
+import src.util.Cache as Cache
+import src.util.MLUtil as MLUtil
 import src.application.MachineLearning.MachineLearningAlgorithm as mla
 import src.application.MachineLearning.MachineLearningInput as mli
 import src.application.Domain.Match as Match
-import src.application.Domain.League as League
-import src.util.MLUtil as MLUtil
-import src.util.Cache as Cache
+import src.application.Domain.Team as Team
+import heapq
 
 
 class Predictor(object):
@@ -83,15 +82,62 @@ class Predictor(object):
 
             return this_predictions
         except Exception as e:
-            print(e)
             return {}
+
+    def get_best_team_predicted(self, league, season, stage, n_teams_returned=6):
+
+        best_teams = dict()
+        s = season
+        i = 1
+        if stage - 1 == 0:
+            y = int(s.split("/")[0]) - 1
+            s = str(y) + "/" + str(y + 1)
+            stage_predictions = league.get_stages_by_season(s)
+        else:
+            stage_predictions = stage - 1
+
+        while i <= self.ml_train_stages_to_train:
+            predictions = self.predict(league, s, stage_predictions)
+
+            for match_id, pair in predictions.items():
+                if len(pair) == 0:
+                    continue
+                match = Match.read_by_match_id(match_id)
+                pred_label = pair[0]
+                if pred_label == MLUtil.get_label(match):
+                    try:
+                        best_teams[match.home_team_api_id] += 1
+                    except KeyError:
+                        best_teams[match.home_team_api_id] = 1
+                    try:
+                        best_teams[match.away_team_api_id] += 1
+                    except KeyError:
+                        best_teams[match.away_team_api_id] = 1
+            i += 1
+            if stage_predictions - i == 0:
+                y = int(s.split("/")[0])-1
+                s = str(y)+"/"+str(y+1)
+                stage_predictions = league.get_stages_by_season(s)
+            else:
+                stage_predictions -= 1
+
+        h = []
+        for team_api_id, accuracy in best_teams.items():
+            heapq.heappush(h, (accuracy, team_api_id))
+
+        top_k = [Team.read_by_team_api_id(team_api_id) for a, team_api_id
+                 in heapq.nlargest(n_teams_returned, h, lambda x: x[0])[:n_teams_returned]]
+        return top_k
 
 
 def get_predictor(ml_alg_framework="my_poisson",
                   ml_alg_method="SVM",
                   ml_train_input_id=5,
                   ml_train_input_representation=1,
-                  ml_train_stages_to_train=20):
+                  ml_train_stages_to_train=19,
+                  update_current_predictor=True):
+    global current_predictor
+
     key = ""
     key += ml_alg_framework+"_"
     key += ml_alg_method+"_"
@@ -110,4 +156,25 @@ def get_predictor(ml_alg_framework="my_poisson",
                   ml_train_input_representation,
                   ml_train_stages_to_train)
 
+    if update_current_predictor:
+        current_predictor = predictor
+
     return predictor
+
+
+current_predictor = get_predictor()
+
+
+def get_current_predictor():
+    global current_predictor
+    return current_predictor
+
+
+def init_predictor():
+    print("> Init default predictor")
+    date = util.get_date()
+    matches = Match.read_by_match_date(date)
+    matches = sorted(matches, key=lambda match: match.date)
+    predictor = get_predictor()
+    for m in matches:
+        predictor.predict(m.get_league(), m.season, m.stage)

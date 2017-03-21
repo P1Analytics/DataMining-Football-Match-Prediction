@@ -31,7 +31,8 @@ class Experiment(object):
     def run(self, league, complete=True, **params):
         if self.type == 0:
             import src.application.MachineLearning.experiment.experiment_0 as exp_0
-            exp_0.run_experiment_0(self, league)
+            type_evaluation = util.get_default(params, "type_evaluation", 1)
+            exp_0.run_experiment_0(self, league, type_evaluation)
         elif self.type == 1:
             import src.application.MachineLearning.experiment.experiment_1 as exp_1
             if complete:

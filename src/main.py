@@ -8,7 +8,7 @@ import src.gui.MainGui as MainGui
 import src.util.util as util
 import src.util.SQLLite as SQLLite
 import src.application.Crawl.Crawl as Crawl
-
+import src.application.MachineLearning.prediction_accuracy.Predictor as Predictor
 
 if __name__ == "__main__":
 
@@ -30,6 +30,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     SQLLite.init_database()
+    Predictor.init_predictor()
 
     if args.debug:
         util.init_logger(10)
