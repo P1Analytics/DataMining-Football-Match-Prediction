@@ -8,9 +8,9 @@ This project is targeting on how to predict European league football match resul
 
 **Impliments the theory learned from data mining lecture** 
 
-**Kidding me,that's it?**
+**Kidding me?**
 
-**Yes,WE WILL BE RICH!! It is ALL ABOUT MONEY and football(like I really care)**
+**Nah...It is all about and football(or any game I like)**
 
 ## Code  
 ### src
@@ -241,8 +241,7 @@ This project is targeting on how to predict European league football match resul
 
 [Scikit-learn](http://scikit-learn.org/stable/modules/classes.html)
 
-## Tests Plan 
-###Test Set
+###Test for algorithm
 ####Input
 
 **Team Form**: combination of points gathered by the teams 
@@ -274,7 +273,12 @@ The representations of the Team Forms are:
 #### Test Window Size
 [ 9, 11, 19, 35, 71, 105, 141]
 
-### Test
+### Test for different betting methods on different league and diffent seasons 
+1) Flat Bet: for all predictions, bet 1€
+2) Smart Bet: for all prediction bet if and only if 𝑝>_1_𝑥_ (probability > 1/bet-odd)
+3) Most accurate teams bet: bet only on that teams that seems to be most accurate in predictions
+4) Combination of 2 and 3
+
 
 
 ## Contributors
