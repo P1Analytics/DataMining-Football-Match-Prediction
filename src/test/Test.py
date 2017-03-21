@@ -7,9 +7,9 @@ import src.util.util as util
 util.init_logger(20)
 
 def do_test_0():
-    league = League.read_by_name("Italy", like=True)[0]
+    league = League.read_by_name("italy", like=True)[0]
     exp = Experiment(0)
-    exp.run(league, complete=True, **{"type_evaluation":3})
+    exp.run(league, complete=True, **{"type_evaluation": 6})
 
 
 def doTest():

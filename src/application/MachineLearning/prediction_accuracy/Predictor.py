@@ -84,7 +84,7 @@ class Predictor(object):
         except Exception as e:
             return {}
 
-    def get_best_team_predicted(self, league, season, stage, n_teams_returned=6):
+    def get_best_team_predicted(self, league, season, stage, n_teams_returned=3):
 
         best_teams = dict()
         s = season
