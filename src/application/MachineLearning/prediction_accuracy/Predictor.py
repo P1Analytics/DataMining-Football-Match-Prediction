@@ -130,11 +130,11 @@ class Predictor(object):
         return top_k
 
 
-def get_predictor(ml_alg_framework="my_poisson",
+def get_predictor(ml_alg_framework="Sklearn",
                   ml_alg_method="SVM",
-                  ml_train_input_id=5,
-                  ml_train_input_representation=1,
-                  ml_train_stages_to_train=19,
+                  ml_train_input_id=1,
+                  ml_train_input_representation=3,
+                  ml_train_stages_to_train=35,
                   update_current_predictor=True):
     global current_predictor
 

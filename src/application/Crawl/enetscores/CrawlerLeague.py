@@ -30,9 +30,18 @@ class CrawlerLeague(object):
             return Cache.get_element(self.league_data_stage, "CRAWL_LEAGUE_MANAGED")
         except KeyError:
             pass
-        page = requests.get(self.link_league_to_check).text
-        self.soup = BeautifulSoup(page, "html.parser")
-        country_name = str(self.soup.find('span', {'class': 'mx-country-dropdown-name'}).string).strip()
+
+        n_try = 0
+        while n_try < 5:
+            try:
+                page = requests.get(self.link_league_to_check).text
+                self.soup = BeautifulSoup(page, "html.parser")
+                country_name = str(self.soup.find('span', {'class': 'mx-country-dropdown-name'}).string).strip()
+                break
+            except AttributeError:
+                n_try += 1
+        if n_try == 5:
+            return False
         countries = Country.read_by_name(country_name, like=True)
 
         if len(countries) == 0:

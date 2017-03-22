@@ -1,12 +1,10 @@
 import src.util.util as util
-import src.application.MachineLearning.MachineLearningAlgorithm as mla
-import src.application.MachineLearning.MachineLearningInput as mli
 import src.application.Domain.Match as Match
 import src.util.MLUtil as MLUtil
 import src.application.MachineLearning.prediction_accuracy.Predictor as Predictor
 
 
-class stage_bet(object):
+class StageBet(object):
     # list of marches we bet on
     def __init__(self, stage, type_evaluation):
         self.stage = stage
@@ -49,7 +47,14 @@ class stage_bet(object):
 
 
 def run_experiment_0(exp, league, type_evaluation, **params):
+    """
 
+    :param exp:
+    :param league:
+    :param type_evaluation:
+    :param params:
+    :return:
+    """
     predictor = Predictor.get_predictor()
 
     for season in league.get_seasons():
@@ -67,7 +72,7 @@ def run_experiment_0(exp, league, type_evaluation, **params):
 
             # KEY: match id     VALUE: <prediction, probability>
             stage_predictions = predictor.predict(league, season, stage, **params)
-            current_stage_bet = stage_bet(stage, type_evaluation)
+            current_stage_bet = StageBet(stage, type_evaluation)
 
             for match_id, pair in stage_predictions.items():
                 if len(pair) == 0:
@@ -76,16 +81,10 @@ def run_experiment_0(exp, league, type_evaluation, **params):
                 if util.is_None(match.B365H) or util.is_None(match.B365D) or util.is_None(match.B365A):
                     continue
 
-                predicted_label = pair[0]
-                if predicted_label == 1:
-                    bet_odd = match.B365H
-                elif predicted_label == 0:
-                    bet_odd = match.B365D
-                else:
-                    bet_odd = match.B365A
-                prob = pair[1]
-                label = MLUtil.get_label(match)
-                m_invest, m_profit = evaluate_bet(predictor, type_evaluation, label, match, predicted_label, prob)
+                predicted_label, prob = pair[0], pair[1]
+                bet_odd = get_bet_odd(predicted_label, match)
+
+                m_invest, m_profit = evaluate_bet(predictor, type_evaluation, match, predicted_label, prob)
 
                 if type_evaluation == 5:
                     if m_invest == 1:
@@ -99,13 +98,22 @@ def run_experiment_0(exp, league, type_evaluation, **params):
 
             profit += current_stage_bet.get_profit()
             invest += current_stage_bet.get_invest()
-            print(stage, "\t",str(round(profit-invest,2)).replace(".",","))
-        print("Final investment:\t",invest)
-        print("Final profit:\t", profit)
+            print(stage, "\t", str(round(profit - invest, 2)).replace(".", ","))
+        print("Final investment:\t", str(round(invest, 2)).replace(".", ","))
+        print("Final profit:\t", str(round(profit, 2)).replace(".", ","))
 
 
-def evaluate_bet(predictor, type_evaluation, label, match, predicted_label, prob):
+def evaluate_bet(predictor, type_evaluation, match, predicted_label, prob):
+    """
 
+    :param predictor:
+    :param type_evaluation:
+    :param match:
+    :param predicted_label:
+    :param prob:
+    :return:
+    """
+    label = MLUtil.get_label(match)
     if type_evaluation == 1:
         # flat bet
         profit = 0
@@ -125,7 +133,8 @@ def evaluate_bet(predictor, type_evaluation, label, match, predicted_label, prob
 
     elif type_evaluation == 3:
         # best teams
-        best_predicted_teams = predictor.get_best_team_predicted(match.get_league(), match.season, match.stage, n_teams_returned=6)
+        best_predicted_teams = predictor.get_best_team_predicted(
+            match.get_league(), match.season, match.stage, n_teams_returned=6)
 
         if match.home_team_api_id in [t.team_api_id for t in best_predicted_teams]  \
                 or match.away_team_api_id in [t.team_api_id for t in best_predicted_teams]:
@@ -139,7 +148,8 @@ def evaluate_bet(predictor, type_evaluation, label, match, predicted_label, prob
 
     elif type_evaluation == 4:
         # 3 combined with 2
-        best_predicted_teams = predictor.get_best_team_predicted(match.get_league(), match.season, match.stage, n_teams_returned=6)
+        best_predicted_teams = predictor.get_best_team_predicted(
+            match.get_league(), match.season, match.stage, n_teams_returned=6)
 
         if match.home_team_api_id in [t.team_api_id for t in best_predicted_teams]  \
                 or match.away_team_api_id in [t.team_api_id for t in best_predicted_teams]:

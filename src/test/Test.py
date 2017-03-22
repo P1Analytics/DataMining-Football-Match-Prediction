@@ -10,7 +10,7 @@ def do_test_0():
     league = League.read_by_name("ita", like=True)[0]
     print(league.name)
     exp = Experiment(0)
-    exp.run(league, complete=True, **{"type_evaluation": 4})
+    exp.run(league, complete=True, **{"type_evaluation": 2})
 
 
 def doTest():
