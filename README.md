@@ -271,6 +271,10 @@ The representations of the Team Forms are:
 [Possion](https://en.wikipedia.org/wiki/Poisson_distribution)
 
 #### Test Window Size
+
+Number of past stages to consider in training: depending on the league, every stage has different number of matches (e.g., Italy has 10 matches in a stage, while Germany just 9 matches).
+
+Windows tested:
 [ 9, 11, 19, 35, 71, 105, 141]
 
 ### Test for different betting methods on different league and diffent seasons 
@@ -298,10 +302,9 @@ Ioannis Chatzigiannakis
 ## Papers
 [A Comparison of Methods for Predicting Football Matches, David B. Ekefre ](http://liacs.leidenuniv.nl/assets/Masterscripties/ICTiB/2015-2016/Ekefre-non-confidential.pdf)
 
-[Predicting Soccer Match Results in the English Premier League, Ben Ulmer,Matthew Fernandez](http://cs229.stanford.edu/proj2014/Ben%20Ulmer,%20Matt%20Fernandez,%20Predicting%20Soccer%20Results%20in%20the%20English%20Premier%20League.pdf)
+[Predicting Soccer Match Results in the English Premier League, Ben Ulmer, Matthew Fernandez](http://cs229.stanford.edu/proj2014/Ben%20Ulmer,%20Matt%20Fernandez,%20Predicting%20Soccer%20Results%20in%20the%20English%20Premier%20League.pdf)
 
-[Predicting Match Outcomes in the English Premier League:Which Will Be the Final Rank?, Francisco Louzada, Adriano K. Suzuki1 and Luis E. B. Salasar](www.jds-online.com/file_download/447/2.JDS-1157-3.pdf)("About poisson")
-[Football Prediction Model: Poisson Distribution](https://www.sbo.net/strategy/football-prediction-model-poisson-distribution/)
+[Modelling Association Footbal Scores and Inefficiencies in the Football Betting Market, Dixon and Coles]("http://www.math.ku.dk/~rolf/teaching/thesis/DixonColes.pdf")
 ## Code Structure 
 
     ├── data

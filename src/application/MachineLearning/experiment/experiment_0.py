@@ -56,9 +56,9 @@ def run_experiment_0(exp, league, type_evaluation, **params):
     :return:
     """
     predictor = Predictor.get_predictor()
-
+    filter_season = util.get_default(params, "season", None)
     for season in league.get_seasons():
-        if season != "2015/2016":
+        if not util.is_None(filter_season) and season != filter_season:
             continue
 
         invest = 0
@@ -98,6 +98,7 @@ def run_experiment_0(exp, league, type_evaluation, **params):
 
             profit += current_stage_bet.get_profit()
             invest += current_stage_bet.get_invest()
+
             print(stage, "\t", str(round(profit - invest, 2)).replace(".", ","))
         print("Final investment:\t", str(round(invest, 2)).replace(".", ","))
         print("Final profit:\t", str(round(profit, 2)).replace(".", ","))

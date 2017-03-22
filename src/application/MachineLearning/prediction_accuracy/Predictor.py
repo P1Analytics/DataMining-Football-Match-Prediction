@@ -105,14 +105,8 @@ class Predictor(object):
                 match = Match.read_by_match_id(match_id)
                 pred_label = pair[0]
                 if pred_label == MLUtil.get_label(match):
-                    try:
-                        best_teams[match.home_team_api_id] += 1
-                    except KeyError:
-                        best_teams[match.home_team_api_id] = 1
-                    try:
-                        best_teams[match.away_team_api_id] += 1
-                    except KeyError:
-                        best_teams[match.away_team_api_id] = 1
+                    util.increase_dict_entry(match.home_team_api_id, best_teams)
+                    util.increase_dict_entry(match.away_team_api_id, best_teams)
             i += 1
             if stage_predictions - i == 0:
                 y = int(s.split("/")[0])-1
@@ -130,11 +124,11 @@ class Predictor(object):
         return top_k
 
 
-def get_predictor(ml_alg_framework="Sklearn",
+def get_predictor(ml_alg_framework="my_poisson",
                   ml_alg_method="SVM",
-                  ml_train_input_id=1,
-                  ml_train_input_representation=3,
-                  ml_train_stages_to_train=35,
+                  ml_train_input_id=5,
+                  ml_train_input_representation=1,
+                  ml_train_stages_to_train=19,
                   update_current_predictor=True):
     global current_predictor
 

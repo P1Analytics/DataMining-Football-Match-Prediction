@@ -7,10 +7,11 @@ import src.util.util as util
 util.init_logger(20)
 
 def do_test_0():
-    league = League.read_by_name("ita", like=True)[0]
-    print(league.name)
-    exp = Experiment(0)
-    exp.run(league, complete=True, **{"type_evaluation": 2})
+    #league = League.read_by_name("spain", like=True)[0]
+    for league in League.read_all():
+        print(league.name)
+        exp = Experiment(0)
+        exp.run(league, complete=True, **{"type_evaluation": 1})
 
 
 def doTest():
