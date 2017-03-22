@@ -62,6 +62,7 @@ def get_input_to_train(id, domain, representation, stage, stages_to_train, seaso
                                        stage,
                                        season,
                                        stages_to_train=stages_to_train)
+
     else:
         print("The only possible choices are:")
         print("\t1: team_form")

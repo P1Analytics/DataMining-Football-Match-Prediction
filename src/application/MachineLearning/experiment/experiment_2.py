@@ -53,8 +53,7 @@ def run_experiment_2(exp, league, ml_train_input_id, ml_train_input_representati
 
     # ml_train_stages_to_train = [9,11,19,35,71,105,141,175,211,245,281]
     # shrink windows
-    #ml_train_stages_to_train = [9, 11, 19, 35, 71, 105, 141]
-    ml_train_stages_to_train = [19, 35, 71, 105, 141]
+    ml_train_stages_to_train = [9, 11, 19, 35, 71, 105, 141]
 
     plot_entries = {w:entry(w) for w in ml_train_stages_to_train}
 
@@ -84,13 +83,6 @@ def run_experiment_2(exp, league, ml_train_input_id, ml_train_input_representati
                 for m in mla.get_methods_by_framework(f):
                     # framework can be used in different manner (ex. SKlearn)
                     #   --> test every algorithm available (SVM, Knn,..)
-
-                    if m == "KNN" or m == "RandomForest":
-                        # TODO remove the condition whic correspond to the test we want to perform
-                        # SImone: SVM
-                        # Nana: Forest
-                        # Leo: Knn
-                        continue
 
                     params["ml_alg_method"]=m
                     params["ml_alg_framework"]=f

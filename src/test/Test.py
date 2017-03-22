@@ -16,19 +16,9 @@ def do_test_0():
 
 def doTest():
     league = League.read_by_name("Italy", like=True)[0]
+    exp = Experiment(0)
+    exp.run(league, complete=True, **{"type_evaluation": 4, "ml_train_input_id": 5})
 
-    for i,desc in mli.get_input_ids().items():
-        if i!=4:
-            continue
-        if len(mli.get_representations(i)) == 0:
-            params = {"ml_train_input_id": i}
-            exp = Experiment(2)
-            exp.run(league, complete=True, **params)
-
-        for r in mli.get_representations(i):
-            params = {"ml_train_input_id": i, "ml_train_input_representation": r}
-            exp = Experiment(2)
-            exp.run(league, complete=True, **params)
 
 
 #doTest()
