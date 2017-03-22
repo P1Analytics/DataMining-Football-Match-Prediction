@@ -6,11 +6,8 @@ This project is targeting on how to predict European league football match resul
 
 ## Motivation
 
-**Impliments the theory learned from data mining lecture** 
+**We've been really involved in this project, starting from understanding the basis of "stream" application, to those techniques to mining data.**
 
-**Kidding me?**
-
-**Nah...It is all about and football(or any game I like)**
 
 ## Code  
 ### src
