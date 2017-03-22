@@ -301,7 +301,7 @@ Ioannis Chatzigiannakis
 
 [Predicting Soccer Match Results in the English Premier League, Ben Ulmer, Matthew Fernandez](http://cs229.stanford.edu/proj2014/Ben%20Ulmer,%20Matt%20Fernandez,%20Predicting%20Soccer%20Results%20in%20the%20English%20Premier%20League.pdf)
 
-[Modelling Association Footbal Scores and Inefficiencies in the Football Betting Market, Dixon and Coles]("http://www.math.ku.dk/~rolf/teaching/thesis/DixonColes.pdf")
+[Modelling Association Footbal Scores and Inefficiencies in the Football Betting Market, Dixon and Coles](http://www.math.ku.dk/~rolf/teaching/thesis/DixonColes.pdf)
 
 ## Code Structure 
 
