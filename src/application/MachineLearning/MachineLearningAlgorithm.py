@@ -64,10 +64,7 @@ def split_data(split_percentage=0.75, shuffle=True, *datas):
 
 
 from src.application.MachineLearning.my_sklearn.Sklearn import SklearnAlgorithm
-from src.application.MachineLearning.my_tensor_flow.SVM import SVM
-from src.application.MachineLearning.my_tensor_flow.KNNAlgorithm import KNNAlgorithm
 from src.application.MachineLearning.my_poisson.poisson import Poisson
-from src.application.MachineLearning.my_tensor_flow.MultiLayerPerceptron import MultiLayerPerceptron
 
 
 def get_machine_learning_algorithm(framework,
@@ -107,36 +104,6 @@ def get_machine_learning_algorithm(framework,
 
         return SklearnAlgorithm(method,
                                 train_data,
-                                train_label,
-                                test_data,
-                                test_label,
-                                train_description,
-                                test_description,
-                                **params)
-
-    elif framework == "TensorFlow":
-
-        if method == "SVM":
-            return SVM(train_data,
-                       train_label,
-                       test_data,
-                       test_label,
-                       train_description,
-                       test_description,
-                       **params)
-
-        elif method == "KNN":
-
-            return KNNAlgorithm(train_data,
-                                train_label,
-                                test_data,
-                                test_label,
-                                train_description,
-                                test_description,
-                                **params)
-
-        elif method == "MultiLayer":
-            return MultiLayerPerceptron(train_data,
                                 train_label,
                                 test_data,
                                 test_label,

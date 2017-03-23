@@ -249,13 +249,15 @@ def get_connection():
 
 
 def init_database():
-   print("> Initialization DB")
-   get_connection().create_table("Match_Event", "CREATE TABLE Match_Event(id INTEGER PRIMARY KEY AUTOINCREMENT, match_id INTEGER)")
-   get_connection().create_table("Bet_Event",
-                                 "CREATE TABLE Bet_Event(id INTEGER PRIMARY KEY AUTOINCREMENT, match_event_id INTEGER, event_name STRING, bet_value STRING, date STRING)")
+    print("> Initialization DB")
+    try:
+        get_connection().create_table("Match_Event", "CREATE TABLE Match_Event(id INTEGER PRIMARY KEY AUTOINCREMENT, match_id INTEGER)")
+        get_connection().create_table("Bet_Event",
+                                     "CREATE TABLE Bet_Event(id INTEGER PRIMARY KEY AUTOINCREMENT, match_event_id INTEGER, event_name STRING, bet_value STRING, date STRING)")
+        return True
+    except sqlite3.OperationalError:
+        return False
 
 
 def read_all(table_name, column_filter='*'):
     return get_connection().select(table_name, column_filter=column_filter)
-
-# get_connection().list_constraints()

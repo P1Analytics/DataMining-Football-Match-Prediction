@@ -9,6 +9,21 @@ This project is targeting on how to predict European league football match resul
 **We've been really involved in this project, starting from understanding the basis of "stream" application, to those techniques to mining data.**
 
 
+## Installation
+
+1) Downlaod the data.zip file from (aaa)
+2) The zip file contains a main directory called "data"
+3) Export it in the directory ./ScorePredictionRep/
+4) Final folder structure:
+
+
+    ScorePredictionRep
+    ├── data
+    │   └── db
+    │       └── database.sqlite
+    └── src
+    
+
 ## Code  
 ### src
 #### application 

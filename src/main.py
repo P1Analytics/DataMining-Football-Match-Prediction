@@ -29,7 +29,10 @@ if __name__ == "__main__":
     parser.set_defaults(debug=False)
     args = parser.parse_args()
 
-    SQLLite.init_database()
+    if not SQLLite.init_database():
+        print("IMPORT DATABASE!!!")
+        exit(-1)
+
     Predictor.init_predictor()
 
     if args.debug:
