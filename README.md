@@ -378,6 +378,7 @@ Ioannis Chatzigiannakis
         │   │   │   ├── experiment_1.py
         │   │   │   ├── experiment_2.py
         │   │   │   ├── experiment_3.py
+        │   │   │   ├── experiment_4.py 
         │   │   │   └── experiment_plot.py
         │   │   ├── input_train
         │   │   │   ├── __init__.py
@@ -393,13 +394,6 @@ Ioannis Chatzigiannakis
         │   │   │   └── poisson.py
         │   │   ├── my_sklearn
         │   │   │   ├── Sklearn.py
-        │   │   │   ├── __init__.py
-        │   │   │   └── __pycache__
-        │   │   ├── my_tensor_flow
-        │   │   │   ├── KNNAlgorithm.py
-        │   │   │   ├── MultiLayerPerceptron.py
-        │   │   │   ├── MulticlassSVM.py
-        │   │   │   ├── SVM.py
         │   │   │   ├── __init__.py
         │   │   │   └── __pycache__
         │   │   └── prediction_accuracy
@@ -422,11 +416,9 @@ Ioannis Chatzigiannakis
         │   └── __pycache__
         ├── main.py
         ├── test
-        │   ├── TensorFlow.py
         │   ├── Test.py
         │   └── __init__.py
         └── util
-            ├── CSV_Reader.py
             ├── Cache.py
             ├── GuiUtil.py
             ├── MLUtil.py
