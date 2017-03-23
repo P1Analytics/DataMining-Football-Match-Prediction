@@ -16,7 +16,8 @@ experiments = {
     0: "Simulate bet",
     1: "Find best window size by match representation and ml algorithm",
     2: "Compare mla testing different window sizes",
-    3: "Find best ML alg, by window size and match representation"
+    3: "Find best ML alg, by window size and match representation",
+    4: "Given a predictor, build our personal bet-odds and compare them with the real ones"
 }
 
 
@@ -63,20 +64,9 @@ class Experiment(object):
                 ml_train_stages_to_train = util.get_default(params, "ml_train_stages_to_train", 10)
                 exp_3.run_experiment_3(self, league, ml_train_input_id, ml_train_input_representation, ml_train_stages_to_train)
 
-        else:
-            # test
-            for season in league.get_seasons():
-                if season != '2016/2017':
-                    continue
-                print("Elaborating season..", season)
-                params["season"] = season
-                pa = PredictionAccuracy(league, only_team_history=False, **params)
-                pa.compute_prediction_accuracy()
-
-                print("Average accuracy", pa.get_average_accuracy())
-                print("Match predicted", pa.get_match_predicted())
-                pa.print_statistcis()
-                print("****")
+        elif self.type == 4:
+            import src.application.MachineLearning.experiment.experiment_4 as exp_4
+            exp_4.run_experiment_4(self, league)
 
     def create_plot(self, x, y, file_name, is_accuracy=True, **params):
         p = PlotExperiment(self.type, y, x, **params)

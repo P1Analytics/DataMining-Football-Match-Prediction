@@ -77,8 +77,6 @@ def get_match_event_out(match):
             except KeyError:
                 pass
 
-        match_event_str += get_bet_event_out(bet_event, prediction)
-
-
+            match_event_str += get_bet_event_out(bet_event, prediction)
 
     return match_event_str
