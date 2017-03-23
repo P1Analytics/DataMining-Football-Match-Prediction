@@ -47,7 +47,7 @@ This project is targeting on how to predict European league football match resul
 >Entry for the whole application.
 
 #### Demostration for main.py
-#####./ScorePredictionRep/src/main.py --no-crawl --no-index -v
+./ScorePredictionRep/src/main.py --no-crawl --no-index -v
 
 --no-crawl :  for not crawling the website and update the SQLLite
 
@@ -238,6 +238,7 @@ This project is targeting on how to predict European league football match resul
 
 [Scikit-learn](http://scikit-learn.org/stable/modules/classes.html)
 
+
 ###Test for algorithm
 
 ####Input
@@ -255,7 +256,7 @@ This project is targeting on how to predict European league football match resul
 #### Data representation :
 The representations of the Team Forms are:
 1. **Representation 1 (r1)**: This represents the numeric values of the team forms, normalized to interval [0,3].
-2. **Representation 2 (r2)**: This represents the discretized value of the team forms. We had reason to believe that the classifiers do not distinguish between values well enough while using r1, so we discretized r1 
+2. **Representation 2 (r2)**: This represents the discretized value of the team forms.  
 3. **Representation 3 (r3)**: This represents the subtracted value between the home team form and away team form. This subtracted value is normalized to the interval [-3,3]; a negative value means away team superiority and a positive value means home team superiority while zero means an equal advantage.
 4. **Representation 4 (r4)**: This represents the discretized values of r3. This representation will be discretized by equal frequency into three bins.
 
@@ -277,7 +278,7 @@ Windows tested:
 
 ### Test for different betting methods on different league and diffent seasons 
 1) Flat Bet: for all predictions, bet 1€
-2) Smart Bet: for all prediction bet if and only if 𝑝>_1_𝑥_ (probability > 1/bet-odd)
+2) Smart Bet: for all prediction bet if and only if 𝑝>1/𝑥 (probability > 1/bet-odd)
 3) Most accurate teams bet: bet only on that teams that seems to be most accurate in predictions
 4) Combination of 2 and 3
 
