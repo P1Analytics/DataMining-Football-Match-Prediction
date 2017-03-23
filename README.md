@@ -11,7 +11,7 @@ This project is targeting on how to predict European league football match resul
 
 ## Installation
 
-1) Downlaod the data.zip file from (aaa)
+1) Downlaod the data.zip file from (https://drive.google.com/open?id=0BwlNuYlbCa_6V1k5NGVEUUwzZWs)
 2) The zip file contains a main directory called "data"
 3) Export it in the directory ./ScorePredictionRep/
 4) Final folder structure:
