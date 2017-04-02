@@ -14,7 +14,7 @@ ml_alg_framework = "my_poisson"
 ml_alg_method = "SVM"
 ml_train_input_id = 5
 ml_train_input_representation = 1
-ml_train_stages_to_train = 20
+ml_train_stages_to_train = 19
 
 
 def run():
@@ -215,6 +215,9 @@ def get_printable_prediction(match, prediction, probability):
     out_prediction += "\n"+str(prediction)+"\t("+str(round(probability*100, 2))+"%):"
 
     match_event = match.get_match_event()
+    if util.is_None(match_event):
+        return out_prediction
+
     bet_event = match_event.get_last_bet_values(event_name="Match Result")["Match Result"]
     if not util.is_None(bet_event):
         bookmaker_bet_odd = bet_event.get_bet_odds_by_bet(prediction)
