@@ -221,8 +221,9 @@ def get_printable_prediction(match, prediction, probability):
     bet_event = match_event.get_last_bet_values(event_name="Match Result")["Match Result"]
     if not util.is_None(bet_event):
         bookmaker_bet_odd = bet_event.get_bet_odds_by_bet(prediction)
-        out_prediction += "\t"+str(bookmaker_bet_odd)+"\t("+str(round(100/bookmaker_bet_odd, 2))+"%)"
-        out_prediction += "\nBet > "+str(probability > 1/bookmaker_bet_odd)
+        if not util.is_None(bookmaker_bet_odd):
+            out_prediction += "\t"+str(bookmaker_bet_odd)+"\t("+str(round(100/bookmaker_bet_odd, 2))+"%)"
+            out_prediction += "\nBet > "+str(probability > 1/bookmaker_bet_odd)
     out_prediction += ""
 
     return out_prediction
