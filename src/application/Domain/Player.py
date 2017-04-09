@@ -100,6 +100,8 @@ class Player(object):
         cnt = 0
         matches = self.get_matches(season=season, ordered=True)
         for m in matches:
+            if util.is_None(m.goal):
+                continue
             if not util.is_None(stage) and m.stage >= stage:
                 return cnt
             soup = BeautifulSoup(m.goal, "html.parser")
@@ -136,6 +138,8 @@ class Player(object):
         """
         cnt = 0
         for m in self.get_matches(season=season, ordered=True):
+            if util.is_None(m.goal):
+                continue
             if not util.is_None(stage) and m.stage >= stage:
                 return cnt
             soup = BeautifulSoup(m.goal, "html.parser")
